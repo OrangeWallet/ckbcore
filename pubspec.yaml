@@ -1,0 +1,14 @@
+name: hd_account_discovery
+version: 0.0.1
+author: "BaojunCZ<baojun.cz@gmail.com>"
+homepage: https://github.com/OrangeWallet/hd_account_discovery.git
+description: Account discovery with HD wallet
+publish_to: https://pub.dartlang.org/
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+
+dev_dependencies:
+  test: ^1.5.1+1
