@@ -1,8 +1,8 @@
-name: bip44
+name: orange_wallet_core
 version: 0.0.1
 author: "BaojunCZ<baojun.cz@gmail.com>"
-homepage: https://github.com/OrangeWallet/hd_account_discovery.git
-description: Account discovery with HD wallet
+homepage: https://github.com/OrangeWallet/bip44.git
+description: It is core of Orange Wallet(https://github.com/OrangeWallet/orange-wallet)
 publish_to: https://pub.dartlang.org/
 
 environment:
