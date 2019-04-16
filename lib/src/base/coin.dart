@@ -13,7 +13,7 @@ class Coin {
     _node = bip32.BIP32.fromSeed(seed);
   }
 
-  Uint8List getReceivingPrivateKey(int index) {
+  Uint8List getReceivePrivateKey(int index) {
     return _node.derivePath("m/$_purpose'/$_coinType'/$_account'/$_external/$index").privateKey;
   }
 
