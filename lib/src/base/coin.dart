@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+
 import 'package:bip32/bip32.dart' as bip32;
 
 class Coin {
@@ -11,6 +12,17 @@ class Coin {
 
   Coin(Uint8List seed) {
     _node = bip32.BIP32.fromSeed(seed);
+  }
+
+  String getPath(bool isReceive, int index) {
+    if (isReceive) {
+      return "m/$_purpose'/$_coinType'/$_account'/$_external/$index";
+    }
+    return "m/$_purpose'/$_coinType'/$_account'/$_internal/$index";
+  }
+
+  Uint8List getPathPrivateKey(String path) {
+    return _node.derivePath(path).privateKey;
   }
 
   Uint8List getReceivePrivateKey(int index) {

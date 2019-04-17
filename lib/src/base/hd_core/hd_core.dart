@@ -18,7 +18,9 @@ class HDCore {
 
   int get unusedChangeIndex => _unusedChangeIndex;
 
-  Future<BigInt> checkUnspentCell(int index, Uint8List privateKey) {}
+  String getPath(bool isReceive, int index) {
+    return _coin.getPath(isReceive, index);
+  }
 
   Uint8List getReceivePrivateKey(int index) {
     return _coin.getReceivePrivateKey(index);
@@ -28,11 +30,11 @@ class HDCore {
     return _coin.getChangePrivateKey(index);
   }
 
-  Uint8List getUnusedReceive() {
+  Uint8List getUnusedReceivePrivateKey() {
     return _coin.getReceivePrivateKey(_unusedReceiveIndex);
   }
 
-  Uint8List getUnusedChange() {
+  Uint8List getUnusedChangePrivateKey() {
     return _coin.getChangePrivateKey(_unusedChangeIndex);
   }
 
@@ -43,15 +45,6 @@ class HDCore {
     }
     _unusedReceiveIndex = await _searchUnusedPrivateKey(0);
     _unusedChangeIndex = await _searchUnusedPrivateKey(1);
-  }
-
-  Future fetchBalance() async {
-    for (int i = 0; i < _unusedReceiveIndex; i++) {
-      await checkUnspentCell(i, getReceivePrivateKey(i));
-    }
-    for (int x = 0; x < _unusedChangeIndex; x++) {
-      await checkUnspentCell(x, getChangePrivateKey(x));
-    }
   }
 
   //type: 0 receive 1 change

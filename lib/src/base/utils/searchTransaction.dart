@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
-Future<List<dynamic>> searchTransaction(Uint8List privateKey) async {
-  return List<dynamic>(0);
+import 'package:ckb_sdk/ckb-types/item/transaction.dart';
+
+Future<List<Transaction>> searchTransaction(Uint8List privateKey) async {
+  return List<Transaction>(0);
 }
