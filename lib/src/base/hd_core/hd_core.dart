@@ -1,19 +1,24 @@
 import 'dart:typed_data';
+
 import 'package:orange_wallet_core/src/base/coin.dart';
+import 'package:orange_wallet_core/src/base/utils/searchTransaction.dart';
 
-abstract class HDCore {
+class HDCore {
   Coin _coin;
-  int firstUnusedReceiveIndex;
-  int firstUnusedChangeIndex;
+  int _unusedReceiveIndex;
+  int _unusedChangeIndex;
 
-  HDCore(Uint8List seed, this.firstUnusedReceiveIndex,
-      this.firstUnusedChangeIndex) {
+  HDCore(Uint8List seed, int unusedReceiveIndex, int unusedChangeIndex) {
     _coin = Coin(seed);
+    _unusedReceiveIndex = unusedReceiveIndex;
+    _unusedChangeIndex = unusedChangeIndex;
   }
 
-  Future<int> checkTransaction(Uint8List privateKey);
+  int get unusedReceiveIndex => _unusedReceiveIndex;
 
-  Future<BigInt> checkUnspentCell(int index, Uint8List privateKey);
+  int get unusedChangeIndex => _unusedChangeIndex;
+
+  Future<BigInt> checkUnspentCell(int index, Uint8List privateKey) {}
 
   Uint8List getReceivePrivateKey(int index) {
     return _coin.getReceivePrivateKey(index);
@@ -23,58 +28,54 @@ abstract class HDCore {
     return _coin.getChangePrivateKey(index);
   }
 
-  Uint8List getNextUnusedReceive() {
-    return _coin.getReceivePrivateKey(firstUnusedReceiveIndex++);
+  Uint8List getUnusedReceive() {
+    return _coin.getReceivePrivateKey(_unusedReceiveIndex);
   }
 
-  Uint8List getNextUnusedChange() {
-    return _coin.getChangePrivateKey(firstUnusedChangeIndex++);
+  Uint8List getUnusedChange() {
+    return _coin.getChangePrivateKey(_unusedChangeIndex);
   }
 
-  Future fetchAllTransactions() async {
-    if (await checkTransaction(getReceivePrivateKey(0)) == 0 &&
-        await checkTransaction(getChangePrivateKey(0)) == 0) {
+  Future searchUnusedIndex() async {
+    if ((await searchTransaction(getReceivePrivateKey(0))).length == 0 &&
+        (await searchTransaction(getChangePrivateKey(0))).length == 0) {
       return;
     }
-    await _searchUnusedPrivateKey(0);
-    await _searchUnusedPrivateKey(1);
+    _unusedReceiveIndex = await _searchUnusedPrivateKey(0);
+    _unusedChangeIndex = await _searchUnusedPrivateKey(1);
   }
 
   Future fetchBalance() async {
-    for (int i = 0; i < firstUnusedReceiveIndex; i++) {
+    for (int i = 0; i < _unusedReceiveIndex; i++) {
       await checkUnspentCell(i, getReceivePrivateKey(i));
     }
-    for (int x = 0; x < firstUnusedChangeIndex; x++) {
+    for (int x = 0; x < _unusedChangeIndex; x++) {
       await checkUnspentCell(x, getChangePrivateKey(x));
     }
   }
 
   //type: 0 receive 1 change
-  Future _searchUnusedPrivateKey(int type) async {
-    int deps = 0;
-    while (deps < 20) {
+  Future<int> _searchUnusedPrivateKey(int type) async {
+    int emptyIndex = 0;
+    int index = 0;
+    while (emptyIndex < 20) {
       Uint8List privateKey;
+      index++;
       switch (type) {
         case 0:
-          firstUnusedReceiveIndex++;
-          privateKey = this._coin.getReceivePrivateKey(firstUnusedReceiveIndex);
+          privateKey = this._coin.getReceivePrivateKey(index);
           break;
         case 1:
-          firstUnusedChangeIndex++;
-          privateKey = this._coin.getChangePrivateKey(firstUnusedReceiveIndex);
+          privateKey = this._coin.getChangePrivateKey(index);
           break;
       }
-      if (await checkTransaction(privateKey) == 0) {
-        deps++;
+      if ((await searchTransaction(privateKey)).length == 0) {
+        emptyIndex++;
+      } else {
+        emptyIndex = 0;
       }
     }
-    switch (type) {
-      case 0:
-        firstUnusedReceiveIndex = firstUnusedReceiveIndex - 19;
-        break;
-      case 1:
-        firstUnusedChangeIndex = firstUnusedChangeIndex - 19;
-        break;
-    }
+    index = index - 19;
+    return index;
   }
 }
