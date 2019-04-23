@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
-import 'package:orange_wallet_core/src/base/bean/hd_index_wallet.dart';
-import 'package:orange_wallet_core/src/base/bean/utxo_bean.dart';
-import 'package:orange_wallet_core/src/base/core/hd_core.dart';
-import 'package:orange_wallet_core/src/base/utils/searchUtxoUtils.dart' as SearchUtxoUtils;
+import 'package:ckbcore/src/base/bean/hd_index_wallet.dart';
+import 'package:ckbcore/src/base/bean/utxo_bean.dart';
+import 'package:ckbcore/src/base/core/hd_core.dart';
+import 'package:ckbcore/src/base/utils/searchUtxoUtils.dart' as SearchUtxoUtils;
 
 class WalletCore {
   final Uint8List seed;
@@ -15,7 +15,8 @@ class WalletCore {
 
   static Future<WalletCore> fromImport(Uint8List seed) async {
     HDCore hdCore = HDCore(seed, 0, 0);
-    return WalletCore._(seed, hdCore.unusedReceiveWallet.index, hdCore.unusedChangeWallet.index);
+    return WalletCore._(seed, hdCore.unusedReceiveWallet.index,
+        hdCore.unusedChangeWallet.index);
   }
 
   static fromCreate(Uint8List seed) {

@@ -1,5 +1,5 @@
 import 'package:ckb_sdk/ckb-utils/number.dart' as number;
-import 'package:orange_wallet_core/src/base/core/credential.dart';
+import 'package:ckbcore/src/base/core/credential.dart';
 import 'package:test/test.dart';
 
 void main() {

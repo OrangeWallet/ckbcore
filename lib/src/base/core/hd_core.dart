@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
-import 'package:orange_wallet_core/src/base/bean/hd_index_wallet.dart';
-import 'package:orange_wallet_core/src/base/coin.dart';
-import 'package:orange_wallet_core/src/base/core/credential.dart';
-import 'package:orange_wallet_core/src/base/utils/searchTransaction.dart';
+import 'package:ckbcore/src/base/bean/hd_index_wallet.dart';
+import 'package:ckbcore/src/base/coin.dart';
+import 'package:ckbcore/src/base/core/credential.dart';
+import 'package:ckbcore/src/base/utils/searchTransaction.dart';
 
 class HDCore {
   Coin _coin;
@@ -26,12 +26,16 @@ class HDCore {
 
   HDIndexWallet getReceiveWallet(int index) {
     return HDIndexWallet(
-        Credential.fromPrivateKeyBytes(_coin.getReceivePrivateKey(index)), true, index);
+        Credential.fromPrivateKeyBytes(_coin.getReceivePrivateKey(index)),
+        true,
+        index);
   }
 
   HDIndexWallet getChangeWallet(int index) {
     return HDIndexWallet(
-        Credential.fromPrivateKeyBytes(_coin.getReceivePrivateKey(index)), false, index);
+        Credential.fromPrivateKeyBytes(_coin.getReceivePrivateKey(index)),
+        false,
+        index);
   }
 
   Future searchUnusedIndex() async {

@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:ckb_sdk/ckb-utils/network.dart';
-import 'package:orange_wallet_core/src/base/coin.dart';
-import 'package:orange_wallet_core/src/base/core/credential.dart';
+import 'package:ckbcore/src/base/coin.dart';
+import 'package:ckbcore/src/base/core/credential.dart';
 
 class HDIndexWallet {
   final Credential _credential;

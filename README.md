@@ -1,1 +1,1 @@
-hd_account_discovery
+ckbcore
