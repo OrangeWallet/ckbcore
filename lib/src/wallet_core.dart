@@ -13,10 +13,8 @@ class WalletCore {
     _hdCore = HDCore(seed, receiveIndex, changeIndex);
   }
 
-  static Future<WalletCore> fromImport(Uint8List seed) async {
-    HDCore hdCore = HDCore(seed, -1, -1);
-    return WalletCore._(seed, hdCore.unusedReceiveWallet.index,
-        hdCore.unusedChangeWallet.index);
+  static WalletCore fromImport(Uint8List seed) {
+    return WalletCore._(seed, -1, -1);
   }
 
   static fromCreate(Uint8List seed) {
