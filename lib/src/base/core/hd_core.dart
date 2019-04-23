@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
+import 'package:orange_wallet_core/src/base/bean/hd_index_wallet.dart';
 import 'package:orange_wallet_core/src/base/coin.dart';
+import 'package:orange_wallet_core/src/base/core/credential.dart';
 import 'package:orange_wallet_core/src/base/utils/searchTransaction.dart';
 
 class HDCore {
@@ -14,33 +16,27 @@ class HDCore {
     _unusedChangeIndex = unusedChangeIndex;
   }
 
-  int get unusedReceiveIndex => _unusedReceiveIndex;
-
-  int get unusedChangeIndex => _unusedChangeIndex;
-
-  String getPath(bool isReceive, int index) {
-    return _coin.getPath(isReceive, index);
+  HDIndexWallet get unusedReceiveWallet {
+    return getReceiveWallet(_unusedReceiveIndex);
   }
 
-  Uint8List getReceivePrivateKey(int index) {
-    return _coin.getReceivePrivateKey(index);
+  HDIndexWallet get unusedChangeWallet {
+    return getChangeWallet(_unusedChangeIndex);
   }
 
-  Uint8List getChangePrivateKey(int index) {
-    return _coin.getChangePrivateKey(index);
+  HDIndexWallet getReceiveWallet(int index) {
+    return HDIndexWallet(
+        Credential.fromPrivateKeyBytes(_coin.getReceivePrivateKey(index)), true, index);
   }
 
-  Uint8List getUnusedReceivePrivateKey() {
-    return _coin.getReceivePrivateKey(_unusedReceiveIndex);
-  }
-
-  Uint8List getUnusedChangePrivateKey() {
-    return _coin.getChangePrivateKey(_unusedChangeIndex);
+  HDIndexWallet getChangeWallet(int index) {
+    return HDIndexWallet(
+        Credential.fromPrivateKeyBytes(_coin.getReceivePrivateKey(index)), false, index);
   }
 
   Future searchUnusedIndex() async {
-    if ((await searchTransaction(getReceivePrivateKey(0))).length == 0 &&
-        (await searchTransaction(getChangePrivateKey(0))).length == 0) {
+    if ((await searchTransaction(getReceiveWallet(0).privateKey)).length == 0 &&
+        (await searchTransaction(getChangeWallet(0).privateKey)).length == 0) {
       return;
     }
     _unusedReceiveIndex = await _searchUnusedPrivateKey(0);

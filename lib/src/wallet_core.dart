@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 
+import 'package:orange_wallet_core/src/base/bean/hd_index_wallet.dart';
 import 'package:orange_wallet_core/src/base/bean/utxo_bean.dart';
-import 'package:orange_wallet_core/src/base/hd_core/hd_core.dart';
+import 'package:orange_wallet_core/src/base/core/hd_core.dart';
 import 'package:orange_wallet_core/src/base/utils/searchUtxoUtils.dart' as SearchUtxoUtils;
 
 class WalletCore {
@@ -14,8 +15,7 @@ class WalletCore {
 
   static Future<WalletCore> fromImport(Uint8List seed) async {
     HDCore hdCore = HDCore(seed, 0, 0);
-    hdCore.getUnusedChangePrivateKey();
-    return WalletCore._(seed, hdCore.unusedReceiveIndex, hdCore.unusedChangeIndex);
+    return WalletCore._(seed, hdCore.unusedReceiveWallet.index, hdCore.unusedChangeWallet.index);
   }
 
   static fromCreate(Uint8List seed) {
@@ -26,9 +26,9 @@ class WalletCore {
     return WalletCore._(seed, receive, receive);
   }
 
-  int get unusedReceiveIndex => _hdCore.unusedReceiveIndex;
+  HDIndexWallet get unusedReceiveWallet => _hdCore.unusedReceiveWallet;
 
-  int get unusedChangeIndex => _hdCore.unusedChangeIndex;
+  HDIndexWallet get unusedChangeWallet => _hdCore.unusedChangeWallet;
 
   //Searching all Utxos.Include index before current receive index and change index
   Future<List<UtxoBean>> searchAllUtxos() async {
