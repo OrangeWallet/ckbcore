@@ -1,12 +1,12 @@
 import 'package:ckb_sdk/ckb-types/item/cell.dart';
 
-class UtxoBean {
+class CellBean {
   Cell cell;
   String path;
 
-  UtxoBean(this.cell, this.path);
+  CellBean(this.cell, this.path);
 
-  factory UtxoBean.fromJson(Map<String, dynamic> json) => UtxoBean(
+  factory CellBean.fromJson(Map<String, dynamic> json) => CellBean(
         json['cell'] == null ? null : Cell.fromJson(json['cell'] as Map<String, dynamic>),
         json['path'] as String,
       );
