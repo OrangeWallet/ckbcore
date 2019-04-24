@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
-import 'package:ckbcore/src/base/bean/hd_index_wallet.dart';
 import 'package:ckbcore/src/base/coin.dart';
 import 'package:ckbcore/src/base/core/credential.dart';
+import 'package:ckbcore/src/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/src/base/utils/searchTransaction.dart';
 
 class HDCore {

@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
-import 'package:ckbcore/src/base/bean/hd_index_wallet.dart';
 import 'package:ckbcore/src/base/bean/utxo_bean.dart';
 import 'package:ckbcore/src/base/core/hd_core.dart';
+import 'package:ckbcore/src/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/src/base/utils/searchUtxoUtils.dart' as SearchUtxoUtils;
 
 class WalletCore {

@@ -22,7 +22,7 @@ class Credential {
   }
 
   static Uint8List _privateKeyToPublic(Uint8List privateKey) {
-    return publicKeyFromPrivate(privateKey, true);
+    return publicKeyFromPrivate(privateKey);
   }
 
   String getAddress(Network network) {
