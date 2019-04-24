@@ -1,9 +1,7 @@
 import 'dart:core';
 import 'dart:typed_data';
 
-import 'package:ckb_sdk/ckb-types/item/cell.dart';
 import 'package:ckbcore/src/base/bean/cell_bean.dart';
-import 'package:ckbcore/src/base/coin.dart';
 import 'package:ckbcore/src/base/core/hd_core.dart';
 
 Future<List<CellBean>> searchAll(HDCore hdCore) async {
@@ -27,20 +25,18 @@ Future<List<CellBean>> _searchReceiveAndChange(bool isReceive, HDCore hdCore) as
     } else {
       privateKey = hdCore.getChangeWallet(i).privateKey;
     }
-    List<Cell> newCells = await _searchCellByPrivateKey(privateKey);
-    cells.addAll(newCells.map((cell) => CellBean(cell, Coin.getPath(isReceive, i))));
+    List<CellBean> newCells = await _searchCellByPrivateKey(privateKey);
+    cells.addAll(newCells);
   }
   return cells;
 }
 
 Future<List<CellBean>> searchCurrentIndexCells(HDCore hdCore) async {
-  List<CellBean> cells = (await _searchCellByPrivateKey(hdCore.unusedReceiveWallet.privateKey))
-      .map((cell) => CellBean(cell, Coin.getPath(true, hdCore.unusedReceiveWallet.index)));
-  cells.addAll((await _searchCellByPrivateKey(hdCore.unusedChangeWallet.privateKey))
-      .map((cell) => CellBean(cell, Coin.getPath(true, hdCore.unusedChangeWallet.index))));
+  List<CellBean> cells = await _searchCellByPrivateKey(hdCore.unusedReceiveWallet.privateKey);
+  cells.addAll(await _searchCellByPrivateKey(hdCore.unusedChangeWallet.privateKey));
   return cells;
 }
 
-Future<List<Cell>> _searchCellByPrivateKey(Uint8List privateKey) async {
-  return List<Cell>(0);
+Future<List<CellBean>> _searchCellByPrivateKey(Uint8List privateKey) async {
+  return List<CellBean>(0);
 }
