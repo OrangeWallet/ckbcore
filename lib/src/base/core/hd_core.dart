@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:ckbcore/src/base/coin.dart';
+import 'package:ckbcore/src/base/config/hd_core_config.dart';
 import 'package:ckbcore/src/base/core/credential.dart';
 import 'package:ckbcore/src/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/src/base/utils/searchTransaction.dart';
@@ -10,10 +11,10 @@ class HDCore {
   int _unusedReceiveIndex;
   int _unusedChangeIndex;
 
-  HDCore(Uint8List seed, int unusedReceiveIndex, int unusedChangeIndex) {
-    _coin = Coin(seed);
-    _unusedReceiveIndex = unusedReceiveIndex;
-    _unusedChangeIndex = unusedChangeIndex;
+  HDCore(HDCoreConfig config) {
+    _coin = Coin(config.seed);
+    _unusedReceiveIndex = config.receiveIndex;
+    _unusedChangeIndex = config.changeIndex;
   }
 
   HDIndexWallet get unusedReceiveWallet {
