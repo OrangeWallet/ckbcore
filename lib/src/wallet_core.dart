@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
-import 'package:ckbcore/src/base/bean/cell_bean.dart';
+import 'package:ckbcore/src/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/src/base/config/hd_core_config.dart';
 import 'package:ckbcore/src/base/config/sync_config.dart';
 import 'package:ckbcore/src/base/core/hd_core.dart';
@@ -17,7 +17,7 @@ class WalletCore {
   HDCore _hdCore;
   CKBApiClient _apiClient;
   GetUnspentCellsUtils _serachCellsUtils;
-  String _syncBlockNumber;
+  String syncedBlockNumber;
   SyncService _syncService;
 
   WalletCore._(this._hdCoreConfig, {String nodeUrl}) {
@@ -49,17 +49,15 @@ class WalletCore {
   HDIndexWallet get unusedChangeWallet => _hdCore.unusedChangeWallet;
 
   startSync() async {
-    _syncBlockNumber = await _apiClient.getTipBlockNumber();
+    syncedBlockNumber = await _apiClient.getTipBlockNumber();
     _syncService.start();
   }
 
   //Searching all cells.Include index before current receive index and change index
-  Future<List<CellBean>> getWholeHDUnspentCells() async {
-    return await _serachCellsUtils.getWholeHD(_hdCore, int.parse(await _apiClient.getTipBlockNumber()));
-  }
-
-  //Searching current index cells
-  Future<List<CellBean>> getCurrentUnspentCells() async {
-    return await _serachCellsUtils.getCurrentIndexCells(_hdCore, int.parse(await _apiClient.getTipBlockNumber()));
+  Future<CellsResultBean> getWholeHDUnspentCells() async {
+    String targetBlockNumber = await _apiClient.getTipBlockNumber();
+    var cells = await _serachCellsUtils.getWholeHD(_hdCore, int.parse(targetBlockNumber));
+    syncedBlockNumber = targetBlockNumber;
+    return CellsResultBean(cells, targetBlockNumber);
   }
 }

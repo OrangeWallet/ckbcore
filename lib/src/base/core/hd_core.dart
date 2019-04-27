@@ -44,12 +44,12 @@ class HDCore {
         (await searchTransaction(getChangeWallet(0).privateKey)).length == 0) {
       return;
     }
-    _unusedReceiveIndex = await _searchUnusedPrivateKey(0);
-    _unusedChangeIndex = await _searchUnusedPrivateKey(1);
+    _unusedReceiveIndex = await _searchUnusedIndex(0);
+    _unusedChangeIndex = await _searchUnusedIndex(1);
   }
 
   //type: 0 receive 1 change
-  Future<int> _searchUnusedPrivateKey(int type) async {
+  Future<int> _searchUnusedIndex(int type) async {
     int emptyIndex = 0;
     int index = 0;
     while (emptyIndex < 20) {

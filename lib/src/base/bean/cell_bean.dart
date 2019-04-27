@@ -1,37 +1,28 @@
+import 'package:ckb_sdk/ckb-types/item/cell_output.dart';
 import 'package:ckb_sdk/ckb-types/item/out_point.dart';
-import 'package:ckb_sdk/ckb-types/item/script.dart';
 
 class CellBean {
-  String capacity;
-  String data;
-  Script lock;
-  Script type;
-  OutPoint outPoint;
+  CellOutput cellOutput;
   String status;
   String lockHash;
+  OutPoint outPoint;
   String hdPath;
 
-  CellBean(this.capacity, this.data, this.lock, this.type, this.outPoint, this.status, this.lockHash, this.hdPath);
+  CellBean(this.cellOutput, this.status, this.lockHash, this.outPoint, this.hdPath);
 
   factory CellBean.fromJson(Map<String, dynamic> json) => CellBean(
-        json['capacity'] as String,
-        json['data'] as String,
-        json['lock'] == null ? null : Script.fromJson(json['lock']),
-        json['type'] == null ? null : Script.fromJson(json['type']),
-        json['outPoint'] == null ? null : OutPoint.fromJson(json['outPoint']),
+        json['cellOutput'] == null ? null : CellOutput.fromJson(json['cellOutput']),
         json['status'] as String,
         json['lockHash'] as String,
+        json['outPoint'] == null ? null : OutPoint.fromJson(json['outPoint']),
         json['hdPath'] as String,
       );
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'capacity': capacity,
-        'data': data,
-        'lock': lock,
-        'type': type,
-        'outPoint': outPoint,
+        'cellOutput': cellOutput,
         'status': status,
         'lockHash': lockHash,
+        'outPoint': outPoint,
         'hdPath': hdPath,
       };
 }

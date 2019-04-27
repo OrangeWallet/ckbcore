@@ -25,27 +25,19 @@ class GetUnspentCellsUtils with GetUnspentCellsByLockHash {
       index = hdCore.unusedReceiveWallet.index;
     }
     List<CellBean> cells = List();
-    for (int i = 0; i <= index; i++) {
+    for (int i = 0; i < index; i++) {
       Script lockScript;
+      String hdPath;
       if (isReceive) {
         lockScript = hdCore.getReceiveWallet(i).lockScript;
+        hdPath = hdCore.getReceiveWallet(i).path;
       } else {
         lockScript = hdCore.getChangeWallet(i).lockScript;
+        hdPath = hdCore.getChangeWallet(i).path;
       }
-      List<CellBean> newCells = await getCellByLockHash(
-        targetBlockNumber,
-        _apiClient,
-        lockScript,
-      );
+      List<CellBean> newCells = await getCellByLockHash(targetBlockNumber, _apiClient, lockScript, hdPath);
       cells.addAll(newCells);
     }
-    return cells;
-  }
-
-  Future<List<CellBean>> getCurrentIndexCells(HDCore hdCore, int targetBlockNumber) async {
-    List<CellBean> cells =
-        await getCellByLockHash(targetBlockNumber, _apiClient, hdCore.unusedReceiveWallet.lockScript);
-    cells.addAll(await getCellByLockHash(targetBlockNumber, _apiClient, hdCore.unusedChangeWallet.lockScript));
     return cells;
   }
 }
