@@ -40,4 +40,13 @@ class GetUnspentCellsUtils with GetUnspentCellsByLockHash {
     }
     return cells;
   }
+
+  Future<List<CellBean>> getCurrentIndex(HDCore hdCore, int targetBlockNumber) async {
+    List<CellBean> cells = List();
+    cells.addAll(await getCellByLockHash(
+        targetBlockNumber, _apiClient, hdCore.unusedReceiveWallet.lockScript, hdCore.unusedReceiveWallet.path));
+    cells.addAll(await getCellByLockHash(
+        targetBlockNumber, _apiClient, hdCore.unusedReceiveWallet.lockScript, hdCore.unusedChangeWallet.path));
+    return cells;
+  }
 }

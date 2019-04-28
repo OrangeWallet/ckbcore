@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckbcore/src/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/src/base/config/hd_core_config.dart';
@@ -20,7 +18,7 @@ class WalletCore {
   String syncedBlockNumber;
   SyncService _syncService;
 
-  WalletCore._(this._hdCoreConfig, {String nodeUrl}) {
+  WalletCore(this._hdCoreConfig, {SyncConfig syncConfig, String nodeUrl}) {
     _hdCore = HDCore(_hdCoreConfig);
     _apiClient = CKBApiClient(nodeUrl: nodeUrl);
     _serachCellsUtils = GetUnspentCellsUtils(_apiClient);
@@ -28,21 +26,6 @@ class WalletCore {
   }
 
   CKBApiClient get apiClient => _apiClient;
-
-  static WalletCore fromImport(Uint8List seed, {SyncConfig syncConfig, String nodeUrl}) {
-    WalletCore.syncConfig = syncConfig;
-    return WalletCore._(HDCoreConfig(seed, -1, -1));
-  }
-
-  static fromCreate(Uint8List seed, {SyncConfig syncConfig, String nodeUrl}) {
-    WalletCore.syncConfig = syncConfig;
-    return WalletCore._(HDCoreConfig(seed, 0, 0));
-  }
-
-  static fromStore(HDCoreConfig hdCoreConfig, {SyncConfig syncConfig, String nodeUrl}) {
-    WalletCore.syncConfig = syncConfig;
-    return WalletCore._(hdCoreConfig);
-  }
 
   HDIndexWallet get unusedReceiveWallet => _hdCore.unusedReceiveWallet;
 
@@ -57,6 +40,13 @@ class WalletCore {
   Future<CellsResultBean> getWholeHDUnspentCells() async {
     String targetBlockNumber = await _apiClient.getTipBlockNumber();
     var cells = await _serachCellsUtils.getWholeHD(_hdCore, int.parse(targetBlockNumber));
+    syncedBlockNumber = targetBlockNumber;
+    return CellsResultBean(cells, targetBlockNumber);
+  }
+
+  Future<CellsResultBean> getCurrentIndexCells() async {
+    String targetBlockNumber = await _apiClient.getTipBlockNumber();
+    var cells = await _serachCellsUtils.getCurrentIndex(_hdCore, int.parse(targetBlockNumber));
     syncedBlockNumber = targetBlockNumber;
     return CellsResultBean(cells, targetBlockNumber);
   }
