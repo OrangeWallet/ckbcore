@@ -13,7 +13,7 @@ class GetUnspentCellsByLockHash {
     List<CellBean> cells = List();
     while (blockNumber <= targetBlockNumber) {
       int from = blockNumber;
-      int to = blockNumber + WalletCore.syncConfig.IntervalBlockNumber;
+      int to = blockNumber + WalletCore.MySyncConfig.IntervalBlockNumber;
       to = min(to, targetBlockNumber);
       List<CellWithOutPoint> cellsWithOutPoint =
           await apiClient.getCellsByLockHash(lockHash.scriptHash, from.toString(), to.toString());

@@ -8,7 +8,8 @@ import 'package:ckbcore/src/base/core/sync_service.dart';
 import 'package:ckbcore/src/base/utils/searchCells/get_unspent_cells_utils.dart';
 
 class WalletCore {
-  static SyncConfig syncConfig;
+  static SyncConfig MySyncConfig;
+  static String MyStorePath;
 
   final HDCoreConfig _hdCoreConfig;
 
@@ -18,7 +19,9 @@ class WalletCore {
   String syncedBlockNumber;
   SyncService _syncService;
 
-  WalletCore(this._hdCoreConfig, {SyncConfig syncConfig, String nodeUrl}) {
+  WalletCore(this._hdCoreConfig, String storePath, {SyncConfig syncConfig, String nodeUrl}) {
+    MyStorePath = storePath;
+    MySyncConfig = syncConfig;
     _hdCore = HDCore(_hdCoreConfig);
     _apiClient = CKBApiClient(nodeUrl: nodeUrl);
     _serachCellsUtils = GetUnspentCellsUtils(_apiClient);
@@ -36,17 +39,19 @@ class WalletCore {
     _syncService.start();
   }
 
-  //Searching all cells.Include index before current receive index and change index
-  Future<CellsResultBean> getWholeHDUnspentCells() async {
-    String targetBlockNumber = await _apiClient.getTipBlockNumber();
-    var cells = await _serachCellsUtils.getWholeHD(_hdCore, int.parse(targetBlockNumber));
-    syncedBlockNumber = targetBlockNumber;
-    return CellsResultBean(cells, targetBlockNumber);
-  }
+  Future<CellsResultBean> updateCurrentIndexCells() async {}
 
   Future<CellsResultBean> getCurrentIndexCells() async {
     String targetBlockNumber = await _apiClient.getTipBlockNumber();
     var cells = await _serachCellsUtils.getCurrentIndex(_hdCore, int.parse(targetBlockNumber));
+    syncedBlockNumber = targetBlockNumber;
+    return CellsResultBean(cells, targetBlockNumber);
+  }
+
+  //Searching all cells.Include index before current receive index and change index
+  Future<CellsResultBean> getWholeHDUnspentCells() async {
+    String targetBlockNumber = await _apiClient.getTipBlockNumber();
+    var cells = await _serachCellsUtils.getWholeHD(_hdCore, int.parse(targetBlockNumber));
     syncedBlockNumber = targetBlockNumber;
     return CellsResultBean(cells, targetBlockNumber);
   }
