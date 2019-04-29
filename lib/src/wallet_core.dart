@@ -3,9 +3,9 @@ import 'package:ckbcore/src/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/src/base/config/hd_core_config.dart';
 import 'package:ckbcore/src/base/core/hd_core.dart';
 import 'package:ckbcore/src/base/core/hd_index_wallet.dart';
-import 'package:ckbcore/src/base/core/sync_service.dart';
 import 'package:ckbcore/src/base/interface/wallet_core_interface.dart';
 import 'package:ckbcore/src/base/store/store_manager.dart';
+import 'package:ckbcore/src/base/sync/sync_service.dart';
 import 'package:ckbcore/src/base/utils/searchCells/get_unspent_cells_utils.dart' as GetCellsUtils;
 import 'package:ckbcore/src/base/utils/searchCells/update_unspent_cells.dart' as UpdateCellsUtils;
 

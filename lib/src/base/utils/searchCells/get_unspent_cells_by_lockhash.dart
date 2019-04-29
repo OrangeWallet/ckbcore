@@ -6,6 +6,7 @@ import 'package:ckb_sdk/ckb-types/item/cell_with_outpoint.dart';
 import 'package:ckbcore/ckbcore.dart';
 import 'package:ckbcore/src/base/bean/cell_bean.dart';
 import 'package:ckbcore/src/base/core/hd_index_wallet.dart';
+import 'package:ckbcore/src/base/utils/searchCells/fetch_utils.dart';
 
 Future<List<CellBean>> _getCellByLockHash(GetCellByLockHashParams param) async {
   if (param.targetBlockNumber < param.startBlockNumber) {
@@ -23,18 +24,16 @@ Future<List<CellBean>> _getCellByLockHash(GetCellByLockHashParams param) async {
     // print('size ${cellsWithOutPoints.length}');
     for (int i = 0; i < cellsWithOutPoints.length; i++) {
       var cellsWithOutPoint = cellsWithOutPoints[i];
-      var cellWithStatus =
-          await CKBApiClient(nodeUrl: WalletCore.DefaultNodeUrl).getLiveCell(cellsWithOutPoint.outPoint);
-      cellWithStatus.cell.data = cellWithStatus.cell.data == '' ? '0' : '1';
-      cells.add(CellBean(cellWithStatus.cell, cellWithStatus.status, cellsWithOutPoint.lock.scriptHash,
-          cellsWithOutPoint.outPoint, param.hdIndexWallet.path));
+      CellBean cell = await fetchThinLiveCell(
+          CKBApiClient(nodeUrl: WalletCore.DefaultNodeUrl), cellsWithOutPoint, param.hdIndexWallet.path);
+      cells.add(cell);
     }
     blockNumber = to + 1;
   }
   return cells;
 }
 
-getCellByLockHash(GetCellByLockHashParams param) async {
+Future<List<CellBean>> getCellByLockHash(GetCellByLockHashParams param) async {
   ReceivePort receivePort = ReceivePort();
   await Isolate.spawn(_dateLoader, receivePort.sendPort);
   SendPort sendPort = await receivePort.first;
