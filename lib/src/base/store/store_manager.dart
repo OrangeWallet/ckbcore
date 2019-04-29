@@ -14,11 +14,13 @@ class StoreManager {
 
   Future syncBlockNumber(String blockNumber) async {
     await _syncedBlockNumberStore.wirteToStore(blockNumber);
+    return;
   }
 
   Future syncCells(String blockNumber, List<CellBean> cells) async {
     await _syncedBlockNumberStore.wirteToStore(blockNumber);
     await _cellsStore.writeToStore(cells);
+    return;
   }
 
   Future<CellsResultBean> getSyncedCells() async {

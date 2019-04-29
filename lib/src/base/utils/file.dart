@@ -13,4 +13,5 @@ Future<String> readFromFile(String path) async {
 Future writeToFile(String contents, String path) async {
   File file = File(path);
   await file.writeAsString(contents);
+  return;
 }

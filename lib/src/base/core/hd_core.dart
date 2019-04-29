@@ -46,6 +46,7 @@ class HDCore {
     }
     _unusedReceiveIndex = await _searchUnusedIndex(0);
     _unusedChangeIndex = await _searchUnusedIndex(1);
+    return;
   }
 
   //type: 0 receive 1 change

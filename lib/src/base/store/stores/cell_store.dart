@@ -35,5 +35,6 @@ class CellsStore {
   Future writeToStore(List<CellBean> data) async {
     String str = jsonEncode(data);
     await writeToFile(str, _cellsFilePath);
+    return;
   }
 }

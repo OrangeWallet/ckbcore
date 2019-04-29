@@ -25,5 +25,6 @@ class SyncedBlockNumberStore {
 
   Future wirteToStore(String blockNumber) async {
     await writeToFile(blockNumber, _blockNumberFilePath);
+    return;
   }
 }
