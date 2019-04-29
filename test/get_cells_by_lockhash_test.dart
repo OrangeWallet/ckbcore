@@ -18,8 +18,7 @@ main() {
   test('get cells by lockHash', () async {
     var targetBlockNumber = await ckbApiClient.getTipBlockNumber();
     print(targetBlockNumber);
-    List<CellBean> cells = await getCellByLockHash(
-        GetCellByLockHashParams(100, hdCore.unusedChangeWallet.lockScript.scriptHash, hdCore.unusedChangeWallet.path));
+    List<CellBean> cells = await getCellByLockHash(GetCellByLockHashParams(0, 100, hdCore.unusedChangeWallet));
     print(jsonEncode(cells));
   });
 

@@ -5,23 +5,29 @@ import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_with_outpoint.dart';
 import 'package:ckbcore/ckbcore.dart';
 import 'package:ckbcore/src/base/bean/cell_bean.dart';
+import 'package:ckbcore/src/base/core/hd_index_wallet.dart';
 
 Future<List<CellBean>> _getCellByLockHash(GetCellByLockHashParams param) async {
-  int blockNumber = 0;
+  if (param.targetBlockNumber < param.startBlockNumber) {
+    throw Exception('StartBlockNumber is bigger then targetBlockNumber');
+  }
+  int blockNumber = param.startBlockNumber;
   List<CellBean> cells = List();
   while (blockNumber <= param.targetBlockNumber) {
     int from = blockNumber;
     int to = blockNumber + WalletCore.IntervalBlockNumber;
     to = min(to, param.targetBlockNumber);
     List<CellWithOutPoint> cellsWithOutPoints = await CKBApiClient(nodeUrl: WalletCore.DefaultNodeUrl)
-        .getCellsByLockHash(param.lockHash, from.toString(), to.toString());
+        .getCellsByLockHash(param.hdIndexWallet.lockScript.scriptHash, from.toString(), to.toString());
+    // print('from ${from}');
+    // print('size ${cellsWithOutPoints.length}');
     for (int i = 0; i < cellsWithOutPoints.length; i++) {
       var cellsWithOutPoint = cellsWithOutPoints[i];
       var cellWithStatus =
           await CKBApiClient(nodeUrl: WalletCore.DefaultNodeUrl).getLiveCell(cellsWithOutPoint.outPoint);
       cellWithStatus.cell.data = cellWithStatus.cell.data == '' ? '0' : '1';
       cells.add(CellBean(cellWithStatus.cell, cellWithStatus.status, cellsWithOutPoint.lock.scriptHash,
-          cellsWithOutPoint.outPoint, param.hdPath));
+          cellsWithOutPoint.outPoint, param.hdIndexWallet.path));
     }
     blockNumber = to + 1;
   }
@@ -54,9 +60,9 @@ Future _sendReceive(GetCellByLockHashParams param, SendPort port) {
 }
 
 class GetCellByLockHashParams {
+  final int startBlockNumber;
   final int targetBlockNumber;
-  final String lockHash;
-  final String hdPath;
+  final HDIndexWallet hdIndexWallet;
 
-  GetCellByLockHashParams(this.targetBlockNumber, this.lockHash, this.hdPath);
+  GetCellByLockHashParams(this.startBlockNumber, this.targetBlockNumber, this.hdIndexWallet);
 }

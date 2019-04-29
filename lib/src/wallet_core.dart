@@ -5,9 +5,10 @@ import 'package:ckbcore/src/base/core/hd_core.dart';
 import 'package:ckbcore/src/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/src/base/core/sync_service.dart';
 import 'package:ckbcore/src/base/store/store_manager.dart';
-import 'package:ckbcore/src/base/utils/searchCells/get_unspent_cells_utils.dart';
+import 'package:ckbcore/src/base/utils/searchCells/get_unspent_cells_utils.dart' as GetCellsUtils;
+import 'package:ckbcore/src/base/utils/searchCells/update_unspent_cells.dart' as UpdateCellsUtils;
 
-class WalletCore with GetUnspentCellsUtils {
+class WalletCore {
   static StoreManager MyStoreManager;
   static int IntervalBlockNumber = 100;
   static int IntervalSyncTime = 60;
@@ -32,24 +33,38 @@ class WalletCore with GetUnspentCellsUtils {
 
   CellsResultBean get cellsResultBean => _cellsResultBean;
 
-  startSync() async {
+  startSync() {
     _syncService.start();
   }
 
-  Future<CellsResultBean> updateCurrentIndexCells() async {}
+  //Using this when opening app.
+  Future updateCurrentIndexCells() async {
+    _cellsResultBean = await MyStoreManager.getSyncedCells();
+    String targetBlockNumber = await CKBApiClient(nodeUrl: DefaultNodeUrl).getTipBlockNumber();
+    var updateCellsResult =
+        await UpdateCellsUtils.updateCurrentIndexCells(_hdCore, _cellsResultBean, int.parse(targetBlockNumber));
+    if (updateCellsResult.isChange) {
+      _cellsResultBean = updateCellsResult.cellsResultBean;
+      await MyStoreManager.syncCells(_cellsResultBean);
+    }
+    startSync();
+    return;
+  }
 
+  // Using this after import wallet.
   Future getCurrentIndexCells() async {
     String targetBlockNumber = await CKBApiClient(nodeUrl: DefaultNodeUrl).getTipBlockNumber();
-    var cells = await getCurrentIndex(_hdCore, int.parse(targetBlockNumber));
+    var cells = await GetCellsUtils.getCurrentIndexCells(_hdCore, 0, int.parse(targetBlockNumber));
     _cellsResultBean = CellsResultBean(cells, targetBlockNumber);
     await MyStoreManager.syncCells(_cellsResultBean);
+    startSync();
     return;
   }
 
   //Searching all cells.Include index before current receive index and change index
   Future getWholeHDUnspentCells() async {
     String targetBlockNumber = await CKBApiClient(nodeUrl: DefaultNodeUrl).getTipBlockNumber();
-    var cells = await getWholeHD(_hdCore, int.parse(targetBlockNumber));
+    var cells = await GetCellsUtils.getWholeHDAllCells(_hdCore, int.parse(targetBlockNumber));
     _cellsResultBean = CellsResultBean(cells, targetBlockNumber);
     await MyStoreManager.syncCells(_cellsResultBean);
     return;
