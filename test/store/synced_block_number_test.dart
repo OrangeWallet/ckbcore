@@ -1,4 +1,4 @@
-import 'package:ckbcore/src/base/store/synced_block_number_store.dart';
+import 'package:ckbcore/src/base/store/stores/synced_block_number_store.dart';
 import 'package:test/test.dart';
 
 main() {

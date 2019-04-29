@@ -23,7 +23,7 @@ class SyncedBlockNumberStore {
     return await readFromFile(_blockNumberFilePath);
   }
 
-  Future wirteToStore(String number) async {
-    await writeToFile(number, _blockNumberFilePath);
+  Future wirteToStore(String blockNumber) async {
+    await writeToFile(blockNumber, _blockNumberFilePath);
   }
 }
