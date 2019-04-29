@@ -17,9 +17,9 @@ class StoreManager {
     return;
   }
 
-  Future syncCells(String blockNumber, List<CellBean> cells) async {
-    await _syncedBlockNumberStore.wirteToStore(blockNumber);
-    await _cellsStore.writeToStore(cells);
+  Future syncCells(CellsResultBean cellsResultBeean) async {
+    await _syncedBlockNumberStore.wirteToStore(cellsResultBeean.syncedBlockNumber);
+    await _cellsStore.writeToStore(cellsResultBeean.cells);
     return;
   }
 

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:ckb_sdk/ckb-types/item/script.dart';
 import 'package:ckb_sdk/ckb-utils/network.dart';
+import 'package:ckb_sdk/ckb-utils/number.dart';
 import 'package:ckbcore/src/base/coin.dart';
 import 'package:ckbcore/src/base/core/credential.dart';
 
@@ -20,9 +21,9 @@ class HDIndexWallet {
 
   String get path => Coin.getPath(isReceive, index);
 
-  //TODO remove alwaysSccess
+  //TODO refactor
   Script get lockScript {
-    Script script = Script("", []);
-    return script.alwaysSuccess();
+    Script script = Script("0000000000000000000000000000000000000000000000000000000000000002", [bytesToHex(publicKey)]);
+    return script;
   }
 }

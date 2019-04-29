@@ -16,6 +16,11 @@ main() {
   test('syncCells', () async {
     CellBean bean1 = CellBean(CellOutput("1", "1", Script('1', []), Script('1', [])), '1', '1', OutPoint('1', 1), '1');
     CellBean bean2 = CellBean(CellOutput("2", "2", Script('2', []), Script('2', [])), '2', '2', OutPoint('2', 2), '2');
-    await storeManager.syncCells('2000', [bean1, bean2]);
+    await storeManager.syncCells(CellsResultBean([bean1, bean2], '2000'));
+  });
+
+  test('get', () async {
+    var reslut = await storeManager.getSyncedCells();
+    print(reslut.cells.length);
   });
 }

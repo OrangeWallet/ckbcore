@@ -1,16 +1,11 @@
 import 'dart:core';
 
-import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckb_sdk/ckb-types/item/script.dart';
 import 'package:ckbcore/src/base/bean/cell_bean.dart';
 import 'package:ckbcore/src/base/core/hd_core.dart';
 import 'package:ckbcore/src/base/utils/searchCells/get_unspent_cells_by_lockhash.dart';
 
-class GetUnspentCellsUtils with GetUnspentCellsByLockHash {
-  final CKBApiClient _apiClient;
-
-  GetUnspentCellsUtils(this._apiClient);
-
+class GetUnspentCellsUtils {
   Future<List<CellBean>> getWholeHD(HDCore hdCore, int targetBlockNumber) async {
     List<CellBean> cells = await _getReceiveAndChange(true, hdCore, targetBlockNumber);
     cells.addAll(await _getReceiveAndChange(false, hdCore, targetBlockNumber));
@@ -35,7 +30,8 @@ class GetUnspentCellsUtils with GetUnspentCellsByLockHash {
         lockScript = hdCore.getChangeWallet(i).lockScript;
         hdPath = hdCore.getChangeWallet(i).path;
       }
-      List<CellBean> newCells = await getCellByLockHash(targetBlockNumber, _apiClient, lockScript, hdPath);
+      List<CellBean> newCells =
+          await getCellByLockHash(GetCellByLockHashParams(targetBlockNumber, lockScript.scriptHash, hdPath));
       cells.addAll(newCells);
     }
     return cells;
@@ -43,10 +39,11 @@ class GetUnspentCellsUtils with GetUnspentCellsByLockHash {
 
   Future<List<CellBean>> getCurrentIndex(HDCore hdCore, int targetBlockNumber) async {
     List<CellBean> cells = List();
-    cells.addAll(await getCellByLockHash(
-        targetBlockNumber, _apiClient, hdCore.unusedReceiveWallet.lockScript, hdCore.unusedReceiveWallet.path));
-    cells.addAll(await getCellByLockHash(
-        targetBlockNumber, _apiClient, hdCore.unusedReceiveWallet.lockScript, hdCore.unusedChangeWallet.path));
+
+    cells.addAll(await getCellByLockHash(GetCellByLockHashParams(
+        targetBlockNumber, hdCore.unusedReceiveWallet.lockScript.scriptHash, hdCore.unusedReceiveWallet.path)));
+    cells.addAll(await getCellByLockHash(GetCellByLockHashParams(
+        targetBlockNumber, hdCore.unusedReceiveWallet.lockScript.scriptHash, hdCore.unusedChangeWallet.path)));
     return cells;
   }
 }
