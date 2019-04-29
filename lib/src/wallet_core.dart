@@ -4,6 +4,7 @@ import 'package:ckbcore/src/base/config/hd_core_config.dart';
 import 'package:ckbcore/src/base/core/hd_core.dart';
 import 'package:ckbcore/src/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/src/base/core/sync_service.dart';
+import 'package:ckbcore/src/base/interface/wallet_core_interface.dart';
 import 'package:ckbcore/src/base/store/store_manager.dart';
 import 'package:ckbcore/src/base/utils/searchCells/get_unspent_cells_utils.dart' as GetCellsUtils;
 import 'package:ckbcore/src/base/utils/searchCells/update_unspent_cells.dart' as UpdateCellsUtils;
@@ -19,8 +20,9 @@ class WalletCore {
   HDCore _hdCore;
   SyncService _syncService;
   CellsResultBean _cellsResultBean;
+  WalletCoreInterface walletCoreInterface;
 
-  WalletCore(this._hdCoreConfig, String storePath, {String nodeUrl}) {
+  WalletCore(this._hdCoreConfig, this.walletCoreInterface, String storePath, {String nodeUrl}) {
     _hdCore = HDCore(_hdCoreConfig);
     DefaultNodeUrl = nodeUrl == null ? DefaultNodeUrl : nodeUrl;
     MyStoreManager = StoreManager(storePath);
@@ -38,7 +40,7 @@ class WalletCore {
   }
 
   //Using this when opening app.
-  Future updateCurrentIndexCells() async {
+  Future<CellsResultBean> updateCurrentIndexCells() async {
     _cellsResultBean = await MyStoreManager.getSyncedCells();
     String targetBlockNumber = await CKBApiClient(nodeUrl: DefaultNodeUrl).getTipBlockNumber();
     var updateCellsResult =
@@ -48,25 +50,25 @@ class WalletCore {
       await MyStoreManager.syncCells(_cellsResultBean);
     }
     startSync();
-    return;
+    return _cellsResultBean;
   }
 
   // Using this after import wallet.
-  Future getCurrentIndexCells() async {
+  Future<CellsResultBean> getCurrentIndexCells() async {
     String targetBlockNumber = await CKBApiClient(nodeUrl: DefaultNodeUrl).getTipBlockNumber();
     var cells = await GetCellsUtils.getCurrentIndexCells(_hdCore, 0, int.parse(targetBlockNumber));
     _cellsResultBean = CellsResultBean(cells, targetBlockNumber);
     await MyStoreManager.syncCells(_cellsResultBean);
     startSync();
-    return;
+    return _cellsResultBean;
   }
 
   //Searching all cells.Include index before current receive index and change index
-  Future getWholeHDUnspentCells() async {
+  Future<CellsResultBean> getWholeHDUnspentCells() async {
     String targetBlockNumber = await CKBApiClient(nodeUrl: DefaultNodeUrl).getTipBlockNumber();
     var cells = await GetCellsUtils.getWholeHDAllCells(_hdCore, int.parse(targetBlockNumber));
     _cellsResultBean = CellsResultBean(cells, targetBlockNumber);
     await MyStoreManager.syncCells(_cellsResultBean);
-    return;
+    return _cellsResultBean;
   }
 }
