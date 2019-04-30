@@ -42,9 +42,7 @@ class WalletCore {
   //Using this when opening app.
   Future<CellsResultBean> updateCurrentIndexCells() async {
     _cellsResultBean = await MyStoreManager.getSyncedCells();
-    String targetBlockNumber = await CKBApiClient(nodeUrl: DefaultNodeUrl).getTipBlockNumber();
-    var updateCellsResult =
-        await UpdateCellsUtils.updateCurrentIndexCells(_hdCore, _cellsResultBean, int.parse(targetBlockNumber));
+    var updateCellsResult = await UpdateCellsUtils.updateCurrentIndexCells(_hdCore, _cellsResultBean);
     if (updateCellsResult.isChange) {
       _cellsResultBean = updateCellsResult.cellsResultBean;
       await MyStoreManager.syncCells(_cellsResultBean);
@@ -55,9 +53,7 @@ class WalletCore {
 
   // Using this after import wallet.
   Future<CellsResultBean> getCurrentIndexCells() async {
-    String targetBlockNumber = await CKBApiClient(nodeUrl: DefaultNodeUrl).getTipBlockNumber();
-    var cells = await GetCellsUtils.getCurrentIndexCells(_hdCore, 0, int.parse(targetBlockNumber));
-    _cellsResultBean = CellsResultBean(cells, targetBlockNumber);
+    _cellsResultBean = await GetCellsUtils.getCurrentIndexCells(_hdCore, 0);
     await MyStoreManager.syncCells(_cellsResultBean);
     startSync();
     return _cellsResultBean;
@@ -65,9 +61,7 @@ class WalletCore {
 
   //Searching all cells.Include index before current receive index and change index
   Future<CellsResultBean> getWholeHDUnspentCells() async {
-    String targetBlockNumber = await CKBApiClient(nodeUrl: DefaultNodeUrl).getTipBlockNumber();
-    var cells = await GetCellsUtils.getWholeHDAllCells(_hdCore, int.parse(targetBlockNumber));
-    _cellsResultBean = CellsResultBean(cells, targetBlockNumber);
+    _cellsResultBean = await GetCellsUtils.getWholeHDAllCells(_hdCore);
     await MyStoreManager.syncCells(_cellsResultBean);
     return _cellsResultBean;
   }
