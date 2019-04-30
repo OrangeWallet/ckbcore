@@ -10,14 +10,19 @@ main() async {
   Uint8List privateKey =
       intToBytes(toBigInt(remove0x('e79f3207ea4980b7fed79956d5934249ceac4751a4fae01a0f7c4a96884bc4e3')));
   WalletCore walletCore = WalletCore(HDCoreConfig(privateKey, 1, 1), MyWalletCoreInterface(), 'test/store/store');
-  // await walletCore.getCurrentIndexCells();
-  await walletCore.updateCurrentIndexCells();
+  await walletCore.getCurrentIndexCells();
+  // await walletCore.updateCurrentIndexCells();
   print(jsonEncode(walletCore.cellsResultBean.cells.length));
 }
 
 class MyWalletCoreInterface extends WalletCoreInterface {
   @override
   cellsChanged() {
-    print('changed');
+    print('cellsChanged');
+  }
+
+  @override
+  blockChanged() {
+    print('blockChanged');
   }
 }

@@ -1,5 +1,5 @@
-import 'dart:isolate';
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckb_sdk/ckb-types/res_export.dart';
@@ -21,14 +21,16 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
   await Future.forEach(block.transactions, (Transaction transaction) async {
     ThinTransaction thinTransaction = ThinTransaction(transaction.hash, [], []);
     await Future.forEach(transaction.inputs, (CellInput cellInput) async {
-      OutPoint outPoint = OutPoint(cellInput.txHash, cellInput.index);
-      CellOutput cellOutput = await fetchCellOutput(apiClient, outPoint);
-      if (cellOutput.lock.scriptHash == param.hdCore.unusedChangeWallet.lockScript.scriptHash ||
-          cellOutput.lock.scriptHash == param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
-        CellBean cell = CellBean(null, '', cellOutput.lock.scriptHash, outPoint, '');
-        updateCells.spendCells.add(cell);
-        ThinCell thinCell = ThinCell(cellOutput.capacity, cellOutput.lock);
-        thinTransaction.cellsInputs.add(thinCell);
+      if (cellInput.txHash != null && cellInput.index != null) {
+        OutPoint outPoint = OutPoint(cellInput.txHash, cellInput.index);
+        CellOutput cellOutput = await fetchCellOutput(apiClient, outPoint);
+        if (cellOutput.lock.scriptHash == param.hdCore.unusedChangeWallet.lockScript.scriptHash ||
+            cellOutput.lock.scriptHash == param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
+          CellBean cell = CellBean(null, '', cellOutput.lock.scriptHash, outPoint, '');
+          updateCells.spendCells.add(cell);
+          ThinCell thinCell = ThinCell(cellOutput.capacity, cellOutput.lock);
+          thinTransaction.cellsInputs.add(thinCell);
+        }
       }
     });
     for (int i = 0; i < transaction.outputs.length; i++) {

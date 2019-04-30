@@ -10,7 +10,7 @@ import 'package:ckbcore/src/base/utils/searchCells/get_unspent_cells_by_lockhash
 import 'package:test/test.dart';
 
 main() {
-  CKBApiClient ckbApiClient = CKBApiClient(nodeUrl: 'http://47.111.175.189:8121');
+  CKBApiClient ckbApiClient = CKBApiClient(nodeUrl: 'http://192.168.2.225:8114');
   Uint8List privateKey =
       intToBytes(toBigInt(remove0x('e79f3207ea4980b7fed79956d5934249ceac4751a4fae01a0f7c4a96884bc4e3')));
   // String lockHash = '0x266cec97cbede2cfbce73666f08deed9560bdf7841a7a5a51b3a3f09da249e21';

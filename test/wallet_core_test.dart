@@ -37,4 +37,7 @@ class MyWalletCoreInterface extends WalletCoreInterface {
   cellsChanged() {
     print('changed');
   }
+
+  @override
+  blockChanged() {}
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:ckb_sdk/ckb-types/res_export.dart';
 import 'package:ckbcore/src/base/bean/cell_bean.dart';
 import 'package:ckbcore/src/base/bean/cells_result_bean.dart';
@@ -21,6 +23,6 @@ main() {
 
   test('get', () async {
     var reslut = await storeManager.getSyncedCells();
-    print(reslut.cells.length);
+    print(jsonEncode(reslut));
   });
 }
