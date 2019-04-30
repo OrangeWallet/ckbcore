@@ -10,7 +10,7 @@ import 'package:ckbcore/src/base/sync/sync_service.dart';
 import 'package:ckbcore/src/base/utils/searchCells/get_unspent_cells_utils.dart' as GetCellsUtils;
 import 'package:ckbcore/src/base/utils/searchCells/update_unspent_cells.dart' as UpdateCellsUtils;
 
-class WalletCore implements SyncInterface {
+abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   static StoreManager MyStoreManager;
   static int IntervalBlockNumber = 100;
   static int IntervalSyncTime = 20;
@@ -21,9 +21,8 @@ class WalletCore implements SyncInterface {
   HDCore _hdCore;
   SyncService _syncService;
   CellsResultBean _cellsResultBean;
-  WalletCoreInterface walletCoreInterface;
 
-  WalletCore(this._hdCoreConfig, this.walletCoreInterface, String storePath, {String nodeUrl}) {
+  WalletCore(this._hdCoreConfig, String storePath, {String nodeUrl}) {
     _hdCore = HDCore(_hdCoreConfig);
     DefaultNodeUrl = nodeUrl == null ? DefaultNodeUrl : nodeUrl;
     MyStoreManager = StoreManager(storePath);
@@ -40,22 +39,23 @@ class WalletCore implements SyncInterface {
     _syncService.start();
   }
 
-  //Using this when opening app.
   Future<CellsResultBean> updateCurrentIndexCells() async {
     _cellsResultBean = await MyStoreManager.getSyncedCells();
-    var updateCellsResult = await UpdateCellsUtils.updateCurrentIndexCells(_hdCore, _cellsResultBean);
-    if (updateCellsResult.isChange) {
-      _cellsResultBean = updateCellsResult.cellsResultBean;
+    if (_cellsResultBean.syncedBlockNumber == '') {
+      print('sync from genesis block');
+      _cellsResultBean = await GetCellsUtils.getCurrentIndexCells(_hdCore, 0);
       await MyStoreManager.syncCells(_cellsResultBean);
+    } else {
+      print('sync from ${_cellsResultBean.syncedBlockNumber}');
+      var updateCellsResult = await UpdateCellsUtils.updateCurrentIndexCells(_hdCore, _cellsResultBean);
+      if (updateCellsResult.isChange) {
+        _cellsResultBean = updateCellsResult.cellsResultBean;
+        await MyStoreManager.syncCells(_cellsResultBean);
+      } else {
+        _cellsResultBean.syncedBlockNumber = updateCellsResult.cellsResultBean.syncedBlockNumber;
+        await MyStoreManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
+      }
     }
-    startSync();
-    return _cellsResultBean;
-  }
-
-  // Using this after import wallet.
-  Future<CellsResultBean> getCurrentIndexCells() async {
-    _cellsResultBean = await GetCellsUtils.getCurrentIndexCells(_hdCore, 0);
-    await MyStoreManager.syncCells(_cellsResultBean);
     startSync();
     return _cellsResultBean;
   }
@@ -72,12 +72,12 @@ class WalletCore implements SyncInterface {
     if (isCellsChange) {
       _cellsResultBean = cellsResult;
       await MyStoreManager.syncCells(_cellsResultBean);
-      walletCoreInterface.cellsChanged();
+      cellsChanged();
     } else {
       _cellsResultBean.syncedBlockNumber = cellsResult.syncedBlockNumber;
       await MyStoreManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
     }
-    walletCoreInterface.blockChanged();
+    blockChanged();
     return;
   }
 
