@@ -16,7 +16,6 @@ main() {
       var result = await fetchBlockToCheckCell(FetchBlockToCheckParam(hdCore, 10000));
       print(jsonEncode(result));
     } catch (e) {
-      var json = jsonDecode(e);
       print(e);
     }
   });
