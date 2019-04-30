@@ -10,6 +10,7 @@ environment:
 
 dependencies:
   bip32: ^1.0.5
+  bip39: ^1.0.3
   ckb_sdk:
     git:
       url: https://github.com/BaojunCZ/ckb-sdk-dart.git

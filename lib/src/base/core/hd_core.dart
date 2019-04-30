@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:ckb_sdk/ckb-utils/number.dart';
 import 'package:ckbcore/src/base/coin.dart';
 import 'package:ckbcore/src/base/config/hd_core_config.dart';
 import 'package:ckbcore/src/base/core/credential.dart';
@@ -12,7 +13,7 @@ class HDCore {
   int _unusedChangeIndex;
 
   HDCore(HDCoreConfig config) {
-    _coin = Coin(config.seed);
+    _coin = Coin(intToBytes(toBigInt(remove0x(config.seed))));
     _unusedReceiveIndex = config.receiveIndex;
     _unusedChangeIndex = config.changeIndex;
   }

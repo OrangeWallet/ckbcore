@@ -1,20 +1,19 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
-import 'package:ckb_sdk/ckb-utils/number.dart';
 import 'package:ckbcore/ckbcore.dart';
 import 'package:ckbcore/src/base/config/hd_core_config.dart';
 
 main() async {
-  Uint8List privateKey =
-      intToBytes(toBigInt(remove0x('e79f3207ea4980b7fed79956d5934249ceac4751a4fae01a0f7c4a96884bc4e3')));
-  MyWalletCore walletCore = MyWalletCore(HDCoreConfig(privateKey, 1, 1), 'test/store/store');
-  await walletCore.updateCurrentIndexCells();
-  print(jsonEncode(walletCore.cellsResultBean.cells.length));
+  MyWalletCore walletCore = MyWalletCore('test/store/store');
+  // await walletCore.init();
+  // String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
+  await walletCore.create('');
+  print(walletCore.unusedChangeWallet.lockScript.scriptHash);
+  walletCore.updateCurrentIndexCells();
 }
 
 class MyWalletCore extends WalletCore {
-  MyWalletCore(HDCoreConfig hdCoreConfig, String storePath) : super(hdCoreConfig, storePath);
+  String privateKey = 'e79f3207ea4980b7fed79956d5934249ceac4751a4fae01a0f7c4a96884bc4e3';
+
+  MyWalletCore(String storePath) : super(storePath);
 
   @override
   blockChanged() {
@@ -24,5 +23,23 @@ class MyWalletCore extends WalletCore {
   @override
   cellsChanged() {
     print('cells size is ${this.cellsResultBean.cells.length}');
+  }
+
+  @override
+  createStep(int step) {
+    print(step);
+  }
+
+  @override
+  Future<HDCoreConfig> getWallet() async {
+    return HDCoreConfig('', privateKey, 0, 0);
+  }
+
+  @override
+  storeWallet(String wallet) {}
+
+  @override
+  syncedFinished() {
+    print('syncedFinished');
   }
 }

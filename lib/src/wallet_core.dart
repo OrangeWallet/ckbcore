@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:bip39/bip39.dart' as bip39;
 import 'package:ckbcore/src/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/src/base/bean/thin_block.dart';
 import 'package:ckbcore/src/base/config/hd_core_config.dart';
@@ -7,8 +11,10 @@ import 'package:ckbcore/src/base/interface/sync_interface.dart';
 import 'package:ckbcore/src/base/interface/wallet_core_interface.dart';
 import 'package:ckbcore/src/base/store/store_manager.dart';
 import 'package:ckbcore/src/base/sync/sync_service.dart';
+import 'package:ckbcore/src/base/utils/isolate_mnemonic_to_seed.dart';
 import 'package:ckbcore/src/base/utils/searchCells/get_unspent_cells_utils.dart' as GetCellsUtils;
 import 'package:ckbcore/src/base/utils/searchCells/update_unspent_cells.dart' as UpdateCellsUtils;
+import 'package:convert/convert.dart';
 
 abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   static StoreManager MyStoreManager;
@@ -16,17 +22,13 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   static int IntervalSyncTime = 20;
   static String DefaultNodeUrl = 'http://192.168.2.225:8114';
 
-  final HDCoreConfig _hdCoreConfig;
-
   HDCore _hdCore;
   SyncService _syncService;
-  CellsResultBean _cellsResultBean;
+  CellsResultBean _cellsResultBean = CellsResultBean([], '-1');
 
-  WalletCore(this._hdCoreConfig, String storePath, {String nodeUrl}) {
-    _hdCore = HDCore(_hdCoreConfig);
+  WalletCore(String storePath, {String nodeUrl}) {
     DefaultNodeUrl = nodeUrl == null ? DefaultNodeUrl : nodeUrl;
     MyStoreManager = StoreManager(storePath);
-    _syncService = SyncService(_hdCore, this);
   }
 
   HDIndexWallet get unusedReceiveWallet => _hdCore.unusedReceiveWallet;
@@ -35,11 +37,35 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
 
   CellsResultBean get cellsResultBean => _cellsResultBean;
 
-  startSync() {
-    _syncService.start();
+  Future init() async {
+    HDCoreConfig config = await getWallet();
+    if (config.seed == '') {
+      throw Exception('Seed is Empty');
+    }
+    _hdCore = HDCore(config);
+    return;
   }
 
-  Future<CellsResultBean> updateCurrentIndexCells() async {
+  Future create(String mnemonic) async {
+    if (mnemonic == '') {
+      mnemonic = bip39.generateMnemonic();
+    }
+    if (!bip39.validateMnemonic(mnemonic)) {
+      throw Exception('Wrong mnemonic');
+    }
+    Uint8List seed = await mnemonicToSeed(mnemonic);
+    createStep(1);
+    String seedStr = hex.encode(seed);
+    var hdCoreConfig = HDCoreConfig(mnemonic, seedStr, 0, 0);
+    _hdCore = HDCore(hdCoreConfig);
+    createStep(2);
+    await storeWallet(jsonEncode(hdCoreConfig));
+    createStep(3);
+    return;
+  }
+
+  updateCurrentIndexCells() async {
+    _syncService = SyncService(_hdCore, this);
     _cellsResultBean = await MyStoreManager.getSyncedCells();
     if (_cellsResultBean.syncedBlockNumber == '') {
       print('sync from genesis block');
@@ -56,14 +82,15 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
         await MyStoreManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
       }
     }
-    startSync();
-    return _cellsResultBean;
+    syncedFinished();
+    _syncService.start();
   }
 
   //Searching all cells.Include index before current receive index and change index
-  Future<CellsResultBean> getWholeHDUnspentCells() async {
+  Future<CellsResultBean> _getWholeHDUnspentCells() async {
     _cellsResultBean = await GetCellsUtils.getWholeHDAllCells(_hdCore);
     await MyStoreManager.syncCells(_cellsResultBean);
+    _syncService.start();
     return _cellsResultBean;
   }
 
