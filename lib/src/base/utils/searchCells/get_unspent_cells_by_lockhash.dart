@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:isolate';
 import 'dart:math';
 
@@ -5,6 +6,7 @@ import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_with_outpoint.dart';
 import 'package:ckbcore/ckbcore.dart';
 import 'package:ckbcore/src/base/bean/cell_bean.dart';
+import 'package:ckbcore/src/base/bean/isolate_result/cells_isolate_result.dart';
 import 'package:ckbcore/src/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/src/base/utils/searchCells/fetch_utils.dart';
 
@@ -37,8 +39,11 @@ Future<List<CellBean>> getCellByLockHash(GetCellByLockHashParams param) async {
   ReceivePort receivePort = ReceivePort();
   await Isolate.spawn(_dateLoader, receivePort.sendPort);
   SendPort sendPort = await receivePort.first;
-  List<CellBean> cells = await _sendReceive(param, sendPort);
-  return cells;
+  CellsIsolateResultBean result = await _sendReceive(param, sendPort);
+  if (result.status) {
+    return result.result;
+  }
+  throw result.errorMessage;
 }
 
 _dateLoader(SendPort sendPort) async {
@@ -47,8 +52,14 @@ _dateLoader(SendPort sendPort) async {
   await for (var msg in port) {
     GetCellByLockHashParams param = msg[0];
     SendPort replyTo = msg[1];
-    List<CellBean> cells = await _getCellByLockHash(param);
-    replyTo.send(cells);
+    try {
+      List<CellBean> newCells = await _getCellByLockHash(param);
+      var result = CellsIsolateResultBean.fromSuccess(newCells);
+      replyTo.send(result);
+    } catch (e) {
+      var result = CellsIsolateResultBean.fromFail(jsonEncode(e));
+      replyTo.send(result);
+    }
   }
 }
 
