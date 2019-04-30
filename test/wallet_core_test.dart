@@ -27,7 +27,7 @@ main() {
         'ckt1q9gry5zgutwq4r864ypfu0pethxrn50q8gyc6qayzqh758');
     expect(walletCore.unusedChangeWallet.getAddress(Network.TestNet),
         'ckt1q9gry5zgss8plvxyt37gq3tmfwpj5lrgj8gernusf0x8d6');
-    await walletCore.getCurrentIndexCells();
+    await walletCore.updateCurrentIndexCells();
     print(jsonEncode(walletCore.cellsResultBean));
   });
 }

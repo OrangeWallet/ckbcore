@@ -1,11 +1,13 @@
+import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_with_status.dart';
 import 'package:ckbcore/ckbcore.dart';
 import 'package:ckbcore/src/base/bean/cell_bean.dart';
+import 'package:ckbcore/src/base/bean/isolate_result/cells_isolate_result.dart';
 
-Future<bool> checkCelltatus(CellBean cell) async {
+Future<bool> _checkCellstatus(CellBean cell) async {
   var cellWithStatus = await CKBApiClient(nodeUrl: WalletCore.DefaultNodeUrl).getLiveCell(cell.outPoint);
   return cellWithStatus.status == CellWithStatus.LIVE;
 }
@@ -13,7 +15,7 @@ Future<bool> checkCelltatus(CellBean cell) async {
 Future<List<CellBean>> _checkCellsStatus(List<CellBean> cells) async {
   List<CellBean> newCells = [];
   for (int i = 0; i < cells.length; i++) {
-    if (await checkCelltatus(cells[i])) newCells.add(cells[i]);
+    if (await _checkCellstatus(cells[i])) newCells.add(cells[i]);
   }
   return newCells;
 }
@@ -22,8 +24,11 @@ Future<List<CellBean>> checkCellsStatus(List<CellBean> cells) async {
   ReceivePort receivePort = ReceivePort();
   await Isolate.spawn(_dateLoader, receivePort.sendPort);
   SendPort sendPort = await receivePort.first;
-  List<CellBean> newCells = await _sendReceive(cells, sendPort);
-  return newCells;
+  CellsIsolateResultBean result = await _sendReceive(cells, sendPort);
+  if (result.status) {
+    return result.result;
+  }
+  throw result.errorMessage;
 }
 
 _dateLoader(SendPort sendPort) async {
@@ -32,8 +37,14 @@ _dateLoader(SendPort sendPort) async {
   await for (var msg in port) {
     List<CellBean> cells = msg[0];
     SendPort replyTo = msg[1];
-    List<CellBean> newCells = await _checkCellsStatus(cells);
-    replyTo.send(newCells);
+    try {
+      List<CellBean> newCells = await _checkCellsStatus(cells);
+      var result = CellsIsolateResultBean.fromSuccess(newCells);
+      replyTo.send(result);
+    } catch (e) {
+      var result = CellsIsolateResultBean.fromFail(jsonEncode(e));
+      replyTo.send(result);
+    }
   }
 }
 

@@ -1,21 +1,23 @@
 import 'dart:isolate';
+import 'dart:convert';
 
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckb_sdk/ckb-types/res_export.dart';
 import 'package:ckbcore/ckbcore.dart';
-import 'package:ckbcore/src/base/bean/blcok_to_check_result_bean.dart';
 import 'package:ckbcore/src/base/bean/cell_bean.dart';
+import 'package:ckbcore/src/base/bean/isolate_result/thin_block_isolate_result.dart';
 import 'package:ckbcore/src/base/bean/thin_block.dart';
+import 'package:ckbcore/src/base/bean/thin_bolck_with_cells.dart';
 import 'package:ckbcore/src/base/bean/thin_transaction.dart';
 import 'package:ckbcore/src/base/core/hd_core.dart';
 import 'package:ckbcore/src/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/src/base/utils/searchCells/fetch_utils.dart';
 
-Future<BlockToCheckResultBean> _fetchBlockToCheckCell(FetchBlockToCheckParam param) async {
+Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam param) async {
   var apiClient = CKBApiClient(nodeUrl: WalletCore.DefaultNodeUrl);
   String blockHash = await apiClient.getBlockHash(param.blockNumber.toString());
   Block block = await apiClient.getBlock(blockHash);
-  var updateCells = BlockToCheckResultBean([], [], ThinBlock.fromBlock(block));
+  var updateCells = ThinBlockWithCellsBean([], [], ThinBlock.fromBlock(block));
   await Future.forEach(block.transactions, (Transaction transaction) async {
     ThinTransaction thinTransaction = ThinTransaction(transaction.hash, [], []);
     await Future.forEach(transaction.inputs, (CellInput cellInput) async {
@@ -62,12 +64,15 @@ class FetchBlockToCheckParam {
   FetchBlockToCheckParam(this.hdCore, this.blockNumber);
 }
 
-Future<BlockToCheckResultBean> fetchBlockToCheckCell(FetchBlockToCheckParam param) async {
+Future<ThinBlockWithCellsBean> fetchBlockToCheckCell(FetchBlockToCheckParam param) async {
   ReceivePort receivePort = ReceivePort();
   await Isolate.spawn(_dateLoader, receivePort.sendPort);
   SendPort sendPort = await receivePort.first;
-  BlockToCheckResultBean result = await _sendReceive(param, sendPort);
-  return result;
+  ThinBlockIsolateResultBean result = await _sendReceive(param, sendPort);
+  if (result.status) {
+    return result.result;
+  }
+  throw result.errorMessage;
 }
 
 _dateLoader(SendPort sendPort) async {
@@ -76,8 +81,14 @@ _dateLoader(SendPort sendPort) async {
   await for (var msg in port) {
     FetchBlockToCheckParam param = msg[0];
     SendPort replyTo = msg[1];
-    BlockToCheckResultBean result = await _fetchBlockToCheckCell(param);
-    replyTo.send(result);
+    try {
+      ThinBlockWithCellsBean result = await _fetchBlockToCheckCell(param);
+      ThinBlockIsolateResultBean resultBean = ThinBlockIsolateResultBean.fromSuccess(result);
+      replyTo.send(resultBean);
+    } catch (e) {
+      ThinBlockIsolateResultBean resultBean = ThinBlockIsolateResultBean.fromFail(jsonEncode(e));
+      replyTo.send(resultBean);
+    }
   }
 }
 

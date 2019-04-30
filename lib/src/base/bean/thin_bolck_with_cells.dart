@@ -1,14 +1,14 @@
 import 'package:ckbcore/src/base/bean/cell_bean.dart';
 import 'package:ckbcore/src/base/bean/thin_block.dart';
 
-class BlockToCheckResultBean {
+class ThinBlockWithCellsBean {
   final List<CellBean> spendCells;
   final List<CellBean> newCells;
   final ThinBlock thinBlock;
 
-  BlockToCheckResultBean(this.spendCells, this.newCells, this.thinBlock);
+  ThinBlockWithCellsBean(this.spendCells, this.newCells, this.thinBlock);
 
-  factory BlockToCheckResultBean.fromJson(Map<String, dynamic> json) => BlockToCheckResultBean(
+  factory ThinBlockWithCellsBean.fromJson(Map<String, dynamic> json) => ThinBlockWithCellsBean(
         (json['spendCells'] as List)
             ?.map((e) => e == null ? null : CellBean.fromJson(e as Map<String, dynamic>))
             ?.toList(),
