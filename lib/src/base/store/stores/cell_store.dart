@@ -40,7 +40,7 @@ class CellsStore {
   }
 
   Future deleteStore() async {
-    await _cellsFile.deleteSync();
+    await writeToStore([]);
     return;
   }
 }

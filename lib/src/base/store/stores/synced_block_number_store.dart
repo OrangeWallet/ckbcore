@@ -30,7 +30,7 @@ class SyncedBlockNumberStore {
   }
 
   Future deleteStore() async {
-    await _blockNumberFile.deleteSync();
+    await wirteToStore('');
     return;
   }
 }
