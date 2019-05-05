@@ -20,7 +20,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   static StoreManager MyStoreManager;
   static int IntervalBlockNumber = 100;
   static int IntervalSyncTime = 20;
-  static String DefaultNodeUrl = 'http://192.168.2.125:8114';
+  static String DefaultNodeUrl = 'http://192.168.2.78:8114';
 
   HDCore _hdCore;
   SyncService _syncService;

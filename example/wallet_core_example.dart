@@ -3,7 +3,7 @@ import 'package:ckbcore/src/base/config/hd_core_config.dart';
 import 'dart:convert';
 
 main() async {
-  MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://192.168.2.125:8114');
+  MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://192.168.2.78:8114');
   await walletCore.init('123456');
   // String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
   // await walletCore.create('', '123456');

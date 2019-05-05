@@ -54,8 +54,8 @@ Future<List<CellBean>> getCurrentIndexCellsWithTargetNumber(
     HDCore hdCore, int startBlockNumber, int targetBlockNumber) async {
   List<CellBean> cells = List();
 
-  cells.addAll(await getCellByLockHash(
-      GetCellByLockHashParams(startBlockNumber, targetBlockNumber, hdCore.unusedReceiveWallet)));
+  cells.addAll(
+      await getCellByLockHash(GetCellByLockHashParams(startBlockNumber, targetBlockNumber, hdCore.unusedChangeWallet)));
   cells.addAll(await getCellByLockHash(
       GetCellByLockHashParams(startBlockNumber, targetBlockNumber, hdCore.unusedReceiveWallet)));
   return cells;
