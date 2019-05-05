@@ -1,11 +1,12 @@
 import 'package:ckbcore/ckbcore.dart';
 import 'package:ckbcore/src/base/config/hd_core_config.dart';
+import 'dart:convert';
 
 main() async {
   MyWalletCore walletCore = MyWalletCore('test/store/store');
   // await walletCore.init();
   // String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
-  await walletCore.create('');
+  await walletCore.create('', '123456');
   print(walletCore.unusedChangeWallet.lockScript.scriptHash);
   walletCore.updateCurrentIndexCells();
 }
@@ -31,12 +32,13 @@ class MyWalletCore extends WalletCore {
   }
 
   @override
-  Future<HDCoreConfig> getWallet() async {
-    return HDCoreConfig('', privateKey, 0, 0);
+  Future<String> getWallet(String password) async {
+    var config = HDCoreConfig('', privateKey, 0, 0);
+    return jsonEncode(config);
   }
 
   @override
-  storeWallet(String wallet) {}
+  storeWallet(String wallet, String password) {}
 
   @override
   syncedFinished() {
