@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:convert';
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:ckbcore/src/base/bean/cells_result_bean.dart';
@@ -25,6 +26,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   HDCore _hdCore;
   SyncService _syncService;
   CellsResultBean _cellsResultBean = CellsResultBean([], '-1');
+  HDCoreConfig _hdCoreConfig;
 
   WalletCore(String storePath, {String nodeUrl}) {
     DefaultNodeUrl = nodeUrl == null ? DefaultNodeUrl : nodeUrl;
@@ -37,17 +39,21 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
 
   CellsResultBean get cellsResultBean => _cellsResultBean;
 
+  HDCoreConfig get hdCoreConfig => _hdCoreConfig;
+
   Future init(String password) async {
-    HDCoreConfig config = await readWallet(password);
-    if (config.seed == '') {
+    _hdCoreConfig = HDCoreConfig.fromJson(jsonDecode(await readWallet(password)));
+    if (_hdCoreConfig.seed == '') {
       throw Exception('Seed is Empty');
     }
-    _hdCore = HDCore(config);
+    _hdCore = HDCore(_hdCoreConfig);
     return;
   }
 
   Future create(String mnemonic, String password) async {
+    bool isBackup = true;
     if (mnemonic == '') {
+      isBackup = false;
       mnemonic = bip39.generateMnemonic();
     }
     if (!bip39.validateMnemonic(mnemonic)) {
@@ -56,11 +62,12 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
     Uint8List seed = await mnemonicToSeed(mnemonic);
     createStep(1);
     String seedStr = hex.encode(seed);
-    var hdCoreConfig = HDCoreConfig(mnemonic, seedStr, 0, 0);
-    _hdCore = HDCore(hdCoreConfig);
+    _hdCoreConfig = HDCoreConfig(mnemonic, seedStr, 0, 0);
+    _hdCore = HDCore(_hdCoreConfig);
     createStep(2);
-    await writeWallet(jsonEncode(hdCoreConfig), password);
+    await writeWallet(jsonEncode(_hdCoreConfig), password);
     createStep(3);
+    await createFinished(isBackup);
     return;
   }
 

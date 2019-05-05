@@ -44,4 +44,10 @@ class MyWalletCore extends WalletCore {
   syncedFinished() {
     print('syncedFinished');
   }
+
+  @override
+  createFinished(bool isCreate) {
+    // TODO: implement createFinished
+    return null;
+  }
 }

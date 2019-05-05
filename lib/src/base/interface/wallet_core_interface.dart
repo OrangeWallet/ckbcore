@@ -3,6 +3,7 @@ abstract class WalletCoreInterface {
   blockChanged();
   createStep(int step);
   writeWallet(String wallet, String password);
-  readWallet(String password);
+  Future<String> readWallet(String password);
   syncedFinished();
+  createFinished(bool isBackup);
 }
