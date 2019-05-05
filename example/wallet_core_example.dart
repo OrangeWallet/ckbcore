@@ -6,11 +6,13 @@ import 'package:ckbcore/src/base/utils/log.dart';
 
 main() async {
   MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://192.168.2.78:8114');
-  await walletCore.init('123456');
+  // await walletCore.init('123456');
   // String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
-  // await walletCore.create('', '123456');
+  await walletCore.create('', '123456');
   Log.log(walletCore.unusedChangeWallet.lockScript.scriptHash);
   walletCore.updateCurrentIndexCells();
+  // await walletCore.clearStore();
+  // Log.log('Clear finished');
 }
 
 class MyWalletCore extends WalletCore {

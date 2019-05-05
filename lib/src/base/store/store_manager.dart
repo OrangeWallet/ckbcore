@@ -28,4 +28,9 @@ class StoreManager {
     String syncedBlockNumber = await _syncedBlockNumberStore.readFromStore();
     return CellsResultBean(cells, syncedBlockNumber);
   }
+
+  Future clearAll() async {
+    await _cellsStore.deleteStore();
+    await _syncedBlockNumberStore.deleteStore();
+  }
 }

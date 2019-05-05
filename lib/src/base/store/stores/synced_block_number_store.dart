@@ -4,6 +4,7 @@ import 'package:ckbcore/src/base/utils/file.dart';
 
 class SyncedBlockNumberStore {
   final String dirPath;
+  File _blockNumberFile;
   String _blockNumberFilePath;
   String _SYNCEDBLOCKNUMBER = 'syncedBlockNumber.txt';
 
@@ -13,18 +14,23 @@ class SyncedBlockNumberStore {
     else
       _blockNumberFilePath = dirPath + '/' + _SYNCEDBLOCKNUMBER;
 
-    File blockNumberFile = File(_blockNumberFilePath);
-    if (!blockNumberFile.existsSync()) {
-      blockNumberFile.createSync(recursive: true);
+    _blockNumberFile = File(_blockNumberFilePath);
+    if (!_blockNumberFile.existsSync()) {
+      _blockNumberFile.createSync(recursive: true);
     }
   }
 
   Future<String> readFromStore() async {
-    return await readFromFile(_blockNumberFilePath);
+    return await readFromFile(_blockNumberFile);
   }
 
   Future wirteToStore(String blockNumber) async {
-    await writeToFile(blockNumber, _blockNumberFilePath);
+    await writeToFile(blockNumber, _blockNumberFile);
+    return;
+  }
+
+  Future deleteStore() async {
+    await _blockNumberFile.deleteSync();
     return;
   }
 }

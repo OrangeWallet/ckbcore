@@ -1,7 +1,6 @@
 import 'dart:io';
 
-Future<String> readFromFile(String path) async {
-  File file = File(path);
+Future<String> readFromFile(File file) async {
   List<String> verifyScript_lines = await file.readAsLines();
   String verifyScript = "";
   verifyScript_lines.forEach((line) {
@@ -10,8 +9,11 @@ Future<String> readFromFile(String path) async {
   return verifyScript;
 }
 
-Future writeToFile(String contents, String path) async {
-  File file = File(path);
+Future writeToFile(String contents, File file) async {
   await file.writeAsString(contents);
   return;
+}
+
+Future delete(File file) async {
+  await file.deleteSync();
 }
