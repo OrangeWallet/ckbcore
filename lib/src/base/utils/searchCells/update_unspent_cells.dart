@@ -10,7 +10,7 @@ Future<UpdateCellsResult> updateCurrentIndexCells(HDCore hdCore, CellsResultBean
   CellsResultBean newCellsResult = CellsResultBean([], "0");
   int syncedBlockNumber = int.parse(cellsResultBean.syncedBlockNumber);
   //if blockNumber need to sync is biger then cells length,we just check all cells we saved and search to target blockNumber
-  if (targetBlockNumber - syncedBlockNumber > cellsResultBean.cells.length) {
+  if ((targetBlockNumber - syncedBlockNumber) * 50 > cellsResultBean.cells.length) {
     newCellsResult.cells.addAll(await checkCellsStatus(cellsResultBean.cells));
     newCellsResult.cells
         .addAll(await getCurrentIndexCellsWithTargetNumber(hdCore, syncedBlockNumber, targetBlockNumber));
