@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'dart:convert';
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:ckbcore/src/base/bean/cells_result_bean.dart';
@@ -21,14 +20,14 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   static StoreManager MyStoreManager;
   static int IntervalBlockNumber = 100;
   static int IntervalSyncTime = 20;
-  static String DefaultNodeUrl = 'http://192.168.2.225:8114';
+  static String DefaultNodeUrl = 'http://192.168.2.125:8114';
 
   HDCore _hdCore;
   SyncService _syncService;
   CellsResultBean _cellsResultBean = CellsResultBean([], '-1');
   HDCoreConfig _hdCoreConfig;
 
-  WalletCore(String storePath, {String nodeUrl}) {
+  WalletCore(String storePath, String nodeUrl) {
     DefaultNodeUrl = nodeUrl == null ? DefaultNodeUrl : nodeUrl;
     MyStoreManager = StoreManager(storePath);
   }

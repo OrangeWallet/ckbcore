@@ -88,7 +88,7 @@ _dateLoader(SendPort sendPort) async {
       ThinBlockIsolateResultBean resultBean = ThinBlockIsolateResultBean.fromSuccess(result);
       replyTo.send(resultBean);
     } catch (e) {
-      ThinBlockIsolateResultBean resultBean = ThinBlockIsolateResultBean.fromFail(jsonEncode(e));
+      ThinBlockIsolateResultBean resultBean = ThinBlockIsolateResultBean.fromFail(e.toString());
       replyTo.send(resultBean);
     }
   }
