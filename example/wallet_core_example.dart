@@ -32,13 +32,13 @@ class MyWalletCore extends WalletCore {
   }
 
   @override
-  Future<String> getWallet(String password) async {
+  Future<String> readWallet(String password) async {
     var config = HDCoreConfig('', privateKey, 0, 0);
     return jsonEncode(config);
   }
 
   @override
-  storeWallet(String wallet, String password) {}
+  writeWallet(String wallet, String password) {}
 
   @override
   syncedFinished() {

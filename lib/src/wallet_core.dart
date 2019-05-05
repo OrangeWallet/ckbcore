@@ -38,7 +38,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   CellsResultBean get cellsResultBean => _cellsResultBean;
 
   Future init(String password) async {
-    HDCoreConfig config = await getWallet(password);
+    HDCoreConfig config = await readWallet(password);
     if (config.seed == '') {
       throw Exception('Seed is Empty');
     }
@@ -59,7 +59,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
     var hdCoreConfig = HDCoreConfig(mnemonic, seedStr, 0, 0);
     _hdCore = HDCore(hdCoreConfig);
     createStep(2);
-    await storeWallet(jsonEncode(hdCoreConfig), password);
+    await writeWallet(jsonEncode(hdCoreConfig), password);
     createStep(3);
     return;
   }
