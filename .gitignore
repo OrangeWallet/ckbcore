@@ -3,3 +3,5 @@
 build/
 pubspec.lock
 .idea
+test/store/store/cells.json
+test/store/store/syncedBlockNumber.txt
