@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:ckbcore/src/base/config/hd_core_config.dart';
 import 'package:ckbcore/src/base/core/hd_core.dart';
 import 'package:ckbcore/src/base/sync/fetch_thin_block.dart';
+import 'package:ckbcore/src/base/utils/log.dart';
 import 'package:test/test.dart';
 
 main() {
@@ -11,9 +12,9 @@ main() {
     HDCore hdCore = HDCore(HDCoreConfig('', privateKey, 0, 0));
     try {
       var result = await fetchBlockToCheckCell(FetchBlockToCheckParam(hdCore, 50));
-      print(jsonEncode(result));
+      Log.log(jsonEncode(result));
     } catch (e) {
-      print(e);
+      Log.log(e);
     }
   });
 }

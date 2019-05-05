@@ -2,12 +2,14 @@ import 'package:ckbcore/ckbcore.dart';
 import 'package:ckbcore/src/base/config/hd_core_config.dart';
 import 'dart:convert';
 
+import 'package:ckbcore/src/base/utils/log.dart';
+
 main() async {
   MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://192.168.2.78:8114');
   await walletCore.init('123456');
   // String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
   // await walletCore.create('', '123456');
-  print(walletCore.unusedChangeWallet.lockScript.scriptHash);
+  Log.log(walletCore.unusedChangeWallet.lockScript.scriptHash);
   walletCore.updateCurrentIndexCells();
 }
 
@@ -18,17 +20,17 @@ class MyWalletCore extends WalletCore {
 
   @override
   blockChanged() {
-    print('blcok synced to ${this.cellsResultBean.syncedBlockNumber}');
+    Log.log('blcok synced to ${this.cellsResultBean.syncedBlockNumber}');
   }
 
   @override
   cellsChanged() {
-    print('cells size is ${this.cellsResultBean.cells.length}');
+    Log.log('cells size is ${this.cellsResultBean.cells.length}');
   }
 
   @override
   createStep(int step) {
-    print(step);
+    Log.log(step);
   }
 
   @override
@@ -42,7 +44,7 @@ class MyWalletCore extends WalletCore {
 
   @override
   syncedFinished() {
-    print('syncedFinished');
+    Log.log('syncedFinished');
   }
 
   @override

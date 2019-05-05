@@ -4,6 +4,7 @@ import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckbcore/src/base/bean/cell_bean.dart';
 import 'package:ckbcore/src/base/config/hd_core_config.dart';
 import 'package:ckbcore/src/base/core/hd_core.dart';
+import 'package:ckbcore/src/base/utils/log.dart';
 import 'package:ckbcore/src/base/utils/searchCells/get_unspent_cells_by_lockhash.dart';
 import 'package:test/test.dart';
 
@@ -14,13 +15,13 @@ main() {
   HDCore hdCore = HDCore(HDCoreConfig('', privateKey, 0, 0));
   test('get cells by lockHash', () async {
     var targetBlockNumber = await ckbApiClient.getTipBlockNumber();
-    print(targetBlockNumber);
+    Log.log(targetBlockNumber);
     List<CellBean> cells = await getCellByLockHash(GetCellByLockHashParams(0, 100, hdCore.unusedChangeWallet));
-    print(jsonEncode(cells));
+    Log.log(jsonEncode(cells));
   });
 
   test('get tip block number', () async {
     var targetBlockNumber = await ckbApiClient.getTipBlockNumber();
-    print(targetBlockNumber);
+    Log.log(targetBlockNumber);
   });
 }

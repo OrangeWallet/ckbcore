@@ -12,6 +12,7 @@ import 'package:ckbcore/src/base/interface/wallet_core_interface.dart';
 import 'package:ckbcore/src/base/store/store_manager.dart';
 import 'package:ckbcore/src/base/sync/sync_service.dart';
 import 'package:ckbcore/src/base/utils/isolate_mnemonic_to_seed.dart';
+import 'package:ckbcore/src/base/utils/log.dart';
 import 'package:ckbcore/src/base/utils/searchCells/get_unspent_cells_utils.dart' as GetCellsUtils;
 import 'package:ckbcore/src/base/utils/searchCells/update_unspent_cells.dart' as UpdateCellsUtils;
 import 'package:convert/convert.dart';
@@ -21,6 +22,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   static int IntervalBlockNumber = 100;
   static int IntervalSyncTime = 20;
   static String DefaultNodeUrl = 'http://192.168.2.78:8114';
+  static bool isDebug = true;
 
   HDCore _hdCore;
   SyncService _syncService;
@@ -74,11 +76,11 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
     _syncService = SyncService(_hdCore, this);
     _cellsResultBean = await MyStoreManager.getSyncedCells();
     if (_cellsResultBean.syncedBlockNumber == '') {
-      print('sync from genesis block');
+      Log.log('sync from genesis block');
       _cellsResultBean = await GetCellsUtils.getCurrentIndexCells(_hdCore, 0);
       await MyStoreManager.syncCells(_cellsResultBean);
     } else {
-      print('sync from ${_cellsResultBean.syncedBlockNumber}');
+      Log.log('sync from ${_cellsResultBean.syncedBlockNumber}');
       var updateCellsResult = await UpdateCellsUtils.updateCurrentIndexCells(_hdCore, _cellsResultBean);
       if (updateCellsResult.isChange) {
         _cellsResultBean = updateCellsResult.cellsResultBean;

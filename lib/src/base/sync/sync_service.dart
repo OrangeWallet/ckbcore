@@ -4,6 +4,7 @@ import 'package:ckbcore/src/base/bean/cell_bean.dart';
 import 'package:ckbcore/src/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/src/base/core/hd_core.dart';
 import 'package:ckbcore/src/base/interface/sync_interface.dart';
+import 'package:ckbcore/src/base/utils/log.dart';
 
 import 'fetch_thin_block.dart';
 
@@ -20,7 +21,7 @@ class SyncService {
     int targetBlockNumber = int.parse(await CKBApiClient(nodeUrl: WalletCore.DefaultNodeUrl).getTipBlockNumber());
     while (int.parse(syncInterface.getCurrentCellsResult().syncedBlockNumber) < targetBlockNumber) {
       int syncedBlockNumber = int.parse(syncInterface.getCurrentCellsResult().syncedBlockNumber) + 1;
-      print('synced is ${syncedBlockNumber - 1},fetch block ${syncedBlockNumber},target is ${targetBlockNumber}');
+      Log.log('synced is ${syncedBlockNumber - 1},fetch block ${syncedBlockNumber},target is ${targetBlockNumber}');
       var thinBlockWithCellsBean = await fetchBlockToCheckCell(FetchBlockToCheckParam(hdCore, syncedBlockNumber));
       if (thinBlockWithCellsBean.newCells.length > 0 || thinBlockWithCellsBean.spendCells.length > 0) {
         List<CellBean> cells = [];
@@ -42,7 +43,7 @@ class SyncService {
         await syncInterface.thinBlockUpdate(false, null, thinBlockWithCellsBean.thinBlock);
       }
     }
-    print('synced is ${syncInterface.getCurrentCellsResult().syncedBlockNumber},It`s tip,waiting');
+    Log.log('synced is ${syncInterface.getCurrentCellsResult().syncedBlockNumber},It`s tip,waiting');
     await Future.delayed(Duration(seconds: WalletCore.IntervalSyncTime), () async {
       await start();
     });

@@ -8,6 +8,7 @@ import 'package:ckbcore/ckbcore.dart';
 import 'package:ckbcore/src/base/bean/cell_bean.dart';
 import 'package:ckbcore/src/base/bean/isolate_result/cells_isolate_result.dart';
 import 'package:ckbcore/src/base/core/hd_index_wallet.dart';
+import 'package:ckbcore/src/base/utils/log.dart';
 import 'package:ckbcore/src/base/utils/searchCells/fetch_utils.dart';
 
 Future<List<CellBean>> _getCellByLockHash(GetCellByLockHashParams param) async {
@@ -22,8 +23,8 @@ Future<List<CellBean>> _getCellByLockHash(GetCellByLockHashParams param) async {
     to = min(to, param.targetBlockNumber);
     List<CellWithOutPoint> cellsWithOutPoints = await CKBApiClient(nodeUrl: WalletCore.DefaultNodeUrl)
         .getCellsByLockHash(param.hdIndexWallet.lockScript.scriptHash, from.toString(), to.toString());
-    // print('from ${from}');
-    // print('size ${cellsWithOutPoints.length}');
+    Log.log('from ${from}');
+    Log.log('size ${cellsWithOutPoints.length}');
     for (int i = 0; i < cellsWithOutPoints.length; i++) {
       var cellsWithOutPoint = cellsWithOutPoints[i];
       CellBean cell = await fetchThinLiveCell(
