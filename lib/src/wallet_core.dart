@@ -29,8 +29,9 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   HDCoreConfig _hdCoreConfig;
   StoreManager _storeManager;
 
-  WalletCore(String storePath, String nodeUrl) {
+  WalletCore(String storePath, String nodeUrl, bool _isDebug) {
     DefaultNodeUrl = nodeUrl == null ? DefaultNodeUrl : nodeUrl;
+    isDebug = _isDebug;
     _storeManager = StoreManager(storePath);
   }
 
