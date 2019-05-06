@@ -4,12 +4,13 @@ import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckbcore/ckbcore.dart';
 import 'package:ckbcore/src/base/bean/cell_bean.dart';
 import 'package:ckbcore/src/base/bean/cells_result_bean.dart';
+import 'package:ckbcore/src/base/constant/constant.dart';
 import 'package:ckbcore/src/base/core/hd_core.dart';
 import 'package:ckbcore/src/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/src/base/utils/searchCells/get_unspent_cells_by_lockhash.dart';
 
 Future<CellsResultBean> getWholeHDAllCells(HDCore hdCore) async {
-  String targetBlockNumber = await CKBApiClient(nodeUrl: WalletCore.DefaultNodeUrl).getTipBlockNumber();
+  String targetBlockNumber = await ApiClient.getTipBlockNumber();
   List<CellBean> cells = await getWholeHDAllCellsWithTargetNumber(hdCore, int.parse(targetBlockNumber));
   return CellsResultBean(cells, targetBlockNumber);
 }
@@ -44,7 +45,7 @@ Future<List<CellBean>> _getReceiveAndChangeCells(
 }
 
 Future<CellsResultBean> getCurrentIndexCells(HDCore hdCore, int startBlockNumber) async {
-  String targetBlockNumber = await CKBApiClient(nodeUrl: WalletCore.DefaultNodeUrl).getTipBlockNumber();
+  String targetBlockNumber = await ApiClient.getTipBlockNumber();
   List<CellBean> cells =
       await getCurrentIndexCellsWithTargetNumber(hdCore, startBlockNumber, int.parse(targetBlockNumber));
   return CellsResultBean(cells, targetBlockNumber);

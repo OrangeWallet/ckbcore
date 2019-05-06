@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckbcore/src/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/src/base/bean/thin_block.dart';
 import 'package:ckbcore/src/base/config/hd_core_config.dart';
+import 'package:ckbcore/src/base/constant/constant.dart' show ApiClient, NodeUrl;
 import 'package:ckbcore/src/base/core/hd_core.dart';
 import 'package:ckbcore/src/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/src/base/interface/sync_interface.dart';
@@ -18,9 +20,6 @@ import 'package:ckbcore/src/base/utils/searchCells/update_unspent_cells.dart' as
 import 'package:convert/convert.dart';
 
 abstract class WalletCore implements SyncInterface, WalletCoreInterface {
-  static int IntervalBlockNumber = 100;
-  static int IntervalSyncTime = 20;
-  static String DefaultNodeUrl = 'http://192.168.2.78:8114';
   static bool isDebug = true;
 
   HDCore _hdCore;
@@ -30,7 +29,10 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   StoreManager _storeManager;
 
   WalletCore(String storePath, String nodeUrl, bool _isDebug) {
-    DefaultNodeUrl = nodeUrl == null ? DefaultNodeUrl : nodeUrl;
+    if (nodeUrl != null) {
+      NodeUrl = nodeUrl;
+      ApiClient = CKBApiClient(nodeUrl: NodeUrl);
+    }
     isDebug = _isDebug;
     _storeManager = StoreManager(storePath);
   }

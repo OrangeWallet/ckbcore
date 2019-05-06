@@ -1,14 +1,13 @@
 import 'dart:convert';
 import 'dart:isolate';
 
-import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_with_status.dart';
-import 'package:ckbcore/ckbcore.dart';
 import 'package:ckbcore/src/base/bean/cell_bean.dart';
 import 'package:ckbcore/src/base/bean/isolate_result/cells_isolate_result.dart';
+import 'package:ckbcore/src/base/constant/constant.dart';
 
 Future<bool> _checkCellstatus(CellBean cell) async {
-  var cellWithStatus = await CKBApiClient(nodeUrl: WalletCore.DefaultNodeUrl).getLiveCell(cell.outPoint);
+  var cellWithStatus = await ApiClient.getLiveCell(cell.outPoint);
   return cellWithStatus.status == CellWithStatus.LIVE;
 }
 
