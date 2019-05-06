@@ -10,7 +10,9 @@ main() {
   HDCore hdCore = HDCore(HDCoreConfig('', privateKey, 0, 0));
 
   test('get current index cells', () async {
-    CellsResultBean cells = await getCurrentIndexCells(hdCore, 0);
+    CellsResultBean cells = await getCurrentIndexCells(hdCore, 0, (double processing) {
+      print(processing);
+    });
     Log.log(cells.cells.length);
   });
 }

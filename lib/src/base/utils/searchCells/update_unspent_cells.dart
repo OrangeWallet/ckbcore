@@ -4,7 +4,8 @@ import 'package:ckbcore/src/base/core/hd_core.dart';
 import 'package:ckbcore/src/base/utils/searchCells/check_cells_status.dart';
 import 'package:ckbcore/src/base/utils/searchCells/get_unspent_cells_utils.dart';
 
-Future<UpdateCellsResult> updateCurrentIndexCells(HDCore hdCore, CellsResultBean cellsResultBean) async {
+Future<UpdateCellsResult> updateCurrentIndexCells(
+    HDCore hdCore, CellsResultBean cellsResultBean, Function syncProcess(double processing)) async {
   int targetBlockNumber = int.parse(await ApiClient.getTipBlockNumber());
   CellsResultBean newCellsResult = CellsResultBean([], "0");
   int syncedBlockNumber = int.parse(cellsResultBean.syncedBlockNumber);
@@ -12,7 +13,7 @@ Future<UpdateCellsResult> updateCurrentIndexCells(HDCore hdCore, CellsResultBean
   if ((targetBlockNumber - syncedBlockNumber) * 50 > cellsResultBean.cells.length) {
     newCellsResult.cells.addAll(await checkCellsStatus(cellsResultBean.cells));
     newCellsResult.cells
-        .addAll(await getCurrentIndexCellsWithTargetNumber(hdCore, syncedBlockNumber, targetBlockNumber));
+        .addAll(await getCurrentIndexCellsWithTargetNumber(hdCore, syncedBlockNumber, targetBlockNumber, syncProcess));
     newCellsResult.syncedBlockNumber = targetBlockNumber.toString();
     return UpdateCellsResult(true, newCellsResult);
   } else {

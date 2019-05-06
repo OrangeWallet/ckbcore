@@ -53,4 +53,9 @@ class MyWalletCore extends WalletCore {
   createFinished(bool isCreate) {
     return null;
   }
+
+  @override
+  syncProcess(double processing) {
+    Log.log(processing);
+  }
 }

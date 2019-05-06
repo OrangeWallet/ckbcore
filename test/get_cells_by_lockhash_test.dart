@@ -15,7 +15,11 @@ main() {
   test('get cells by lockHash', () async {
     var targetBlockNumber = await ApiClient.getTipBlockNumber();
     Log.log(targetBlockNumber);
-    List<CellBean> cells = await getCellByLockHash(GetCellByLockHashParams(0, 100, hdCore.unusedChangeWallet));
+    List<CellBean> cells =
+        await getCellByLockHash(GetCellByLockHashParams(0, 100, hdCore.unusedChangeWallet), (start, target, current) {
+      print(target);
+      print(current);
+    });
     Log.log(jsonEncode(cells));
   });
 

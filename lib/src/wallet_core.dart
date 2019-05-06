@@ -80,11 +80,16 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
     _cellsResultBean = await _storeManager.getSyncedCells();
     if (_cellsResultBean.syncedBlockNumber == '') {
       Log.log('sync from genesis block');
-      _cellsResultBean = await GetCellsUtils.getCurrentIndexCells(_hdCore, 0);
+      _cellsResultBean = await GetCellsUtils.getCurrentIndexCells(_hdCore, 0, (double processing) {
+        syncProcess(processing);
+      });
       await _storeManager.syncCells(_cellsResultBean);
     } else {
       Log.log('sync from ${_cellsResultBean.syncedBlockNumber}');
-      var updateCellsResult = await UpdateCellsUtils.updateCurrentIndexCells(_hdCore, _cellsResultBean);
+      var updateCellsResult =
+          await UpdateCellsUtils.updateCurrentIndexCells(_hdCore, _cellsResultBean, (double processing) {
+        syncProcess(processing);
+      });
       if (updateCellsResult.isChange) {
         _cellsResultBean = updateCellsResult.cellsResultBean;
         await _storeManager.syncCells(_cellsResultBean);
