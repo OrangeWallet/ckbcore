@@ -102,12 +102,12 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   }
 
   //Searching all cells.Include index before current receive index and change index
-  Future<CellsResultBean> _getWholeHDUnspentCells() async {
-    _cellsResultBean = await GetCellsUtils.getWholeHDAllCells(_hdCore);
-    await _storeManager.syncCells(_cellsResultBean);
-    _syncService.start();
-    return _cellsResultBean;
-  }
+  // Future<CellsResultBean> _getWholeHDUnspentCells() async {
+  //   _cellsResultBean = await GetCellsUtils.getWholeHDAllCells(_hdCore);
+  //   await _storeManager.syncCells(_cellsResultBean);
+  //   _syncService.start();
+  //   return _cellsResultBean;
+  // }
 
   @override
   Future thinBlockUpdate(bool isCellsChange, CellsResultBean cellsResult, ThinBlock thinBlock) async {

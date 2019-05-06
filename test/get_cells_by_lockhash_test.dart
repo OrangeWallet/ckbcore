@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckbcore/src/base/bean/cell_bean.dart';
 import 'package:ckbcore/src/base/config/hd_core_config.dart';
 import 'package:ckbcore/src/base/constant/constant.dart';
