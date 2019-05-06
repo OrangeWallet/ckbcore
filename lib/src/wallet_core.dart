@@ -9,6 +9,7 @@ import 'package:ckbcore/src/base/config/hd_core_config.dart';
 import 'package:ckbcore/src/base/constant/constant.dart' show ApiClient, NodeUrl;
 import 'package:ckbcore/src/base/core/hd_core.dart';
 import 'package:ckbcore/src/base/core/hd_index_wallet.dart';
+import 'package:ckbcore/src/base/exception/exception.dart';
 import 'package:ckbcore/src/base/interface/sync_interface.dart';
 import 'package:ckbcore/src/base/interface/wallet_core_interface.dart';
 import 'package:ckbcore/src/base/store/store_manager.dart';
@@ -76,30 +77,34 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   }
 
   updateCurrentIndexCells() async {
-    _syncService = SyncService(_hdCore, this);
-    _cellsResultBean = await _storeManager.getSyncedCells();
-    if (_cellsResultBean.syncedBlockNumber == '') {
-      Log.log('sync from genesis block');
-      _cellsResultBean = await GetCellsUtils.getCurrentIndexCells(_hdCore, 0, (double processing) {
-        syncProcess(processing);
-      });
-      await _storeManager.syncCells(_cellsResultBean);
-    } else {
-      Log.log('sync from ${_cellsResultBean.syncedBlockNumber}');
-      var updateCellsResult =
-          await UpdateCellsUtils.updateCurrentIndexCells(_hdCore, _cellsResultBean, (double processing) {
-        syncProcess(processing);
-      });
-      if (updateCellsResult.isChange) {
-        _cellsResultBean = updateCellsResult.cellsResultBean;
+    try {
+      _syncService = SyncService(_hdCore, this);
+      _cellsResultBean = await _storeManager.getSyncedCells();
+      if (_cellsResultBean.syncedBlockNumber == '') {
+        Log.log('sync from genesis block');
+        _cellsResultBean = await GetCellsUtils.getCurrentIndexCells(_hdCore, 0, (double processing) {
+          syncProcess(processing);
+        });
         await _storeManager.syncCells(_cellsResultBean);
       } else {
-        _cellsResultBean.syncedBlockNumber = updateCellsResult.cellsResultBean.syncedBlockNumber;
-        await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
+        Log.log('sync from ${_cellsResultBean.syncedBlockNumber}');
+        var updateCellsResult =
+            await UpdateCellsUtils.updateCurrentIndexCells(_hdCore, _cellsResultBean, (double processing) {
+          syncProcess(processing);
+        });
+        if (updateCellsResult.isChange) {
+          _cellsResultBean = updateCellsResult.cellsResultBean;
+          await _storeManager.syncCells(_cellsResultBean);
+        } else {
+          _cellsResultBean.syncedBlockNumber = updateCellsResult.cellsResultBean.syncedBlockNumber;
+          await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
+        }
       }
+      syncedFinished();
+      _syncService.start();
+    } catch (e) {
+      exception(SyncException());
     }
-    syncedFinished();
-    _syncService.start();
   }
 
   Future clearStore() async {
@@ -116,16 +121,19 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
 
   @override
   Future thinBlockUpdate(bool isCellsChange, CellsResultBean cellsResult, ThinBlock thinBlock) async {
-    if (isCellsChange) {
-      _cellsResultBean = cellsResult;
-      await _storeManager.syncCells(_cellsResultBean);
-      cellsChanged();
-    } else {
-      _cellsResultBean.syncedBlockNumber = cellsResult.syncedBlockNumber;
-      await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
+    try {
+      if (isCellsChange) {
+        _cellsResultBean = cellsResult;
+        await _storeManager.syncCells(_cellsResultBean);
+        cellsChanged();
+      } else {
+        _cellsResultBean.syncedBlockNumber = cellsResult.syncedBlockNumber;
+        await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
+      }
+      blockChanged();
+    } catch (e) {
+      exception(BlockUpdateException(_cellsResultBean.syncedBlockNumber));
     }
-    blockChanged();
-    return;
   }
 
   @override

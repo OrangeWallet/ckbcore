@@ -1,7 +1,7 @@
-import 'package:ckbcore/ckbcore.dart';
-import 'package:ckbcore/src/base/config/hd_core_config.dart';
 import 'dart:convert';
 
+import 'package:ckbcore/ckbcore.dart';
+import 'package:ckbcore/src/base/config/hd_core_config.dart';
 import 'package:ckbcore/src/base/utils/log.dart';
 
 main() async {
@@ -57,5 +57,10 @@ class MyWalletCore extends WalletCore {
   @override
   syncProcess(double processing) {
     Log.log(processing);
+  }
+
+  @override
+  exception(Exception e) {
+    Log.log(e.toString());
   }
 }

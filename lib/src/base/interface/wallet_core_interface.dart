@@ -7,4 +7,5 @@ abstract class WalletCoreInterface {
   Future<String> readWallet(String password);
   syncedFinished();
   createFinished(bool isBackup);
+  exception(Exception e);
 }
