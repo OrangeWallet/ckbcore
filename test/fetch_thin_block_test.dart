@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:ckbcore/src/base/config/hd_core_config.dart';
-import 'package:ckbcore/src/base/core/hd_core.dart';
-import 'package:ckbcore/src/base/sync/fetch_thin_block.dart';
-import 'package:ckbcore/src/base/utils/log.dart';
+import 'package:ckbcore/base/config/hd_core_config.dart';
+import 'package:ckbcore/base/core/hd_core.dart';
+import 'package:ckbcore/base/sync/fetch_thin_block.dart';
+import 'package:ckbcore/base/utils/log.dart';
 import 'package:test/test.dart';
 
 main() {

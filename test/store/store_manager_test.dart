@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:ckb_sdk/ckb-types/res_export.dart';
-import 'package:ckbcore/src/base/bean/cell_bean.dart';
-import 'package:ckbcore/src/base/bean/cells_result_bean.dart';
-import 'package:ckbcore/src/base/store/store_manager.dart';
-import 'package:ckbcore/src/base/utils/log.dart';
+import 'package:ckbcore/base/bean/cell_bean.dart';
+import 'package:ckbcore/base/bean/cells_result_bean.dart';
+import 'package:ckbcore/base/store/store_manager.dart';
+import 'package:ckbcore/base/utils/log.dart';
 import 'package:test/test.dart';
 
 main() {
@@ -25,5 +25,10 @@ main() {
   test('get', () async {
     var reslut = await storeManager.getSyncedCells();
     Log.log(jsonEncode(reslut));
+  });
+
+  test('get cells length', () async {
+    var reslut = await storeManager.getSyncedCells();
+    Log.log(reslut.cells.length);
   });
 }

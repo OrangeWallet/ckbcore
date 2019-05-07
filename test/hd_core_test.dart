@@ -1,7 +1,7 @@
 import 'package:ckb_sdk/ckb-utils/network.dart';
-import 'package:ckbcore/src/base/config/hd_core_config.dart';
-import 'package:ckbcore/src/base/core/hd_core.dart';
-import 'package:ckbcore/src/base/utils/log.dart';
+import 'package:ckbcore/base/config/hd_core_config.dart';
+import 'package:ckbcore/base/core/hd_core.dart';
+import 'package:ckbcore/base/utils/log.dart';
 import 'package:test/test.dart';
 
 main() {

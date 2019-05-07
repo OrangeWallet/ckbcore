@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:ckbcore/ckbcore.dart';
-import 'package:ckbcore/src/base/bean/thin_block.dart';
-import 'package:ckbcore/src/base/config/hd_core_config.dart';
-import 'package:ckbcore/src/base/utils/log.dart';
+import 'package:ckbcore/base/bean/thin_block.dart';
+import 'package:ckbcore/base/config/hd_core_config.dart';
+import 'package:ckbcore/base/utils/log.dart';
 
 main() async {
   MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://192.168.2.78:8114');
