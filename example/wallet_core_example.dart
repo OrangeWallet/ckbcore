@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:ckbcore/ckbcore.dart';
+import 'package:ckbcore/src/base/bean/thin_block.dart';
 import 'package:ckbcore/src/base/config/hd_core_config.dart';
 import 'package:ckbcore/src/base/utils/log.dart';
 
@@ -19,11 +20,6 @@ class MyWalletCore extends WalletCore {
   String privateKey = 'e79f3207ea4980b7fed79956d5934249ceac4751a4fae01a0f7c4a96884bc4e3';
 
   MyWalletCore(String storePath, String nodeUrl) : super(storePath, nodeUrl, true);
-
-  @override
-  blockChanged() {
-    Log.log('blcok synced to ${this.cellsResultBean.syncedBlockNumber}');
-  }
 
   @override
   cellsChanged() {
@@ -62,5 +58,10 @@ class MyWalletCore extends WalletCore {
   @override
   exception(Exception e) {
     Log.log(e.toString());
+  }
+
+  @override
+  blockChanged(ThinBlock thinBlock) {
+    Log.log('blcok synced to ${thinBlock.thinHeader.number}');
   }
 }

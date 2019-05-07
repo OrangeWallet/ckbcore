@@ -130,7 +130,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
         _cellsResultBean.syncedBlockNumber = cellsResult.syncedBlockNumber;
         await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
       }
-      blockChanged();
+      await blockChanged(thinBlock);
     } catch (e) {
       exception(BlockUpdateException(_cellsResultBean.syncedBlockNumber));
     }
