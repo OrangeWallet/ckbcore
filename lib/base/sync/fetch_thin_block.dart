@@ -21,7 +21,8 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
       if (cellInput.previousOutput.txHash != null && cellInput.previousOutput.index != null) {
         OutPoint outPoint = OutPoint(cellInput.previousOutput.txHash, cellInput.previousOutput.index);
         CellOutput cellOutput = await fetchCellOutput(outPoint);
-        if (cellOutput.lock.scriptHash == param.hdCore.unusedChangeWallet.lockScript.scriptHash ||
+        if (cellOutput != null) if (cellOutput.lock.scriptHash ==
+                param.hdCore.unusedChangeWallet.lockScript.scriptHash ||
             cellOutput.lock.scriptHash == param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
           CellBean cell = CellBean(null, '', cellOutput.lock.scriptHash, outPoint, '');
           updateCells.spendCells.add(cell);

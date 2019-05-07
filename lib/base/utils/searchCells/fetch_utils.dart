@@ -7,7 +7,10 @@ import 'package:ckbcore/base/constant/constant.dart';
 
 Future<CellOutput> fetchCellOutput(OutPoint outPoint) async {
   TransactionWithStatus transaction = await ApiClient.getTransaction(outPoint.txHash);
-  return transaction.transaction.outputs[outPoint.index];
+  if (transaction != null)
+    return transaction.transaction.outputs[outPoint.index];
+  else
+    return null;
 }
 
 Future<CellBean> fetchThinLiveCell(CellWithOutPoint cellWithOutPoint, String path) async {
