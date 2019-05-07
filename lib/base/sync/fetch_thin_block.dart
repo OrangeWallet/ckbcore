@@ -18,8 +18,8 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
   await Future.forEach(block.transactions, (Transaction transaction) async {
     ThinTransaction thinTransaction = ThinTransaction(transaction.hash, [], []);
     await Future.forEach(transaction.inputs, (CellInput cellInput) async {
-      if (cellInput.txHash != null && cellInput.index != null) {
-        OutPoint outPoint = OutPoint(cellInput.txHash, cellInput.index);
+      if (cellInput.previousOutput.txHash != null && cellInput.previousOutput.index != null) {
+        OutPoint outPoint = OutPoint(cellInput.previousOutput.txHash, cellInput.previousOutput.index);
         CellOutput cellOutput = await fetchCellOutput(outPoint);
         if (cellOutput.lock.scriptHash == param.hdCore.unusedChangeWallet.lockScript.scriptHash ||
             cellOutput.lock.scriptHash == param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
