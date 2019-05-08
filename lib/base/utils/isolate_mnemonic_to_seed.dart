@@ -2,11 +2,14 @@ import 'dart:isolate';
 import 'dart:typed_data';
 import 'package:bip39/bip39.dart' as bip39;
 
-mnemonicToSeed(String mnemonic) async {
+Isolate isolate;
+
+Future<Uint8List> mnemonicToSeed(String mnemonic) async {
   ReceivePort receivePort = ReceivePort();
-  await Isolate.spawn(_dateLoader, receivePort.sendPort);
+  isolate = await Isolate.spawn(_dateLoader, receivePort.sendPort);
   SendPort sendPort = await receivePort.first;
   Uint8List seed = await _sendReceive(mnemonic, sendPort);
+  destroy();
   return seed;
 }
 
@@ -25,4 +28,11 @@ Future _sendReceive(String mnemonic, SendPort port) {
   ReceivePort response = ReceivePort();
   port.send([mnemonic, response.sendPort]);
   return response.first;
+}
+
+destroy() {
+  if (isolate != null) {
+    isolate.kill(priority: Isolate.immediate);
+    isolate = null;
+  }
 }

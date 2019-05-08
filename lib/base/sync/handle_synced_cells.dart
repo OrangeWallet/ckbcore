@@ -4,6 +4,8 @@ import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/bean/isolate_result/cells_isolate_result.dart';
 import 'package:ckbcore/base/bean/thin_bolck_with_cells.dart';
 
+Isolate isolate;
+
 Future<List<CellBean>> _handleSyncedCells(
     List<CellBean> origanCells, ThinBlockWithCellsBean thinBlockWithCellsBean) async {
   List<CellBean> cells = [];
@@ -23,13 +25,21 @@ Future<List<CellBean>> _handleSyncedCells(
 Future<List<CellBean>> handleSyncedCells(
     List<CellBean> origanCells, ThinBlockWithCellsBean thinBlockWithCellsBean) async {
   ReceivePort receivePort = ReceivePort();
-  await Isolate.spawn(_dateLoader, receivePort.sendPort);
+  isolate = await Isolate.spawn(_dateLoader, receivePort.sendPort);
   SendPort sendPort = await receivePort.first;
   CellsIsolateResultBean result = await _sendReceive(origanCells, thinBlockWithCellsBean, sendPort);
   if (result.status) {
     return result.result;
   }
+  destroy();
   throw result.errorMessage;
+}
+
+destroy() {
+  if (isolate != null) {
+    isolate.kill(priority: Isolate.immediate);
+    isolate = null;
+  }
 }
 
 _dateLoader(SendPort sendPort) async {
