@@ -36,7 +36,7 @@ Future<List<CellBean>> getCellByLockHash(
     int to = blockNumber + IntervalBlockNumber;
     to = min(to, param.targetBlockNumber);
     ReceivePort receivePort = ReceivePort();
-    await Isolate.spawn(_dateLoader, receivePort.sendPort);
+    await Isolate.spawn(_handleCellByLockHash, receivePort.sendPort);
     SendPort sendPort = await receivePort.first;
     CellsIsolateResultBean result = await _sendReceive(from, to, param.hdIndexWallet, sendPort);
     if (result.status) {
@@ -50,7 +50,7 @@ Future<List<CellBean>> getCellByLockHash(
   return cells;
 }
 
-_dateLoader(SendPort sendPort) async {
+_handleCellByLockHash(SendPort sendPort) async {
   ReceivePort port = ReceivePort();
   sendPort.send(port.sendPort);
   await for (var msg in port) {

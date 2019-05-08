@@ -58,7 +58,7 @@ class FetchBlockToCheckParam {
 
 Future<ThinBlockWithCellsBean> fetchBlockToCheckCell(FetchBlockToCheckParam param) async {
   ReceivePort receivePort = ReceivePort();
-  isolate = await Isolate.spawn(_dateLoader, receivePort.sendPort);
+  isolate = await Isolate.spawn(_sendBlock, receivePort.sendPort);
   SendPort sendPort = await receivePort.first;
   ThinBlockIsolateResultBean result = await _sendReceive(param, sendPort);
   destroy();
@@ -68,7 +68,7 @@ Future<ThinBlockWithCellsBean> fetchBlockToCheckCell(FetchBlockToCheckParam para
   throw result.errorMessage;
 }
 
-_dateLoader(SendPort sendPort) async {
+_sendBlock(SendPort sendPort) async {
   ReceivePort port = ReceivePort();
   sendPort.send(port.sendPort);
   await for (var msg in port) {

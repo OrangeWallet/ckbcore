@@ -22,7 +22,7 @@ Future<List<CellBean>> _checkCellsStatus(List<CellBean> cells) async {
 
 Future<List<CellBean>> checkCellsStatus(List<CellBean> cells) async {
   ReceivePort receivePort = ReceivePort();
-  isolate = await Isolate.spawn(_dateLoader, receivePort.sendPort);
+  isolate = await Isolate.spawn(_handleCheckCellsStatus, receivePort.sendPort);
   SendPort sendPort = await receivePort.first;
   CellsIsolateResultBean result = await _sendReceive(cells, sendPort);
   destroy();
@@ -32,7 +32,7 @@ Future<List<CellBean>> checkCellsStatus(List<CellBean> cells) async {
   throw result.errorMessage;
 }
 
-_dateLoader(SendPort sendPort) async {
+_handleCheckCellsStatus(SendPort sendPort) async {
   ReceivePort port = ReceivePort();
   sendPort.send(port.sendPort);
   await for (var msg in port) {
