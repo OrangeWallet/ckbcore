@@ -53,6 +53,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
       throw Exception('Seed is Empty');
     }
     _hdCore = HDCore(_hdCoreConfig);
+    updateCurrentIndexCells();
     return;
   }
 
@@ -69,13 +70,9 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
     createStep(3);
     _syncService = SyncService(_hdCore, this);
     _cellsResultBean = await _storeManager.getSyncedCells();
-    try {
-      String targetBlockNumber = await ApiClient.getTipBlockNumber();
-      _cellsResultBean.syncedBlockNumber = targetBlockNumber;
-      _syncService.start((Exception e) => exception(e));
-    } catch (e) {
-      exception(e);
-    }
+    _cellsResultBean.syncedBlockNumber = '-1';
+    await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
+    updateCurrentIndexCells();
     return;
   }
 
@@ -92,6 +89,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
     createStep(2);
     await writeWallet(jsonEncode(_hdCoreConfig), password);
     createStep(3);
+    updateCurrentIndexCells();
     return;
   }
 
