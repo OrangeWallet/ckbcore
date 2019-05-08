@@ -55,15 +55,15 @@ Future<List<CellBean>> getCurrentIndexCellsWithTargetNumber(
     HDCore hdCore, int startBlockNumber, int targetBlockNumber, Function syncProcess(double processing)) async {
   List<CellBean> cells = List();
 
-  cells.addAll(
-      await getCellByLockHash(GetCellByLockHashParams(startBlockNumber, targetBlockNumber, hdCore.unusedChangeWallet),
-          (int start, int target, int current) {
-    syncProcess((current - start) / ((target - start) * 2));
-  }));
+  // cells.addAll(
+  //     await getCellByLockHash(GetCellByLockHashParams(startBlockNumber, targetBlockNumber, hdCore.unusedChangeWallet),
+  //         (int start, int target, int current) {
+  //   syncProcess((current - start) / ((target - start) * 2));
+  // }));
   cells.addAll(
       await getCellByLockHash(GetCellByLockHashParams(startBlockNumber, targetBlockNumber, hdCore.unusedReceiveWallet),
           (int start, int target, int current) {
-    syncProcess((current + target - start) / ((target - start) * 2));
+    syncProcess((current - start) / (target - start));
   }));
   return cells;
 }

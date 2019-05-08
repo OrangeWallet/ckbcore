@@ -22,8 +22,7 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
         OutPoint outPoint = OutPoint(cellInput.previousOutput.txHash, cellInput.previousOutput.index);
         CellOutput cellOutput = await fetchCellOutput(outPoint);
         if (cellOutput != null) if (cellOutput.lock.scriptHash ==
-                param.hdCore.unusedChangeWallet.lockScript.scriptHash ||
-            cellOutput.lock.scriptHash == param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
+            param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
           CellBean cell = CellBean(null, '', cellOutput.lock.scriptHash, outPoint, '');
           updateCells.spendCells.add(cell);
           ThinCell thinCell = ThinCell(cellOutput.capacity, cellOutput.lock);
@@ -33,12 +32,6 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
     });
     for (int i = 0; i < transaction.outputs.length; i++) {
       CellOutput cellOutput = transaction.outputs[i];
-      if (cellOutput.lock.scriptHash == param.hdCore.unusedChangeWallet.lockScript.scriptHash) {
-        updateCells.newCells
-            .add(await _fetchCellInOutput(cellOutput, transaction.hash, i, param.hdCore.unusedChangeWallet));
-        ThinCell thinCell = ThinCell(cellOutput.capacity, cellOutput.lock);
-        thinTransaction.cellsOutputs.add(thinCell);
-      }
       if (cellOutput.lock.scriptHash == param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
         updateCells.newCells
             .add(await _fetchCellInOutput(cellOutput, transaction.hash, i, param.hdCore.unusedReceiveWallet));

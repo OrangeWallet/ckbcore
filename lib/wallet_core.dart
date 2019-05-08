@@ -105,6 +105,11 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
           syncProcess(processing);
         });
         await _storeManager.syncCells(_cellsResultBean);
+      } else if (_cellsResultBean.syncedBlockNumber == '-1') {
+        Log.log('sync from tip block');
+        String targetBlockNumber = await ApiClient.getTipBlockNumber();
+        _cellsResultBean.syncedBlockNumber = targetBlockNumber;
+        await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
       } else {
         Log.log('sync from ${_cellsResultBean.syncedBlockNumber}');
         var updateCellsResult =

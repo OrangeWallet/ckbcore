@@ -16,7 +16,7 @@ main() {
     var targetBlockNumber = await ApiClient.getTipBlockNumber();
     Log.log(targetBlockNumber);
     List<CellBean> cells =
-        await getCellByLockHash(GetCellByLockHashParams(0, 100, hdCore.unusedChangeWallet), (start, target, current) {
+        await getCellByLockHash(GetCellByLockHashParams(0, 100, hdCore.unusedReceiveWallet), (start, target, current) {
       print(target);
       print(current);
     });
