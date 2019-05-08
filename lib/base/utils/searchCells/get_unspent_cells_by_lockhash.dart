@@ -9,6 +9,7 @@ import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/base/utils/log.dart';
 import 'package:ckbcore/base/utils/searchCells/fetch_utils.dart';
+import 'package:ckbcore/base/utils/base_isloate.dart';
 
 Future<List<CellBean>> _getCellByLockHash(int from, int to, HDIndexWallet indexWallet) async {
   List<CellBean> cells = [];
@@ -36,9 +37,10 @@ Future<List<CellBean>> getCellByLockHash(
     int to = blockNumber + IntervalBlockNumber;
     to = min(to, param.targetBlockNumber);
     ReceivePort receivePort = ReceivePort();
-    await Isolate.spawn(_handleCellByLockHash, receivePort.sendPort);
+    isolate = await Isolate.spawn(_handleCellByLockHash, receivePort.sendPort);
     SendPort sendPort = await receivePort.first;
     CellsIsolateResultBean result = await _sendReceive(from, to, param.hdIndexWallet, sendPort);
+    destroy();
     if (result.status) {
       cells.addAll(result.result);
       await syncProcess(param.startBlockNumber, param.targetBlockNumber, to);
