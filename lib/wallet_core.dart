@@ -14,7 +14,7 @@ import 'package:ckbcore/base/interface/sync_interface.dart';
 import 'package:ckbcore/base/interface/wallet_core_interface.dart';
 import 'package:ckbcore/base/store/store_manager.dart';
 import 'package:ckbcore/base/sync/sync_service.dart';
-import 'package:ckbcore/base/utils/isolate_mnemonic_to_seed.dart';
+import 'package:ckbcore/base/utils/mnemonic_to_seed.dart';
 import 'package:ckbcore/base/utils/log.dart';
 import 'package:ckbcore/base/utils/searchCells/get_unspent_cells_utils.dart' as GetCellsUtils;
 import 'package:ckbcore/base/utils/searchCells/update_unspent_cells.dart' as UpdateCellsUtils;

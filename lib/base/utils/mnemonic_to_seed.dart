@@ -1,8 +1,7 @@
 import 'dart:isolate';
 import 'dart:typed_data';
 import 'package:bip39/bip39.dart' as bip39;
-
-Isolate isolate;
+import 'package:ckbcore/base/utils/base_isloate.dart';
 
 Future<Uint8List> mnemonicToSeed(String mnemonic) async {
   ReceivePort receivePort = ReceivePort();
@@ -28,11 +27,4 @@ Future _sendReceive(String mnemonic, SendPort port) {
   ReceivePort response = ReceivePort();
   port.send([mnemonic, response.sendPort]);
   return response.first;
-}
-
-destroy() {
-  if (isolate != null) {
-    isolate.kill(priority: Isolate.immediate);
-    isolate = null;
-  }
 }

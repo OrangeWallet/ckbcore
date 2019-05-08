@@ -10,6 +10,7 @@ import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/hd_core.dart';
 import 'package:ckbcore/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/base/utils/searchCells/fetch_utils.dart';
+import 'package:ckbcore/base/utils/base_isloate.dart';
 
 Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam param) async {
   String blockHash = await ApiClient.getBlockHash(param.blockNumber.toString());
@@ -57,9 +58,10 @@ class FetchBlockToCheckParam {
 
 Future<ThinBlockWithCellsBean> fetchBlockToCheckCell(FetchBlockToCheckParam param) async {
   ReceivePort receivePort = ReceivePort();
-  await Isolate.spawn(_dateLoader, receivePort.sendPort);
+  isolate = await Isolate.spawn(_dateLoader, receivePort.sendPort);
   SendPort sendPort = await receivePort.first;
   ThinBlockIsolateResultBean result = await _sendReceive(param, sendPort);
+  destroy();
   if (result.status) {
     return result.result;
   }

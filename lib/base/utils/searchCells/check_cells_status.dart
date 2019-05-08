@@ -5,8 +5,7 @@ import 'package:ckb_sdk/ckb-types/item/cell_with_status.dart';
 import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/bean/isolate_result/cells_isolate_result.dart';
 import 'package:ckbcore/base/constant/constant.dart';
-
-Isolate isolate;
+import 'package:ckbcore/base/utils/base_isloate.dart';
 
 Future<bool> _checkCellstatus(CellBean cell) async {
   var cellWithStatus = await ApiClient.getLiveCell(cell.outPoint);
@@ -26,10 +25,10 @@ Future<List<CellBean>> checkCellsStatus(List<CellBean> cells) async {
   isolate = await Isolate.spawn(_dateLoader, receivePort.sendPort);
   SendPort sendPort = await receivePort.first;
   CellsIsolateResultBean result = await _sendReceive(cells, sendPort);
+  destroy();
   if (result.status) {
     return result.result;
   }
-  destroy();
   throw result.errorMessage;
 }
 
@@ -54,11 +53,4 @@ Future _sendReceive(List<CellBean> cells, SendPort port) {
   ReceivePort response = ReceivePort();
   port.send([cells, response.sendPort]);
   return response.first;
-}
-
-destroy() {
-  if (isolate != null) {
-    isolate.kill(priority: Isolate.immediate);
-    isolate = null;
-  }
 }
