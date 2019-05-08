@@ -5,14 +5,14 @@ import 'package:ckbcore/base/utils/base_isloate.dart';
 
 Future<Uint8List> mnemonicToSeed(String mnemonic) async {
   ReceivePort receivePort = ReceivePort();
-  isolate = await Isolate.spawn(_dateLoader, receivePort.sendPort);
+  isolate = await Isolate.spawn(_mnemonicToSeed, receivePort.sendPort);
   SendPort sendPort = await receivePort.first;
   Uint8List seed = await _sendReceive(mnemonic, sendPort);
   destroy();
   return seed;
 }
 
-_dateLoader(SendPort sendPort) async {
+_mnemonicToSeed(SendPort sendPort) async {
   ReceivePort port = ReceivePort();
   sendPort.send(port.sendPort);
   await for (var msg in port) {

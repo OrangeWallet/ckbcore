@@ -24,7 +24,7 @@ Future<List<CellBean>> _handleSyncedCells(
 Future<List<CellBean>> handleSyncedCells(
     List<CellBean> origanCells, ThinBlockWithCellsBean thinBlockWithCellsBean) async {
   ReceivePort receivePort = ReceivePort();
-  isolate = await Isolate.spawn(_dateLoader, receivePort.sendPort);
+  isolate = await Isolate.spawn(_sendSyncedCells, receivePort.sendPort);
   SendPort sendPort = await receivePort.first;
   CellsIsolateResultBean result = await _sendReceive(origanCells, thinBlockWithCellsBean, sendPort);
   destroy();
@@ -34,7 +34,7 @@ Future<List<CellBean>> handleSyncedCells(
   throw result.errorMessage;
 }
 
-_dateLoader(SendPort sendPort) async {
+_sendSyncedCells(SendPort sendPort) async {
   ReceivePort port = ReceivePort();
   sendPort.send(port.sendPort);
   await for (var msg in port) {
