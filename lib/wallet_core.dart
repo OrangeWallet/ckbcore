@@ -46,6 +46,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
 
   HDCoreConfig get hdCoreConfig => _hdCoreConfig;
 
+  //Init HD Wallet from store
   Future init(String password) async {
     _hdCoreConfig = HDCoreConfig.fromJson(jsonDecode(await readWallet(password)));
     if (_hdCoreConfig.seed == '') {
@@ -55,12 +56,31 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
     return;
   }
 
-  Future create(String mnemonic, String password) async {
-    bool isBackup = true;
-    if (mnemonic == '') {
-      isBackup = false;
-      mnemonic = bip39.generateMnemonic();
+  //Create new HD Wallet
+  Future create(String password) async {
+    final mnemonic = bip39.generateMnemonic();
+    Uint8List seed = await mnemonicToSeed(mnemonic);
+    createStep(1);
+    String seedStr = hex.encode(seed);
+    _hdCoreConfig = HDCoreConfig(mnemonic, seedStr, 0, 0);
+    _hdCore = HDCore(_hdCoreConfig);
+    createStep(2);
+    await writeWallet(jsonEncode(_hdCoreConfig), password);
+    createStep(3);
+    _syncService = SyncService(_hdCore, this);
+    _cellsResultBean = await _storeManager.getSyncedCells();
+    try {
+      String targetBlockNumber = await ApiClient.getTipBlockNumber();
+      _cellsResultBean.syncedBlockNumber = targetBlockNumber;
+      _syncService.start((Exception e) => exception(e));
+    } catch (e) {
+      exception(e);
     }
+    return;
+  }
+
+  //Import HD Wallet
+  Future import(String mnemonic, String password) async {
     if (!bip39.validateMnemonic(mnemonic)) {
       throw Exception('Wrong mnemonic');
     }
@@ -72,7 +92,6 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
     createStep(2);
     await writeWallet(jsonEncode(_hdCoreConfig), password);
     createStep(3);
-    await createFinished(isBackup);
     return;
   }
 
@@ -101,7 +120,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
         }
       }
       syncedFinished();
-      _syncService.start();
+      _syncService.start((Exception e) => exception(e));
     } catch (e) {
       exception(SyncException());
     }
