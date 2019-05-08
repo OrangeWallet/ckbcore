@@ -16,7 +16,8 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
   Block block = await ApiClient.getBlock(blockHash);
   var updateCells = ThinBlockWithCellsBean([], [], ThinBlock.fromBlock(block));
   await Future.forEach(block.transactions, (Transaction transaction) async {
-    ThinTransaction thinTransaction = ThinTransaction(transaction.hash, [], []);
+    ThinTransaction thinTransaction = ThinTransaction(transaction.hash, 0, 0);
+    //caculate spentCells by transaction inputs
     await Future.forEach(transaction.inputs, (CellInput cellInput) async {
       if (cellInput.previousOutput.txHash != null && cellInput.previousOutput.index != null) {
         OutPoint outPoint = OutPoint(cellInput.previousOutput.txHash, cellInput.previousOutput.index);
@@ -25,8 +26,7 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
             param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
           CellBean cell = CellBean(null, '', cellOutput.lock.scriptHash, outPoint, '');
           updateCells.spendCells.add(cell);
-          ThinCell thinCell = ThinCell(cellOutput.capacity, cellOutput.lock);
-          thinTransaction.cellsInputs.add(thinCell);
+          thinTransaction.capacityOut = thinTransaction.capacityOut + int.parse(cell.cellOutput.capacity);
         }
       }
     });
@@ -35,11 +35,10 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
       if (cellOutput.lock.scriptHash == param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
         updateCells.newCells
             .add(await _fetchCellInOutput(cellOutput, transaction.hash, i, param.hdCore.unusedReceiveWallet));
-        ThinCell thinCell = ThinCell(cellOutput.capacity, cellOutput.lock);
-        thinTransaction.cellsOutputs.add(thinCell);
+        thinTransaction.capacityIn = thinTransaction.capacityIn + int.parse(cellOutput.capacity);
       }
     }
-    if (thinTransaction.cellsInputs.length > 0 || thinTransaction.cellsOutputs.length > 0)
+    if (thinTransaction.capacityOut > 0 || thinTransaction.capacityIn > 0)
       updateCells.thinBlock.thinTrans.add(thinTransaction);
   });
   return updateCells;

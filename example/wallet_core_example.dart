@@ -64,6 +64,7 @@ class MyWalletCore extends WalletCore {
 
   @override
   blockChanged(ThinBlock thinBlock) {
-    Log.log('blcok synced to ${thinBlock.thinHeader.number}');
+    Log.log(jsonEncode(thinBlock));
+    // Log.log('blcok synced to ${thinBlock.thinHeader.number}');
   }
 }
