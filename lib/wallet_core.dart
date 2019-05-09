@@ -124,7 +124,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
       syncedFinished();
       _syncService.start((Exception e) => exception(e));
     } catch (e) {
-      exception(SyncException());
+      exception(SyncException(e.toString()));
     }
   }
 

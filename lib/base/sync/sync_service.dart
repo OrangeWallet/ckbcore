@@ -37,7 +37,7 @@ class SyncService {
         await start(exception);
       });
     } catch (e) {
-      exception(SyncException());
+      exception(SyncException(e.toString()));
     }
   }
 }

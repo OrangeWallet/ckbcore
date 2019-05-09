@@ -1,5 +1,9 @@
 class SyncException implements Exception {
-  String toString() => "Sync Error";
+  String e;
+
+  SyncException(this.e);
+
+  String toString() => e;
 }
 
 class BlockUpdateException implements Exception {
