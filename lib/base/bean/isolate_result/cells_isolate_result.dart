@@ -19,6 +19,6 @@ class CellsIsolateResultBean extends IsolateResultBase<List<CellBean>> {
   factory CellsIsolateResultBean.fromFail(String errorMessage) => CellsIsolateResultBean(
         false,
         errorMessage,
-        [],
+        null,
       );
 }

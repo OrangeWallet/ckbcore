@@ -65,7 +65,7 @@ _handleCellByLockHash(SendPort sendPort) async {
       var result = CellsIsolateResultBean.fromSuccess(newCells);
       replyTo.send(result);
     } catch (e) {
-      var result = CellsIsolateResultBean.fromFail(jsonEncode(e));
+      var result = CellsIsolateResultBean.fromFail(e.toString());
       replyTo.send(result);
     }
   }
