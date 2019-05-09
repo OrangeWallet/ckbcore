@@ -32,7 +32,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   WalletCore(String storePath, String nodeUrl, bool _isDebug) {
     if (nodeUrl != null) {
       NodeUrl = nodeUrl;
-      ApiClient = CKBApiClient(nodeUrl: NodeUrl);
+      ApiClient = CKBApiClient(NodeUrl);
     }
     isDebug = _isDebug;
     _storeManager = StoreManager(storePath);
