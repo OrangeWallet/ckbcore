@@ -13,8 +13,7 @@ import 'package:ckbcore/base/utils/base_isloate.dart';
 import 'package:ckbcore/base/utils/fetch_rpc_utils/fetch_utils.dart';
 
 Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam param) async {
-  String blockHash = await ApiClient.getBlockHash(param.blockNumber.toString());
-  Block block = await ApiClient.getBlock(blockHash);
+  Block block = await ApiClient.getBlockByBlockNumber(param.blockNumber.toString());
   var updateCells = ThinBlockWithCellsBean([], [], ThinBlock.fromBlock(block));
   await Future.forEach(block.transactions, (Transaction transaction) async {
     ThinTransaction thinTransaction = ThinTransaction(transaction.hash, 0, 0);
