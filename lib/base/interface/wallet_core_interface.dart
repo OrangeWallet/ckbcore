@@ -7,6 +7,5 @@ abstract class WalletCoreInterface {
   createStep(int step);
   writeWallet(String wallet, String password);
   Future<String> readWallet(String password);
-  syncedFinished();
   exception(Exception e);
 }

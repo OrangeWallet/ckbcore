@@ -121,7 +121,6 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
           await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
         }
       }
-      syncedFinished();
       _syncService.start((Exception e) => exception(e));
     } catch (e) {
       exception(SyncException(e.toString()));
