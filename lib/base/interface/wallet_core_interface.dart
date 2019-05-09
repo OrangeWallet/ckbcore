@@ -1,7 +1,8 @@
+import 'package:ckbcore/base/bean/balance_bean.dart';
 import 'package:ckbcore/base/bean/thin_block.dart';
 
 abstract class WalletCoreInterface {
-  cellsChanged();
+  cellsChanged(BalanceBean balance);
   blockChanged(ThinBlock thinBlock);
   syncProcess(double processing);
   createStep(int step);

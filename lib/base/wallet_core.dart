@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
+import 'package:ckb_sdk/ckb_sdk.dart';
+import 'package:ckbcore/base/bean/balance_bean.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/bean/thin_block.dart';
 import 'package:ckbcore/base/config/hd_core_config.dart';
@@ -28,6 +30,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   CellsResultBean _cellsResultBean = CellsResultBean([], '-1');
   HDCoreConfig _hdCoreConfig;
   StoreManager _storeManager;
+  BalanceBean _balanceBean;
 
   WalletCore(String storePath, String nodeUrl, bool _isDebug) {
     if (nodeUrl != null) {
@@ -40,11 +43,11 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
 
   HDIndexWallet get unusedReceiveWallet => _hdCore.unusedReceiveWallet;
 
-  HDIndexWallet get unusedChangeWallet => _hdCore.unusedChangeWallet;
-
   CellsResultBean get cellsResultBean => _cellsResultBean;
 
   HDCoreConfig get hdCoreConfig => _hdCoreConfig;
+
+  BalanceBean get balanceBean => _balanceBean;
 
   //Init HD Wallet from store
   Future init(String password) async {
@@ -121,6 +124,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
           await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
         }
       }
+      await calculateBalance();
       _syncService.start((Exception e) => exception(e));
     } catch (e) {
       exception(SyncException(e.toString()));
@@ -131,21 +135,13 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
     await _storeManager.clearAll();
   }
 
-  //Searching all cells.Include index before current receive index and change index
-  // Future<CellsResultBean> _getWholeHDUnspentCells() async {
-  //   _cellsResultBean = await GetCellsUtils.getWholeHDAllCells(_hdCore);
-  //   await _storeManager.syncCells(_cellsResultBean);
-  //   _syncService.start();
-  //   return _cellsResultBean;
-  // }
-
   @override
   Future thinBlockUpdate(bool isCellsChange, CellsResultBean cellsResult, ThinBlock thinBlock) async {
     try {
       if (isCellsChange) {
         _cellsResultBean = cellsResult;
         await _storeManager.syncCells(_cellsResultBean);
-        cellsChanged();
+        await calculateBalance();
       } else {
         _cellsResultBean.syncedBlockNumber = cellsResult.syncedBlockNumber;
         await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
@@ -154,6 +150,21 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
     } catch (e) {
       exception(BlockUpdateException(_cellsResultBean.syncedBlockNumber));
     }
+  }
+
+  Future calculateBalance() async {
+    int total = 0;
+    int available = 0;
+    _cellsResultBean.cells.forEach((cell) {
+      if (CellWithStatus.LIVE == cell.status) {
+        total += int.parse(cell.cellOutput.capacity);
+        if (cell.cellOutput.data == '0') {
+          available += int.parse(cell.cellOutput.capacity);
+        }
+      }
+    });
+    _balanceBean = BalanceBean(total.toString(), available.toString());
+    cellsChanged(_balanceBean);
   }
 
   @override
