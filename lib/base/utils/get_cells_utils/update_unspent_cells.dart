@@ -17,6 +17,7 @@ Future<UpdateCellsResult> updateUnspentCells(
     newCellsResult.syncedBlockNumber = targetBlockNumber.toString();
     return UpdateCellsResult(true, newCellsResult);
   } else {
+    syncProcess(1.0);
     return UpdateCellsResult(false, cellsResultBean);
   }
 }
