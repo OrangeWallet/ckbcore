@@ -4,8 +4,8 @@ import 'package:ckbcore/base/constant/constant.dart' show ApiClient, IntervalSyn
 import 'package:ckbcore/base/core/hd_core.dart';
 import 'package:ckbcore/base/exception/exception.dart';
 import 'package:ckbcore/base/interface/sync_interface.dart';
-import 'package:ckbcore/base/sync/fetch_thin_block.dart';
 import 'package:ckbcore/base/sync/handle_synced_cells.dart';
+import 'package:ckbcore/base/utils/fetch_rpc_utils/fetch_thin_block.dart';
 import 'package:ckbcore/base/utils/log.dart';
 
 class SyncService {

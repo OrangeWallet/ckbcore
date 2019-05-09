@@ -1,10 +1,10 @@
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/hd_core.dart';
-import 'package:ckbcore/base/utils/searchCells/check_cells_status.dart';
-import 'package:ckbcore/base/utils/searchCells/get_unspent_cells_utils.dart';
+import 'package:ckbcore/base/utils/get_cells_utils/check_cells_status.dart';
+import 'package:ckbcore/base/utils/get_cells_utils/get_unspent_cells.dart';
 
-Future<UpdateCellsResult> updateCurrentIndexCells(
+Future<UpdateCellsResult> updateUnspentCells(
     HDCore hdCore, CellsResultBean cellsResultBean, Function syncProcess(double processing)) async {
   int targetBlockNumber = int.parse(await ApiClient.getTipBlockNumber());
   CellsResultBean newCellsResult = CellsResultBean([], "0");

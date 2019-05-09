@@ -1,21 +1,15 @@
 import 'dart:convert';
 import 'dart:isolate';
 
-import 'package:ckb_sdk/ckb-types/item/cell_with_status.dart';
 import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/bean/isolate_result/cells_isolate_result.dart';
-import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/utils/base_isloate.dart';
-
-Future<bool> _checkCellstatus(CellBean cell) async {
-  var cellWithStatus = await ApiClient.getLiveCell(cell.outPoint);
-  return cellWithStatus.status == CellWithStatus.LIVE;
-}
+import 'package:ckbcore/base/utils/fetch_rpc_utils/fetch_utils.dart';
 
 Future<List<CellBean>> _checkCellsStatus(List<CellBean> cells) async {
   List<CellBean> newCells = [];
   for (int i = 0; i < cells.length; i++) {
-    if (await _checkCellstatus(cells[i])) newCells.add(cells[i]);
+    if (await checkCellIsLive(cells[i])) newCells.add(cells[i]);
   }
   return newCells;
 }

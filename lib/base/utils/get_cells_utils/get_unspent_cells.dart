@@ -4,7 +4,7 @@ import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/hd_core.dart';
-import 'package:ckbcore/base/utils/searchCells/get_unspent_cells_by_lockhash.dart';
+import 'package:ckbcore/base/utils/get_cells_utils/get_unspent_cells_by_lockhash.dart';
 
 // Future<CellsResultBean> getWholeHDAllCells(
 //     HDCore hdCore, Function newData(int syncBlockNumber, List<CellBean> cells)) async {

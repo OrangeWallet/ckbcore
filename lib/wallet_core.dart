@@ -14,10 +14,10 @@ import 'package:ckbcore/base/interface/sync_interface.dart';
 import 'package:ckbcore/base/interface/wallet_core_interface.dart';
 import 'package:ckbcore/base/store/store_manager.dart';
 import 'package:ckbcore/base/sync/sync_service.dart';
+import 'package:ckbcore/base/utils/get_cells_utils/get_unspent_cells.dart';
+import 'package:ckbcore/base/utils/get_cells_utils/update_unspent_cells.dart';
 import 'package:ckbcore/base/utils/mnemonic_to_seed.dart';
 import 'package:ckbcore/base/utils/log.dart';
-import 'package:ckbcore/base/utils/searchCells/get_unspent_cells_utils.dart' as GetCellsUtils;
-import 'package:ckbcore/base/utils/searchCells/update_unspent_cells.dart' as UpdateCellsUtils;
 import 'package:convert/convert.dart';
 
 abstract class WalletCore implements SyncInterface, WalletCoreInterface {
@@ -99,7 +99,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
       _cellsResultBean = await _storeManager.getSyncedCells();
       if (_cellsResultBean.syncedBlockNumber == '') {
         Log.log('sync from genesis block');
-        _cellsResultBean = await GetCellsUtils.getCurrentIndexCells(_hdCore, 0, (double processing) {
+        _cellsResultBean = await getCurrentIndexCells(_hdCore, 0, (double processing) {
           syncProcess(processing);
         });
         await _storeManager.syncCells(_cellsResultBean);
@@ -110,8 +110,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
         await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
       } else {
         Log.log('sync from ${_cellsResultBean.syncedBlockNumber}');
-        var updateCellsResult =
-            await UpdateCellsUtils.updateCurrentIndexCells(_hdCore, _cellsResultBean, (double processing) {
+        var updateCellsResult = await updateUnspentCells(_hdCore, _cellsResultBean, (double processing) {
           syncProcess(processing);
         });
         if (updateCellsResult.isChange) {

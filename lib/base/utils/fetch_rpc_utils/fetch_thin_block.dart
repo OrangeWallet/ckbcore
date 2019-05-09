@@ -9,8 +9,8 @@ import 'package:ckbcore/base/bean/thin_transaction.dart';
 import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/hd_core.dart';
 import 'package:ckbcore/base/core/hd_index_wallet.dart';
-import 'package:ckbcore/base/utils/searchCells/fetch_utils.dart';
 import 'package:ckbcore/base/utils/base_isloate.dart';
+import 'package:ckbcore/base/utils/fetch_rpc_utils/fetch_utils.dart';
 
 Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam param) async {
   String blockHash = await ApiClient.getBlockHash(param.blockNumber.toString());

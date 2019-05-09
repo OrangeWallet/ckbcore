@@ -8,7 +8,7 @@ import 'package:ckbcore/base/bean/isolate_result/cells_isolate_result.dart';
 import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/base/utils/log.dart';
-import 'package:ckbcore/base/utils/searchCells/fetch_utils.dart';
+import 'package:ckbcore/base/utils/fetch_rpc_utils/fetch_utils.dart';
 import 'package:ckbcore/base/utils/base_isloate.dart';
 
 Future<List<CellBean>> _getCellByLockHash(int from, int to, HDIndexWallet indexWallet) async {
