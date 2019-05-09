@@ -1,4 +1,4 @@
-import 'package:ckbcore/wallet_core.dart';
+import 'package:ckbcore/base/wallet_core.dart';
 
 class Log {
   static log(Object log) {

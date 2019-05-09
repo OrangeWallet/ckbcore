@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:ckb_sdk/ckb-types/item/script.dart';
 import 'package:ckb_sdk/ckb-utils/network.dart';
 import 'package:ckb_sdk/ckb-utils/number.dart';
-import 'package:ckbcore/base/coin.dart';
+import 'package:ckbcore/base/core/coin.dart';
 import 'package:ckbcore/base/core/credential.dart';
 
 class HDIndexWallet {

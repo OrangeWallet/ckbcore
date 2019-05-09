@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:ckb_sdk/ckb-utils/number.dart';
-import 'package:ckbcore/base/coin.dart';
 import 'package:ckbcore/base/config/hd_core_config.dart';
+import 'package:ckbcore/base/core/coin.dart';
 import 'package:ckbcore/base/core/credential.dart';
 import 'package:ckbcore/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/base/utils/searchTransaction.dart';
