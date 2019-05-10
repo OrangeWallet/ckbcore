@@ -134,6 +134,11 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
     }
   }
 
+  Future stopSync() async {
+    Future stop = Future(() => _syncService.stop(() => {}));
+    await stop;
+  }
+
   Future clearStore() async {
     await _storeManager.clearAll();
   }

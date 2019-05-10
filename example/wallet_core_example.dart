@@ -1,16 +1,20 @@
 import 'dart:convert';
 
 import 'package:ckbcore/base/bean/balance_bean.dart';
-import 'package:ckbcore/ckbcore.dart';
 import 'package:ckbcore/base/bean/thin_block.dart';
 import 'package:ckbcore/base/config/hd_core_config.dart';
 import 'package:ckbcore/base/utils/log.dart';
+import 'package:ckbcore/ckbcore.dart';
 
 main() async {
   MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://192.168.2.78:8114');
-  // await walletCore.init('123456');
+  await walletCore.init('123456');
   // String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
-  await walletCore.create('123456');
+//  await walletCore.create('123456');
+  Future.delayed(Duration(seconds: 10), () async {
+    await walletCore.stopSync();
+    print('stopped');
+  });
   // await walletCore.import(mnemonic, 'password');
   // Log.log(walletCore.unusedReceiveWallet.lockScript.scriptHash);
   // await walletCore.clearStore();
