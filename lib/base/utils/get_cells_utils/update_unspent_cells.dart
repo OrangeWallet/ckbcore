@@ -12,12 +12,11 @@ Future<UpdateCellsResult> updateUnspentCells(
   //if blockNumber need to sync is biger then cells length,we just check all cells we saved and search to target blockNumber
   if ((targetBlockNumber - syncedBlockNumber) * 50 > cellsResultBean.cells.length) {
     newCellsResult.cells.addAll(await checkCellsStatus(cellsResultBean.cells));
-    newCellsResult.cells
-        .addAll(await getCurrentIndexCellsWithTargetNumber(hdCore, syncedBlockNumber, targetBlockNumber, syncProcess));
+    newCellsResult.cells.addAll(await getCurrentIndexCellsWithTargetNumber(
+        hdCore, syncedBlockNumber, targetBlockNumber, syncProcess));
     newCellsResult.syncedBlockNumber = targetBlockNumber.toString();
     return UpdateCellsResult(true, newCellsResult);
   } else {
-    syncProcess(1.0);
     return UpdateCellsResult(false, cellsResultBean);
   }
 }
