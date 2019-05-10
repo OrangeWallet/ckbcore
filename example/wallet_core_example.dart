@@ -11,10 +11,10 @@ main() async {
   await walletCore.init('123456');
   // String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
 //  await walletCore.create('123456');
-  Future.delayed(Duration(seconds: 10), () async {
-    await walletCore.stopSync();
-    print('stopped');
-  });
+//  Future.delayed(Duration(seconds: 10), () async {
+//    await walletCore.stopSync();
+//    print('stopped');
+//  });
   // await walletCore.import(mnemonic, 'password');
   // Log.log(walletCore.unusedReceiveWallet.lockScript.scriptHash);
   // await walletCore.clearStore();

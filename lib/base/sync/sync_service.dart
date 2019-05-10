@@ -17,9 +17,9 @@ class SyncService {
 
   SyncService(this.hdCore, this.syncInterface);
 
-  start(Function exception(Exception e)) {
+  start() {
     _live = true;
-    _rotation(exception);
+    _rotation();
   }
 
   stop(Function intercept) {
@@ -27,7 +27,7 @@ class SyncService {
     _live = false;
   }
 
-  _rotation(Function exception(Exception e)) async {
+  _rotation() async {
     try {
       if (_intercept != null && !_live) {
         _intercept();
@@ -59,10 +59,10 @@ class SyncService {
       Log.log(
           'synced is ${syncInterface.getCurrentCellsResult().syncedBlockNumber},It`s tip,waiting');
       await Future.delayed(Duration(seconds: IntervalSyncTime), () async {
-        await _rotation(exception);
+        await _rotation();
       });
     } catch (e) {
-      exception(SyncException(e.toString()));
+      syncInterface.exception(SyncException(e.toString()));
     }
   }
 }

@@ -13,6 +13,7 @@ import 'package:ckbcore/base/core/hd_core.dart';
 import 'package:ckbcore/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/base/exception/exception.dart';
 import 'package:ckbcore/base/interface/sync_interface.dart';
+import 'package:ckbcore/base/interface/transaction_interface.dart';
 import 'package:ckbcore/base/interface/wallet_core_interface.dart';
 import 'package:ckbcore/base/store/store_manager.dart';
 import 'package:ckbcore/base/sync/sync_service.dart';
@@ -22,7 +23,7 @@ import 'package:ckbcore/base/utils/log.dart';
 import 'package:ckbcore/base/utils/mnemonic_to_seed.dart';
 import 'package:convert/convert.dart';
 
-abstract class WalletCore implements SyncInterface, WalletCoreInterface {
+abstract class WalletCore implements SyncInterface, WalletCoreInterface, TransactionInterface {
   static bool isDebug = true;
 
   HDCore _hdCore;
@@ -128,7 +129,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
       }
       await calculateBalance();
       syncProcess(1.0);
-      _syncService.start((Exception e) => exception(e));
+      _syncService.start();
     } catch (e) {
       exception(SyncException(e.toString()));
     }
