@@ -98,6 +98,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
 
   updateCurrentIndexCells() async {
     try {
+      await calculateBalance();
       _syncService = SyncService(_hdCore, this);
       _cellsResultBean = await _storeManager.getSyncedCells();
       if (_cellsResultBean.syncedBlockNumber == '') {
