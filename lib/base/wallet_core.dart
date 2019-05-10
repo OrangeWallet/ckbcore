@@ -134,7 +134,14 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
     }
   }
 
+  Future stopSync() async {
+    Future stop = Future(() => _syncService.stop(() => {}));
+    await stop;
+  }
+
   Future clearStore() async {
+    _cellsResultBean = CellsResultBean([], '-1');
+    _balanceBean = BalanceBean(0, 0);
     await _storeManager.clearAll();
   }
 
