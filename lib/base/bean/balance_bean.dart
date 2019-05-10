@@ -1,12 +1,12 @@
 class BalanceBean {
-  String totalCapacity;
-  String availableCapacity;
+  int totalCapacity;
+  int availableCapacity;
 
   BalanceBean(this.totalCapacity, this.availableCapacity);
 
   factory BalanceBean.fromJson(Map<String, dynamic> json) => BalanceBean(
-        json['totalCapacity'] as String,
-        json['availableCapacity'] as String,
+        json['totalCapacity'] as int,
+        json['availableCapacity'] as int,
       );
 
   Map<String, dynamic> toJson() => <String, dynamic>{

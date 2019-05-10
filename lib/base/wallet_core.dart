@@ -18,8 +18,8 @@ import 'package:ckbcore/base/store/store_manager.dart';
 import 'package:ckbcore/base/sync/sync_service.dart';
 import 'package:ckbcore/base/utils/get_cells_utils/get_unspent_cells.dart';
 import 'package:ckbcore/base/utils/get_cells_utils/update_unspent_cells.dart';
-import 'package:ckbcore/base/utils/mnemonic_to_seed.dart';
 import 'package:ckbcore/base/utils/log.dart';
+import 'package:ckbcore/base/utils/mnemonic_to_seed.dart';
 import 'package:convert/convert.dart';
 
 abstract class WalletCore implements SyncInterface, WalletCoreInterface {
@@ -113,7 +113,8 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
         await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
       } else {
         Log.log('sync from ${_cellsResultBean.syncedBlockNumber}');
-        var updateCellsResult = await updateUnspentCells(_hdCore, _cellsResultBean, (double processing) {
+        var updateCellsResult =
+            await updateUnspentCells(_hdCore, _cellsResultBean, (double processing) {
           syncProcess(processing);
         });
         if (updateCellsResult.isChange) {
@@ -136,7 +137,8 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   }
 
   @override
-  Future thinBlockUpdate(bool isCellsChange, CellsResultBean cellsResult, ThinBlock thinBlock) async {
+  Future thinBlockUpdate(
+      bool isCellsChange, CellsResultBean cellsResult, ThinBlock thinBlock) async {
     try {
       if (isCellsChange) {
         _cellsResultBean = cellsResult;
@@ -163,7 +165,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
         }
       }
     });
-    _balanceBean = BalanceBean(total.toString(), available.toString());
+    _balanceBean = BalanceBean(total, available);
     cellsChanged(_balanceBean);
   }
 
