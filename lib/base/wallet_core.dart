@@ -140,6 +140,8 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   }
 
   Future clearStore() async {
+    _cellsResultBean = CellsResultBean([], '-1');
+    _balanceBean = BalanceBean(0, 0);
     await _storeManager.clearAll();
   }
 
