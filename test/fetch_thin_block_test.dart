@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:ckbcore/base/config/hd_core_config.dart';
+import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/hd_core.dart';
 import 'package:ckbcore/base/utils/fetch_rpc_utils/fetch_thin_block.dart';
 import 'package:ckbcore/base/utils/log.dart';
@@ -14,7 +15,16 @@ main() {
       var result = await fetchBlockToCheckCell(FetchBlockToCheckParam(hdCore, 50));
       Log.log(jsonEncode(result));
     } catch (e) {
-      Log.log(jsonEncode(e));
+      Log.log(e.toString());
+    }
+  });
+
+  test('fetch block number', () async {
+    try {
+      var result = await ApiClient.getTipBlockNumber();
+      Log.log(jsonEncode(result));
+    } catch (e) {
+      Log.log(e.toString());
     }
   });
 }

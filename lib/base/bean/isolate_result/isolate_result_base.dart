@@ -1,6 +1,6 @@
 class IsolateResultBase<T> {
   final bool status;
-  final String errorMessage;
+  final Exception errorMessage;
   final T result;
 
   IsolateResultBase(this.status, this.errorMessage, this.result);

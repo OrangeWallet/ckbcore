@@ -56,6 +56,7 @@ Future<CellBean> _fetchCellInOutput(
 class FetchBlockToCheckParam {
   final HDCore hdCore;
   final int blockNumber;
+
   FetchBlockToCheckParam(this.hdCore, this.blockNumber);
 }
 
@@ -82,7 +83,7 @@ _sendBlock(SendPort sendPort) async {
       ThinBlockIsolateResultBean resultBean = ThinBlockIsolateResultBean.fromSuccess(result);
       replyTo.send(resultBean);
     } catch (e) {
-      ThinBlockIsolateResultBean resultBean = ThinBlockIsolateResultBean.fromFail(e.toString());
+      ThinBlockIsolateResultBean resultBean = ThinBlockIsolateResultBean.fromFail(e);
       replyTo.send(resultBean);
     }
   }

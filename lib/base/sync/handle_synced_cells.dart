@@ -12,7 +12,8 @@ Future<List<CellBean>> _handleSyncedCells(
   await Future.forEach(thinBlockWithCellsBean.spendCells, (CellBean spendCell) {
     for (int i = 0; i < cells.length; i++) {
       CellBean cell = cells[i];
-      if (spendCell.outPoint.txHash == cell.outPoint.txHash && spendCell.outPoint.index == cell.outPoint.index) {
+      if (spendCell.outPoint.txHash == cell.outPoint.txHash &&
+          spendCell.outPoint.index == cell.outPoint.index) {
         cells.removeAt(i);
       }
     }
@@ -46,13 +47,14 @@ _sendSyncedCells(SendPort sendPort) async {
       var result = CellsIsolateResultBean.fromSuccess(newCells);
       replyTo.send(result);
     } catch (e) {
-      var result = CellsIsolateResultBean.fromFail(e.toString());
+      var result = CellsIsolateResultBean.fromFail(e);
       replyTo.send(result);
     }
   }
 }
 
-Future _sendReceive(List<CellBean> origanCells, ThinBlockWithCellsBean thinBlockWithCellsBean, SendPort port) {
+Future _sendReceive(
+    List<CellBean> origanCells, ThinBlockWithCellsBean thinBlockWithCellsBean, SendPort port) {
   ReceivePort response = ReceivePort();
   port.send([origanCells, thinBlockWithCellsBean, response.sendPort]);
   return response.first;

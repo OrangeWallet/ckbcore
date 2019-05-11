@@ -13,4 +13,6 @@ abstract class WalletCoreInterface {
   writeWallet(String wallet, String password);
 
   Future<String> readWallet(String password);
+
+  syncException(Exception e);
 }

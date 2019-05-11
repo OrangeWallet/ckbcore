@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:ckbcore/base/bean/cell_bean.dart';
@@ -37,7 +36,7 @@ _handleCheckCellsStatus(SendPort sendPort) async {
       var result = CellsIsolateResultBean.fromSuccess(newCells);
       replyTo.send(result);
     } catch (e) {
-      var result = CellsIsolateResultBean.fromFail(jsonEncode(e));
+      var result = CellsIsolateResultBean.fromFail(e);
       replyTo.send(result);
     }
   }

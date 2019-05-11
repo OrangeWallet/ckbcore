@@ -4,21 +4,16 @@ import 'package:ckbcore/base/bean/thin_bolck_with_cells.dart';
 class ThinBlockIsolateResultBean extends IsolateResultBase<ThinBlockWithCellsBean> {
   ThinBlockIsolateResultBean(status, errorMessage, result) : super(status, errorMessage, result);
 
-  factory ThinBlockIsolateResultBean.fromJson(Map<String, dynamic> json) => ThinBlockIsolateResultBean(
-        json['status'] as bool,
-        json['errorMessage'] as String,
-        json['result'] == null ? null : ThinBlockWithCellsBean.fromJson(json['result']),
-      );
-
-  factory ThinBlockIsolateResultBean.fromSuccess(ThinBlockWithCellsBean result) => ThinBlockIsolateResultBean(
+  factory ThinBlockIsolateResultBean.fromSuccess(ThinBlockWithCellsBean result) =>
+      ThinBlockIsolateResultBean(
         true,
-        '',
+        null,
         result,
       );
 
-  factory ThinBlockIsolateResultBean.fromFail(String errorMessage) => ThinBlockIsolateResultBean(
+  factory ThinBlockIsolateResultBean.fromFail(Exception exception) => ThinBlockIsolateResultBean(
         false,
-        errorMessage,
+        exception,
         null,
       );
 }

@@ -5,23 +5,17 @@ import 'package:ckbcore/base/bean/thin_block.dart';
 import 'package:ckbcore/base/config/hd_core_config.dart';
 import 'package:ckbcore/base/utils/log.dart';
 import 'package:ckbcore/ckbcore.dart';
+import 'package:test/test.dart';
 
 main() async {
-  MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://192.168.99.123:8114');
-  // await walletCore.init('123456');
-  String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
-  // await walletCore.create('123456');
-  // Future.delayed(Duration(seconds: 5), () async {
-  //   try {
-  //     await walletCore.sendToken(
-  //         [ReceiverBean('ckt1q9gry5zg4vcktax5mn6tqeys5vteev8up9lp9zuyfhzrwl', 10000)],
-  //         Network.TestNet);
-  //   } catch (e) {
-  //     print(e.toString());
-  //   }
-  // });
-  await walletCore.import(mnemonic, 'password');
-  walletCore.updateCurrentIndexCells();
+  test('test', () async {
+    MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://192.168.99.124:8114');
+    // await walletCore.init('123456');
+    String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
+    // await walletCore.create('123456');
+    await walletCore.import(mnemonic, 'password');
+    walletCore.updateCurrentIndexCells();
+  });
 }
 
 class MyWalletCore extends WalletCore {
