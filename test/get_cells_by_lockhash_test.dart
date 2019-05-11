@@ -4,8 +4,8 @@ import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/config/hd_core_config.dart';
 import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/hd_core.dart';
-import 'package:ckbcore/base/utils/log.dart';
 import 'package:ckbcore/base/utils/get_cells_utils/get_unspent_cells_by_lockhash.dart';
+import 'package:ckbcore/base/utils/log.dart';
 import 'package:test/test.dart';
 
 main() {
@@ -15,8 +15,8 @@ main() {
   test('get cells by lockHash', () async {
     var targetBlockNumber = await ApiClient.getTipBlockNumber();
     Log.log(targetBlockNumber);
-    List<CellBean> cells =
-        await getCellByLockHash(GetCellByLockHashParams(0, 100, hdCore.unusedReceiveWallet), (start, target, current) {
+    List<CellBean> cells = await getCellByLockHash(
+        GetCellByLockHashParams(0, 100, hdCore.unusedReceiveWallet), (start, target, current) {
       print(target);
       print(current);
     });

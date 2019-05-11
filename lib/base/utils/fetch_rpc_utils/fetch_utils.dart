@@ -16,9 +16,10 @@ Future<CellOutput> fetchCellOutput(OutPoint outPoint) async {
 
 Future<CellBean> fetchThinLiveCell(CellWithOutPoint cellWithOutPoint, String path) async {
   var cellWithStatus = await ApiClient.getLiveCell(cellWithOutPoint.outPoint);
-  cellWithStatus.cell.data = cellWithStatus.cell.data == '0x' || cellWithStatus.cell.data == '' ? '0' : '1';
-  return CellBean(
-      cellWithStatus.cell, cellWithStatus.status, cellWithOutPoint.lock.scriptHash, cellWithOutPoint.outPoint, path);
+  cellWithStatus.cell.data =
+      cellWithStatus.cell.data == '0x' || cellWithStatus.cell.data == '' ? '0' : '1';
+  return CellBean(cellWithStatus.cell, cellWithStatus.status, cellWithOutPoint.lock.scriptHash,
+      cellWithOutPoint.outPoint, path);
 }
 
 Future<bool> checkCellIsLive(CellBean cell) async {

@@ -46,13 +46,13 @@ import 'package:ckbcore/base/utils/get_cells_utils/get_unspent_cells_by_lockhash
 Future<CellsResultBean> getCurrentIndexCells(
     HDCore hdCore, int startBlockNumber, Function syncProcess(double processing)) async {
   String targetBlockNumber = await ApiClient.getTipBlockNumber();
-  List<CellBean> cells =
-      await getCurrentIndexCellsWithTargetNumber(hdCore, startBlockNumber, int.parse(targetBlockNumber), (syncProcess));
+  List<CellBean> cells = await getCurrentIndexCellsWithTargetNumber(
+      hdCore, startBlockNumber, int.parse(targetBlockNumber), (syncProcess));
   return CellsResultBean(cells, targetBlockNumber);
 }
 
-Future<List<CellBean>> getCurrentIndexCellsWithTargetNumber(
-    HDCore hdCore, int startBlockNumber, int targetBlockNumber, Function syncProcess(double processing)) async {
+Future<List<CellBean>> getCurrentIndexCellsWithTargetNumber(HDCore hdCore, int startBlockNumber,
+    int targetBlockNumber, Function syncProcess(double processing)) async {
   List<CellBean> cells = List();
 
   // cells.addAll(
@@ -60,9 +60,9 @@ Future<List<CellBean>> getCurrentIndexCellsWithTargetNumber(
   //         (int start, int target, int current) {
   //   syncProcess((current - start) / ((target - start) * 2));
   // }));
-  cells.addAll(
-      await getCellByLockHash(GetCellByLockHashParams(startBlockNumber, targetBlockNumber, hdCore.unusedReceiveWallet),
-          (int start, int target, int current) {
+  cells.addAll(await getCellByLockHash(
+      GetCellByLockHashParams(startBlockNumber, targetBlockNumber, hdCore.unusedReceiveWallet),
+      (int start, int target, int current) {
     syncProcess((current - start) / (target - start));
   }));
   return cells;

@@ -26,10 +26,10 @@ class TransactionManager {
         throw LessThanMinCapacityException();
       }
       List<Object> cells = _gatherInputs(needCapacities);
-      int inputCapacities = cells[0];
-      List<SendCellInput> inputs = cells[1];
+      int inputCapacities = cells[1];
+      List<SendCellInput> inputs = cells[0];
       List<CellOutput> outputs = receivers.map((receiver) {
-        var ckbAddress = CKBAddress(receiver.network);
+        var ckbAddress = CKBAddress(network);
         Bech32 bech32 = ckbAddress.parse(receiver.address);
         String blake160 = bytesToHex(bech32.data, include0x: true, pad: true);
         return CellOutput(
@@ -65,6 +65,7 @@ class TransactionManager {
       if (cell.cellOutput.data == '0' && cell.status == CellWithStatus.LIVE) {
         if (inputsCapacities < needCapacities) {
           inputs.add(SendCellInput(cell.outPoint, []));
+          inputsCapacities += int.parse(cell.cellOutput.capacity);
         } else {
           return;
         }

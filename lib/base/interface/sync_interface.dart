@@ -4,5 +4,4 @@ import 'package:ckbcore/base/bean/thin_block.dart';
 abstract class SyncInterface {
   thinBlockUpdate(bool isCellsChange, CellsResultBean cellsResult, ThinBlock thinBlock);
   CellsResultBean getCurrentCellsResult();
-  exception(Exception e);
 }

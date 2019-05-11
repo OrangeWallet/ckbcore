@@ -3,9 +3,11 @@ import 'dart:typed_data';
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
+import 'package:ckb_sdk/ckb-utils/network.dart';
 import 'package:ckb_sdk/ckb_sdk.dart';
 import 'package:ckbcore/base/bean/balance_bean.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
+import 'package:ckbcore/base/bean/receiver_bean.dart';
 import 'package:ckbcore/base/bean/thin_block.dart';
 import 'package:ckbcore/base/config/hd_core_config.dart';
 import 'package:ckbcore/base/constant/constant.dart' show ApiClient, NodeUrl;
@@ -17,6 +19,7 @@ import 'package:ckbcore/base/interface/transaction_interface.dart';
 import 'package:ckbcore/base/interface/wallet_core_interface.dart';
 import 'package:ckbcore/base/store/store_manager.dart';
 import 'package:ckbcore/base/sync/sync_service.dart';
+import 'package:ckbcore/base/transction/transaction_manager.dart';
 import 'package:ckbcore/base/utils/get_cells_utils/get_unspent_cells.dart';
 import 'package:ckbcore/base/utils/get_cells_utils/update_unspent_cells.dart';
 import 'package:ckbcore/base/utils/log.dart';
@@ -32,6 +35,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   HDCoreConfig _hdCoreConfig;
   StoreManager _storeManager;
   BalanceBean _balanceBean;
+  TransactionManager _transactionManager;
 
   WalletCore(String storePath, String nodeUrl, bool _isDebug) {
     if (nodeUrl != null) {
@@ -40,6 +44,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     }
     isDebug = _isDebug;
     _storeManager = StoreManager(storePath);
+    _transactionManager = TransactionManager(this);
   }
 
   HDIndexWallet get unusedReceiveWallet => _hdCore.unusedReceiveWallet;
@@ -98,41 +103,37 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   }
 
   updateCurrentIndexCells() async {
-    try {
-      await calculateBalance();
-      _syncService = SyncService(_hdCore, this);
-      _cellsResultBean = await _storeManager.getSyncedCells();
-      if (_cellsResultBean.syncedBlockNumber == '') {
-        Log.log('sync from genesis block');
-        _cellsResultBean = await getCurrentIndexCells(_hdCore, 0, (double processing) {
-          syncProcess(processing);
-        });
+    _syncService = SyncService(_hdCore, this);
+    _cellsResultBean = await _storeManager.getSyncedCells();
+    await calculateBalance();
+    if (_cellsResultBean.syncedBlockNumber == '') {
+      Log.log('sync from genesis block');
+      _cellsResultBean = await getCurrentIndexCells(_hdCore, 0, (double processing) {
+        syncProcess(processing);
+      });
+      await _storeManager.syncCells(_cellsResultBean);
+    } else if (_cellsResultBean.syncedBlockNumber == '-1') {
+      String targetBlockNumber = await ApiClient.getTipBlockNumber();
+      Log.log('sync from tip block $targetBlockNumber');
+      _cellsResultBean.syncedBlockNumber = targetBlockNumber;
+      await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
+    } else {
+      Log.log('sync from ${_cellsResultBean.syncedBlockNumber}');
+      var updateCellsResult =
+          await updateUnspentCells(_hdCore, _cellsResultBean, (double processing) {
+        syncProcess(processing);
+      });
+      if (updateCellsResult.isChange) {
+        _cellsResultBean = updateCellsResult.cellsResultBean;
         await _storeManager.syncCells(_cellsResultBean);
-      } else if (_cellsResultBean.syncedBlockNumber == '-1') {
-        String targetBlockNumber = await ApiClient.getTipBlockNumber();
-        Log.log('sync from tip block $targetBlockNumber');
-        _cellsResultBean.syncedBlockNumber = targetBlockNumber;
-        await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
       } else {
-        Log.log('sync from ${_cellsResultBean.syncedBlockNumber}');
-        var updateCellsResult =
-            await updateUnspentCells(_hdCore, _cellsResultBean, (double processing) {
-          syncProcess(processing);
-        });
-        if (updateCellsResult.isChange) {
-          _cellsResultBean = updateCellsResult.cellsResultBean;
-          await _storeManager.syncCells(_cellsResultBean);
-        } else {
-          _cellsResultBean.syncedBlockNumber = updateCellsResult.cellsResultBean.syncedBlockNumber;
-          await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
-        }
+        _cellsResultBean.syncedBlockNumber = updateCellsResult.cellsResultBean.syncedBlockNumber;
+        await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
       }
-      await calculateBalance();
-      syncProcess(1.0);
-      _syncService.start();
-    } catch (e) {
-      exception(SyncException(e.toString()));
     }
+    await calculateBalance();
+    syncProcess(1.0);
+    _syncService.start();
   }
 
   Future stopSync() async {
@@ -146,22 +147,26 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     await _storeManager.clearAll();
   }
 
+  Future sendToken(List<ReceiverBean> receivers, Network network) async {
+    SendTransaction sendTransaction = await _transactionManager.generateTransaction(
+        receivers, unusedReceiveWallet.getAddress(network), network);
+    print(jsonEncode(sendTransaction));
+    String hash = await ApiClient.sendTransaction(sendTransaction);
+    print(hash);
+  }
+
   @override
   Future thinBlockUpdate(
       bool isCellsChange, CellsResultBean cellsResult, ThinBlock thinBlock) async {
-    try {
-      if (isCellsChange) {
-        _cellsResultBean = cellsResult;
-        await _storeManager.syncCells(_cellsResultBean);
-        await calculateBalance();
-      } else {
-        _cellsResultBean.syncedBlockNumber = cellsResult.syncedBlockNumber;
-        await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
-      }
-      await blockChanged(thinBlock);
-    } catch (e) {
-      exception(BlockUpdateException(_cellsResultBean.syncedBlockNumber));
+    if (isCellsChange) {
+      _cellsResultBean = cellsResult;
+      await _storeManager.syncCells(_cellsResultBean);
+      await calculateBalance();
+    } else {
+      _cellsResultBean.syncedBlockNumber = cellsResult.syncedBlockNumber;
+      await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
     }
+    await blockChanged(thinBlock);
   }
 
   Future calculateBalance() async {
