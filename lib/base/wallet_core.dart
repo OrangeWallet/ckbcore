@@ -62,7 +62,6 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
       throw Exception('Seed is Empty');
     }
     _hdCore = HDCore(_hdCoreConfig);
-    updateCurrentIndexCells();
     return;
   }
 
@@ -81,7 +80,6 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     _cellsResultBean = await _storeManager.getSyncedCells();
     _cellsResultBean.syncedBlockNumber = '-1';
     await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
-    updateCurrentIndexCells();
     return;
   }
 
@@ -98,7 +96,6 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     createStep(2);
     await writeWallet(jsonEncode(_hdCoreConfig), password);
     createStep(3);
-    updateCurrentIndexCells();
     return;
   }
 
@@ -150,9 +147,8 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   Future sendToken(List<ReceiverBean> receivers, Network network) async {
     SendTransaction sendTransaction = await _transactionManager.generateTransaction(
         receivers, unusedReceiveWallet.getAddress(network), network);
-    print(jsonEncode(sendTransaction));
     String hash = await ApiClient.sendTransaction(sendTransaction);
-    print(hash);
+    Log.log(hash);
   }
 
   @override
