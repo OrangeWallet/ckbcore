@@ -20,21 +20,23 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
     //caculate spentCells by transaction inputs
     await Future.forEach(transaction.inputs, (CellInput cellInput) async {
       if (cellInput.previousOutput.txHash != null && cellInput.previousOutput.index != null) {
-        OutPoint outPoint = OutPoint(cellInput.previousOutput.txHash, cellInput.previousOutput.index);
+        OutPoint outPoint =
+            OutPoint(cellInput.previousOutput.txHash, cellInput.previousOutput.index);
         CellOutput cellOutput = await fetchCellOutput(outPoint);
         if (cellOutput != null) if (cellOutput.lock.scriptHash ==
             param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
           CellBean cell = CellBean(null, '', cellOutput.lock.scriptHash, outPoint, '');
           updateCells.spendCells.add(cell);
-          thinTransaction.capacityOut = thinTransaction.capacityOut + int.parse(cell.cellOutput.capacity);
+          thinTransaction.capacityOut =
+              thinTransaction.capacityOut + int.parse(cell.cellOutput.capacity);
         }
       }
     });
     for (int i = 0; i < transaction.outputs.length; i++) {
       CellOutput cellOutput = transaction.outputs[i];
       if (cellOutput.lock.scriptHash == param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
-        updateCells.newCells
-            .add(await _fetchCellInOutput(cellOutput, transaction.hash, i, param.hdCore.unusedReceiveWallet));
+        updateCells.newCells.add(await _fetchCellInOutput(
+            cellOutput, transaction.hash, i, param.hdCore.unusedReceiveWallet));
         thinTransaction.capacityIn = thinTransaction.capacityIn + int.parse(cellOutput.capacity);
       }
     }
@@ -44,8 +46,10 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
   return updateCells;
 }
 
-Future<CellBean> _fetchCellInOutput(CellOutput cellOutput, String txHash, int index, HDIndexWallet wallet) async {
-  CellWithOutPoint cellWithOutPoint = CellWithOutPoint(cellOutput.capacity, wallet.lockScript, OutPoint(txHash, index));
+Future<CellBean> _fetchCellInOutput(
+    CellOutput cellOutput, String txHash, int index, HDIndexWallet wallet) async {
+  CellWithOutPoint cellWithOutPoint =
+      CellWithOutPoint(cellOutput.capacity, wallet.lockScript, OutPoint(txHash, index));
   return await fetchThinLiveCell(cellWithOutPoint, wallet.path);
 }
 
