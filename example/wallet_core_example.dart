@@ -8,8 +8,8 @@ import 'package:ckbcore/ckbcore.dart';
 
 main() async {
   MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://192.168.99.123:8114');
-  // await walletCore.init('123456');
-  String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
+  await walletCore.init('123456');
+  // String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
   // await walletCore.create('123456');
   // Future.delayed(Duration(seconds: 5), () async {
   //   try {
@@ -20,7 +20,7 @@ main() async {
   //     print(e.toString());
   //   }
   // });
-  await walletCore.import(mnemonic, 'password');
+  // await walletCore.import(mnemonic, 'password');
   walletCore.updateCurrentIndexCells();
 }
 

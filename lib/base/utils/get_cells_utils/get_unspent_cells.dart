@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/constant/constant.dart';
@@ -45,7 +46,7 @@ import 'package:ckbcore/base/utils/get_cells_utils/get_unspent_cells_by_lockhash
 
 Future<CellsResultBean> getCurrentIndexCells(
     HDCore hdCore, int startBlockNumber, Function syncProcess(double processing)) async {
-  String targetBlockNumber = await ApiClient.getTipBlockNumber();
+  String targetBlockNumber = await CKBApiClient(NodeUrl).getTipBlockNumber();
   List<CellBean> cells = await getCurrentIndexCellsWithTargetNumber(
       hdCore, startBlockNumber, int.parse(targetBlockNumber), (syncProcess));
   return CellsResultBean(cells, targetBlockNumber);

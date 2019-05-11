@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/config/hd_core_config.dart';
 import 'package:ckbcore/base/constant/constant.dart';
@@ -13,7 +14,7 @@ main() {
   // String lockHash = '0x266cec97cbede2cfbce73666f08deed9560bdf7841a7a5a51b3a3f09da249e21';
   HDCore hdCore = HDCore(HDCoreConfig('', privateKey, 0, 0));
   test('get cells by lockHash', () async {
-    var targetBlockNumber = await ApiClient.getTipBlockNumber();
+    var targetBlockNumber = await CKBApiClient(NodeUrl).getTipBlockNumber();
     Log.log(targetBlockNumber);
     List<CellBean> cells = await getCellByLockHash(
         GetCellByLockHashParams(0, 100, hdCore.unusedReceiveWallet), (start, target, current) {
@@ -24,7 +25,7 @@ main() {
   });
 
   test('get tip block number', () async {
-    var targetBlockNumber = await ApiClient.getTipBlockNumber();
+    var targetBlockNumber = await CKBApiClient(NodeUrl).getTipBlockNumber();
     Log.log(targetBlockNumber);
   });
 }

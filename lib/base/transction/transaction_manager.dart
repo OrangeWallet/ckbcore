@@ -50,7 +50,8 @@ class TransactionManager {
   }
 
   Future<List<Object>> _getContractInfo() async {
-    Transaction sysContract = (await ApiClient.getBlockByBlockNumber('0')).transactions[0];
+    Transaction sysContract =
+        (await CKBApiClient(NodeUrl).getBlockByBlockNumber('0')).transactions[0];
     CellOutput cellOutput = sysContract.outputs[0];
     String binaryHash = blake2bHexString(cellOutput.data);
     OutPoint(sysContract.hash, 0);

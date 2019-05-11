@@ -1,3 +1,4 @@
+import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_output.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_with_outpoint.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_with_status.dart';
@@ -7,7 +8,7 @@ import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/constant/constant.dart';
 
 Future<CellOutput> fetchCellOutput(OutPoint outPoint) async {
-  TransactionWithStatus transaction = await ApiClient.getTransaction(outPoint.txHash);
+  TransactionWithStatus transaction = await CKBApiClient(NodeUrl).getTransaction(outPoint.txHash);
   if (transaction != null)
     return transaction.transaction.outputs[outPoint.index];
   else
@@ -15,7 +16,7 @@ Future<CellOutput> fetchCellOutput(OutPoint outPoint) async {
 }
 
 Future<CellBean> fetchThinLiveCell(CellWithOutPoint cellWithOutPoint, String path) async {
-  var cellWithStatus = await ApiClient.getLiveCell(cellWithOutPoint.outPoint);
+  var cellWithStatus = await CKBApiClient(NodeUrl).getLiveCell(cellWithOutPoint.outPoint);
   cellWithStatus.cell.data =
       cellWithStatus.cell.data == '0x' || cellWithStatus.cell.data == '' ? '0' : '1';
   return CellBean(cellWithStatus.cell, cellWithStatus.status, cellWithOutPoint.lock.scriptHash,
@@ -23,6 +24,6 @@ Future<CellBean> fetchThinLiveCell(CellWithOutPoint cellWithOutPoint, String pat
 }
 
 Future<bool> checkCellIsLive(CellBean cell) async {
-  var cellWithStatus = await ApiClient.getLiveCell(cell.outPoint);
+  var cellWithStatus = await CKBApiClient(NodeUrl).getLiveCell(cell.outPoint);
   return cellWithStatus.status == CellWithStatus.LIVE;
 }

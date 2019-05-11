@@ -39,7 +39,6 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   WalletCore(String storePath, String nodeUrl, bool _isDebug) {
     if (nodeUrl != null) {
       NodeUrl = nodeUrl;
-      ApiClient = CKBApiClient(NodeUrl);
     }
     isDebug = _isDebug;
     _storeManager = StoreManager(storePath);
@@ -110,7 +109,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
         });
         await _storeManager.syncCells(_cellsResultBean);
       } else if (_cellsResultBean.syncedBlockNumber == '-1') {
-        String targetBlockNumber = await ApiClient.getTipBlockNumber();
+        String targetBlockNumber = await CKBApiClient(NodeUrl).getTipBlockNumber();
         Log.log('sync from tip block $targetBlockNumber');
         _cellsResultBean.syncedBlockNumber = targetBlockNumber;
         await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
@@ -150,7 +149,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   Future sendToken(List<ReceiverBean> receivers, Network network) async {
     SendTransaction sendTransaction = await _transactionManager.generateTransaction(
         receivers, unusedReceiveWallet.getAddress(network), network);
-    String hash = await ApiClient.sendTransaction(sendTransaction);
+    String hash = await CKBApiClient(NodeUrl).sendTransaction(sendTransaction);
     Log.log(hash);
   }
 

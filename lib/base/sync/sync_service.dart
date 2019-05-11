@@ -1,6 +1,7 @@
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/constant/constant.dart' show ApiClient, IntervalSyncTime;
+import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/hd_core.dart';
 import 'package:ckbcore/base/interface/sync_interface.dart';
 import 'package:ckbcore/base/sync/handle_synced_cells.dart';
@@ -33,7 +34,7 @@ class SyncService {
         _intercept = null;
         return;
       }
-      int targetBlockNumber = int.parse(await ApiClient.getTipBlockNumber());
+      int targetBlockNumber = int.parse(await CKBApiClient(NodeUrl).getTipBlockNumber());
       while (
           int.parse(syncInterface.getCurrentCellsResult().syncedBlockNumber) < targetBlockNumber &&
               _live) {

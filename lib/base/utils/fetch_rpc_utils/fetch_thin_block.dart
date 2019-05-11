@@ -1,5 +1,6 @@
 import 'dart:isolate';
 
+import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckb_sdk/ckb-types/res_export.dart';
 import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/bean/isolate_result/thin_block_isolate_result.dart';
@@ -13,7 +14,7 @@ import 'package:ckbcore/base/utils/base_isloate.dart';
 import 'package:ckbcore/base/utils/fetch_rpc_utils/fetch_utils.dart';
 
 Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam param) async {
-  Block block = await ApiClient.getBlockByBlockNumber(param.blockNumber.toString());
+  Block block = await CKBApiClient(NodeUrl).getBlockByBlockNumber(param.blockNumber.toString());
   var updateCells = ThinBlockWithCellsBean([], [], ThinBlock.fromBlock(block));
   await Future.forEach(block.transactions, (Transaction transaction) async {
     ThinTransaction thinTransaction = ThinTransaction(transaction.hash, 0, 0);
