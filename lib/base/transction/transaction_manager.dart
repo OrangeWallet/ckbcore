@@ -27,7 +27,7 @@ class TransactionManager {
       }
       List<Object> cells = _gatherInputs(needCapacities);
       int inputCapacities = cells[1];
-      List<SendCellInput> inputs = cells[0];
+      List<CellInput> inputs = cells[0];
       List<CellOutput> outputs = receivers.map((receiver) {
         var ckbAddress = CKBAddress(network);
         Bech32 bech32 = ckbAddress.parse(receiver.address);
