@@ -7,26 +7,24 @@ import 'package:ckbcore/base/bean/isolate_result/thin_block_isolate_result.dart'
 import 'package:ckbcore/base/bean/thin_block.dart';
 import 'package:ckbcore/base/bean/thin_bolck_with_cells.dart';
 import 'package:ckbcore/base/bean/thin_transaction.dart';
-import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/hd_core.dart';
 import 'package:ckbcore/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/base/utils/base_isloate.dart';
 import 'package:ckbcore/base/utils/fetch_rpc_utils/fetch_utils.dart';
 
 Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam param) async {
-  Block block = await CKBApiClient(NodeUrl).getBlockByBlockNumber(param.blockNumber.toString());
+  Block block = await param.apiClient.getBlockByBlockNumber(param.blockNumber.toString());
   var updateCells = ThinBlockWithCellsBean([], [], ThinBlock.fromBlock(block));
   await Future.forEach(block.transactions, (Transaction transaction) async {
     ThinTransaction thinTransaction = ThinTransaction(transaction.hash, 0, 0);
     //caculate spentCells by transaction inputs
     await Future.forEach(transaction.inputs, (CellInput cellInput) async {
-      if (cellInput.previousOutput.cell.txHash != null &&
-          cellInput.previousOutput.cell.index != null) {
+      if (cellInput.previousOutput.cell != null) {
         OutPoint outPoint = OutPoint(
             '',
             CellOutPoint(
                 cellInput.previousOutput.cell.txHash, cellInput.previousOutput.cell.index));
-        CellOutput cellOutput = await fetchCellOutput(outPoint);
+        CellOutput cellOutput = await fetchCellOutput(outPoint, param.apiClient);
         if (cellOutput != null) if (cellOutput.lock.scriptHash ==
             param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
           CellBean cell = CellBean(null, '', cellOutput.lock.scriptHash, outPoint, '');
@@ -39,8 +37,8 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
     for (int i = 0; i < transaction.outputs.length; i++) {
       CellOutput cellOutput = transaction.outputs[i];
       if (cellOutput.lock.scriptHash == param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
-        updateCells.newCells.add(await _fetchCellInOutput(
-            cellOutput, transaction.hash, i.toString(), param.hdCore.unusedReceiveWallet));
+        updateCells.newCells.add(await _fetchCellInOutput(cellOutput, transaction.hash,
+            i.toString(), param.hdCore.unusedReceiveWallet, param.apiClient));
         thinTransaction.capacityIn = thinTransaction.capacityIn + int.parse(cellOutput.capacity);
       }
     }
@@ -50,18 +48,19 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
   return updateCells;
 }
 
-Future<CellBean> _fetchCellInOutput(
-    CellOutput cellOutput, String txHash, String index, HDIndexWallet wallet) async {
+Future<CellBean> _fetchCellInOutput(CellOutput cellOutput, String txHash, String index,
+    HDIndexWallet wallet, CKBApiClient apiClient) async {
   CellWithOutPoint cellWithOutPoint = CellWithOutPoint(
       cellOutput.capacity, wallet.lockScript, OutPoint('', CellOutPoint(txHash, index)));
-  return await fetchThinLiveCell(cellWithOutPoint, wallet.path);
+  return await fetchThinLiveCell(cellWithOutPoint, wallet.path, apiClient);
 }
 
 class FetchBlockToCheckParam {
   final HDCore hdCore;
   final int blockNumber;
+  final CKBApiClient apiClient;
 
-  FetchBlockToCheckParam(this.hdCore, this.blockNumber);
+  FetchBlockToCheckParam(this.hdCore, this.blockNumber, this.apiClient);
 }
 
 Future<ThinBlockWithCellsBean> fetchBlockToCheckCell(FetchBlockToCheckParam param) async {

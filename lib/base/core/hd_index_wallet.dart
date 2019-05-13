@@ -23,7 +23,8 @@ class HDIndexWallet {
 
   //TODO refactor
   Script get lockScript {
-    Script script = Script("0000000000000000000000000000000000000000000000000000000000000002", [bytesToHex(publicKey)]);
-    return script.alwaysSuccess();
+    Script script = Script("0000000000000000000000000000000000000000000000000000000000000002",
+        [bytesToHex(publicKey)]);
+    return script;
   }
 }

@@ -10,7 +10,6 @@ import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/bean/receiver_bean.dart';
 import 'package:ckbcore/base/bean/thin_block.dart';
 import 'package:ckbcore/base/config/hd_core_config.dart';
-import 'package:ckbcore/base/constant/constant.dart' show ApiClient, NodeUrl;
 import 'package:ckbcore/base/core/hd_core.dart';
 import 'package:ckbcore/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/base/interface/sync_interface.dart';
@@ -35,14 +34,13 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   StoreManager _storeManager;
   BalanceBean _balanceBean;
   TransactionManager _transactionManager;
+  CKBApiClient _apiClient;
 
   WalletCore(String storePath, String nodeUrl, bool _isDebug) {
-    if (nodeUrl != null) {
-      NodeUrl = nodeUrl;
-    }
+    _apiClient = CKBApiClient(nodeUrl);
     isDebug = _isDebug;
     _storeManager = StoreManager(storePath);
-    _transactionManager = TransactionManager(this);
+    _transactionManager = TransactionManager(this, _apiClient);
   }
 
   HDIndexWallet get unusedReceiveWallet => _hdCore.unusedReceiveWallet;
@@ -74,7 +72,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     createStep(2);
     await writeWallet(jsonEncode(_hdCoreConfig), password);
     createStep(3);
-    _syncService = SyncService(_hdCore, this);
+    _syncService = SyncService(_hdCore, this, _apiClient);
     _cellsResultBean = await _storeManager.getSyncedCells();
     _cellsResultBean.syncedBlockNumber = '-1';
     await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
@@ -99,24 +97,24 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
 
   updateCurrentIndexCells() async {
     try {
-      _syncService = SyncService(_hdCore, this);
+      _syncService = SyncService(_hdCore, this, _apiClient);
       _cellsResultBean = await _storeManager.getSyncedCells();
       await calculateBalance();
       if (_cellsResultBean.syncedBlockNumber == '') {
         Log.log('sync from genesis block');
-        _cellsResultBean = await getCurrentIndexCells(_hdCore, 0, (double processing) {
+        _cellsResultBean = await getCurrentIndexCells(_hdCore, 0, _apiClient, (double processing) {
           syncProcess(processing);
         });
         await _storeManager.syncCells(_cellsResultBean);
       } else if (_cellsResultBean.syncedBlockNumber == '-1') {
-        String targetBlockNumber = await CKBApiClient(NodeUrl).getTipBlockNumber();
+        String targetBlockNumber = await _apiClient.getTipBlockNumber();
         Log.log('sync from tip block $targetBlockNumber');
         _cellsResultBean.syncedBlockNumber = targetBlockNumber;
         await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
       } else {
         Log.log('sync from ${_cellsResultBean.syncedBlockNumber}');
         var updateCellsResult =
-            await updateUnspentCells(_hdCore, _cellsResultBean, (double processing) {
+            await updateUnspentCells(_hdCore, _cellsResultBean, _apiClient, (double processing) {
           syncProcess(processing);
         });
         if (updateCellsResult.isChange) {
@@ -149,7 +147,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   Future sendToken(List<ReceiverBean> receivers, Network network) async {
     SendTransaction sendTransaction = await _transactionManager.generateTransaction(
         receivers, unusedReceiveWallet.getAddress(network), network);
-    String hash = await CKBApiClient(NodeUrl).sendTransaction(sendTransaction);
+    String hash = await _apiClient.sendTransaction(sendTransaction);
     Log.log(hash);
   }
 
@@ -161,7 +159,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
       await _storeManager.syncCells(_cellsResultBean);
       await calculateBalance();
     } else {
-      _cellsResultBean.syncedBlockNumber = cellsResult.syncedBlockNumber;
+      _cellsResultBean.syncedBlockNumber = thinBlock.thinHeader.number;
       await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
     }
     await blockChanged(thinBlock);

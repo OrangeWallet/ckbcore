@@ -17,7 +17,8 @@ main() {
     var targetBlockNumber = await CKBApiClient(NodeUrl).getTipBlockNumber();
     Log.log(targetBlockNumber);
     List<CellBean> cells = await getCellByLockHash(
-        GetCellByLockHashParams(0, 100, hdCore.unusedReceiveWallet), (start, target, current) {
+        GetCellByLockHashParams(0, 100, hdCore.unusedReceiveWallet), CKBApiClient(NodeUrl),
+        (start, target, current) {
       print(target);
       print(current);
     });

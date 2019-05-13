@@ -11,8 +11,9 @@ import 'package:ckbcore/base/interface/transaction_interface.dart';
 
 class TransactionManager {
   final TransactionInterface _transactionInterface;
+  final CKBApiClient _apiClient;
 
-  TransactionManager(this._transactionInterface);
+  TransactionManager(this._transactionInterface, this._apiClient);
 
   Future<SendTransaction> generateTransaction(
       List<ReceiverBean> receivers, String changeAddress, Network network) async {
@@ -50,8 +51,7 @@ class TransactionManager {
   }
 
   Future<List<Object>> _getContractInfo() async {
-    Transaction sysContract =
-        (await CKBApiClient(NodeUrl).getBlockByBlockNumber('0')).transactions[0];
+    Transaction sysContract = (await _apiClient.getBlockByBlockNumber('0')).transactions[0];
     CellOutput cellOutput = sysContract.outputs[0];
     String binaryHash = blake2bHexString(cellOutput.data);
     return [binaryHash, OutPoint('', CellOutPoint(sysContract.hash, "0"))];

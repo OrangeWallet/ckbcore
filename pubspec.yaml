@@ -1,6 +1,6 @@
 name: ckbcore
 version: 0.0.1
-author: "BaojunCZ<baojun.cz@gmail.com>"
+author: "BaoJunCZ<baojun.cz@gmail.com>"
 homepage: https://github.com/OrangeWallet/ckbcore
 description: It is core of Orange Wallet(https://github.com/OrangeWallet/orange-wallet)
 publish_to: https://pub.dartlang.org/
