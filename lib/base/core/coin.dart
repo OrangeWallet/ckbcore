@@ -4,7 +4,7 @@ import 'package:bip32/bip32.dart' as bip32;
 
 class Coin {
   bip32.BIP32 _node;
-  static final _coinType = 360;
+  static final _coinType = 309;
   static final _purpose = 44;
   static final _external = 0;
   static final _internal = 1;
