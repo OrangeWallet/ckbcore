@@ -8,9 +8,10 @@ import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/constant/constant.dart';
 
 Future<CellOutput> fetchCellOutput(OutPoint outPoint) async {
-  TransactionWithStatus transaction = await CKBApiClient(NodeUrl).getTransaction(outPoint.txHash);
+  TransactionWithStatus transaction =
+      await CKBApiClient(NodeUrl).getTransaction(outPoint.cell.txHash);
   if (transaction != null)
-    return transaction.transaction.outputs[outPoint.index];
+    return transaction.transaction.outputs[int.parse(outPoint.cell.index)];
   else
     return null;
 }

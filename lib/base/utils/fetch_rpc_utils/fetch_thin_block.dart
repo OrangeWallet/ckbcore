@@ -20,9 +20,12 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
     ThinTransaction thinTransaction = ThinTransaction(transaction.hash, 0, 0);
     //caculate spentCells by transaction inputs
     await Future.forEach(transaction.inputs, (CellInput cellInput) async {
-      if (cellInput.previousOutput.txHash != null && cellInput.previousOutput.index != null) {
-        OutPoint outPoint =
-            OutPoint(cellInput.previousOutput.txHash, cellInput.previousOutput.index);
+      if (cellInput.previousOutput.cell.txHash != null &&
+          cellInput.previousOutput.cell.index != null) {
+        OutPoint outPoint = OutPoint(
+            '',
+            CellOutPoint(
+                cellInput.previousOutput.cell.txHash, cellInput.previousOutput.cell.index));
         CellOutput cellOutput = await fetchCellOutput(outPoint);
         if (cellOutput != null) if (cellOutput.lock.scriptHash ==
             param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
@@ -37,7 +40,7 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
       CellOutput cellOutput = transaction.outputs[i];
       if (cellOutput.lock.scriptHash == param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
         updateCells.newCells.add(await _fetchCellInOutput(
-            cellOutput, transaction.hash, i, param.hdCore.unusedReceiveWallet));
+            cellOutput, transaction.hash, i.toString(), param.hdCore.unusedReceiveWallet));
         thinTransaction.capacityIn = thinTransaction.capacityIn + int.parse(cellOutput.capacity);
       }
     }
@@ -48,9 +51,9 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
 }
 
 Future<CellBean> _fetchCellInOutput(
-    CellOutput cellOutput, String txHash, int index, HDIndexWallet wallet) async {
-  CellWithOutPoint cellWithOutPoint =
-      CellWithOutPoint(cellOutput.capacity, wallet.lockScript, OutPoint(txHash, index));
+    CellOutput cellOutput, String txHash, String index, HDIndexWallet wallet) async {
+  CellWithOutPoint cellWithOutPoint = CellWithOutPoint(
+      cellOutput.capacity, wallet.lockScript, OutPoint('', CellOutPoint(txHash, index)));
   return await fetchThinLiveCell(cellWithOutPoint, wallet.path);
 }
 

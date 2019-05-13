@@ -14,7 +14,7 @@ dependencies:
   ckb_sdk:
     git:
       url: https://github.com/BaojunCZ/ckb-sdk-dart.git
-      ref: rc/v0.11.0
+      ref: develop
 
 dev_dependencies:
   test: ^1.6.1

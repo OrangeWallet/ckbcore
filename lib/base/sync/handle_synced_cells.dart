@@ -12,8 +12,8 @@ Future<List<CellBean>> _handleSyncedCells(
   await Future.forEach(thinBlockWithCellsBean.spendCells, (CellBean spendCell) {
     for (int i = 0; i < cells.length; i++) {
       CellBean cell = cells[i];
-      if (spendCell.outPoint.txHash == cell.outPoint.txHash &&
-          spendCell.outPoint.index == cell.outPoint.index) {
+      if (spendCell.outPoint.cell.txHash == cell.outPoint.cell.txHash &&
+          spendCell.outPoint.cell.index == cell.outPoint.cell.index) {
         cells.removeAt(i);
       }
     }

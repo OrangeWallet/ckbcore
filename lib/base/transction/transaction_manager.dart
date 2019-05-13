@@ -43,7 +43,7 @@ class TransactionManager {
         outputs.add(CellOutput((inputCapacities - needCapacities).toString(), '0x',
             Script(contractInfo[0], [blake160]), null));
       }
-      return SendTransaction(0, [contractInfo[1]], inputs, outputs);
+      return SendTransaction("0", [contractInfo[1]], inputs, outputs);
     } catch (e) {
       rethrow;
     }
@@ -54,8 +54,7 @@ class TransactionManager {
         (await CKBApiClient(NodeUrl).getBlockByBlockNumber('0')).transactions[0];
     CellOutput cellOutput = sysContract.outputs[0];
     String binaryHash = blake2bHexString(cellOutput.data);
-    OutPoint(sysContract.hash, 0);
-    return [binaryHash, OutPoint(sysContract.hash, 0)];
+    return [binaryHash, OutPoint('', CellOutPoint(sysContract.hash, "0"))];
   }
 
   List<Object> _gatherInputs(int needCapacities) {
