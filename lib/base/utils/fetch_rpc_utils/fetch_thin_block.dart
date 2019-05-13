@@ -87,8 +87,13 @@ _sendBlock(SendPort sendPort) async {
       ThinBlockIsolateResultBean resultBean = ThinBlockIsolateResultBean.fromSuccess(result);
       replyTo.send(resultBean);
     } catch (e) {
-      ThinBlockIsolateResultBean resultBean = ThinBlockIsolateResultBean.fromFail(e);
-      replyTo.send(resultBean);
+      ThinBlockIsolateResultBean result;
+      if (e is Exception) {
+        result = ThinBlockIsolateResultBean.fromFail(e);
+      } else {
+        result = ThinBlockIsolateResultBean.fromFail(Exception(e.toString()));
+      }
+      replyTo.send(result);
     }
   }
 }
