@@ -1,6 +1,9 @@
 import 'dart:convert';
 
-import 'package:ckb_sdk/ckb-types/res_export.dart';
+import 'package:ckb_sdk/ckb-types/item/cell_out_point.dart';
+import 'package:ckb_sdk/ckb-types/item/cell_output.dart';
+import 'package:ckb_sdk/ckb-types/item/out_point.dart';
+import 'package:ckb_sdk/ckb-types/item/script.dart';
 import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/store/store_manager.dart';

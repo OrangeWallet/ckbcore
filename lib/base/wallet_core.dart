@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
+import 'package:ckb_sdk/ckb-types/item/cell_with_status.dart';
+import 'package:ckb_sdk/ckb-types/item/transaction.dart';
 import 'package:ckb_sdk/ckb-utils/network.dart';
 import 'package:ckb_sdk/ckb_sdk.dart';
 import 'package:ckbcore/base/bean/balance_bean.dart';
@@ -145,7 +147,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   }
 
   Future sendToken(List<ReceiverBean> receivers, Network network) async {
-    SendTransaction sendTransaction = await _transactionManager.generateTransaction(
+    Transaction sendTransaction = await _transactionManager.generateTransaction(
         receivers, unusedReceiveWallet.getAddress(network), network);
     String hash = await _apiClient.sendTransaction(sendTransaction);
     Log.log(hash);

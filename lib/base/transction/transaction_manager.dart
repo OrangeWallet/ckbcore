@@ -1,4 +1,11 @@
 import 'package:bip_bech32/bip_bech32.dart';
+import 'package:ckb_sdk/ckb-types/item/cell_input.dart';
+import 'package:ckb_sdk/ckb-types/item/cell_out_point.dart';
+import 'package:ckb_sdk/ckb-types/item/cell_output.dart';
+import 'package:ckb_sdk/ckb-types/item/cell_with_status.dart';
+import 'package:ckb_sdk/ckb-types/item/out_point.dart';
+import 'package:ckb_sdk/ckb-types/item/script.dart';
+import 'package:ckb_sdk/ckb-types/item/transaction.dart';
 import 'package:ckb_sdk/ckb-utils/crypto/hash.dart';
 import 'package:ckb_sdk/ckb-utils/network.dart';
 import 'package:ckb_sdk/ckb-utils/number.dart';
@@ -15,7 +22,7 @@ class TransactionManager {
 
   TransactionManager(this._transactionInterface, this._apiClient);
 
-  Future<SendTransaction> generateTransaction(
+  Future<Transaction> generateTransaction(
       List<ReceiverBean> receivers, String changeAddress, Network network) async {
     try {
       var contractInfo = await _getContractInfo();
@@ -44,7 +51,7 @@ class TransactionManager {
         outputs.add(CellOutput((inputCapacities - needCapacities).toString(), '0x',
             Script(contractInfo[0], [blake160]), null));
       }
-      return SendTransaction("0", [contractInfo[1]], inputs, outputs);
+      return Transaction("0", null, [contractInfo[1]], inputs, outputs, []);
     } catch (e) {
       rethrow;
     }
@@ -59,12 +66,12 @@ class TransactionManager {
 
   List<Object> _gatherInputs(int needCapacities) {
     List<CellBean> cells = _transactionInterface.getCurrentCellsResult().cells;
-    List<SendCellInput> inputs = [];
+    List<CellInput> inputs = [];
     int inputsCapacities = 0;
     cells.forEach((cell) {
       if (cell.cellOutput.data == '0' && cell.status == CellWithStatus.LIVE) {
         if (inputsCapacities < needCapacities) {
-          inputs.add(SendCellInput(cell.outPoint, []));
+          inputs.add(CellInput(cell.outPoint, [], "0"));
           inputsCapacities += int.parse(cell.cellOutput.capacity);
         } else {
           return;
