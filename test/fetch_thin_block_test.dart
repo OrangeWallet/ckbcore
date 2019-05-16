@@ -14,7 +14,7 @@ main() {
     HDCore hdCore = HDCore(HDCoreConfig('', privateKey, 0, 0));
     try {
       var result =
-          await fetchBlockToCheckCell(FetchBlockToCheckParam(hdCore, 50, CKBApiClient(NodeUrl)));
+          await fetchBlockToCheckCell(FetchBlockToCheckParam(hdCore, 8869, CKBApiClient(NodeUrl)));
       Log.log(jsonEncode(result));
     } catch (e) {
       Log.log(e.toString());

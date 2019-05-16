@@ -7,3 +7,7 @@ class LessThanMinCapacityException implements Exception {
 class NoEnoughCapacityException implements Exception {
   String toString() => "Capacity not enough";
 }
+
+class NoCodeHashException implements Exception {
+  String toString() => "There is no code hash";
+}

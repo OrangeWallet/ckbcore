@@ -1,15 +1,15 @@
-import 'package:bip_bech32/bip_bech32.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_input.dart';
-import 'package:ckb_sdk/ckb-types/item/cell_out_point.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_output.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_with_status.dart';
 import 'package:ckb_sdk/ckb-types/item/out_point.dart';
 import 'package:ckb_sdk/ckb-types/item/script.dart';
 import 'package:ckb_sdk/ckb-types/item/transaction.dart';
-import 'package:ckb_sdk/ckb-utils/crypto/hash.dart';
-import 'package:ckb_sdk/ckb-utils/network.dart';
+import 'package:ckb_sdk/ckb-types/item/witness.dart';
+import 'package:ckb_sdk/ckb-utils/crypto/crypto.dart';
 import 'package:ckb_sdk/ckb-utils/number.dart';
 import 'package:ckb_sdk/ckb_sdk.dart';
+import 'package:ckb_sdk/ckb_system_contract/ckb_system_contract.dart';
+import 'package:ckb_sdk/ckb_system_contract/system_contract.dart';
 import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/bean/receiver_bean.dart';
 import 'package:ckbcore/base/constant/constant.dart';
@@ -17,15 +17,18 @@ import 'package:ckbcore/base/exception/exception.dart';
 import 'package:ckbcore/base/interface/transaction_interface.dart';
 
 class TransactionManager {
-  final TransactionInterface _transactionInterface;
-  final CKBApiClient _apiClient;
+  final TransactionInterface _impl;
 
-  TransactionManager(this._transactionInterface, this._apiClient);
+  TransactionManager(this._impl);
 
-  Future<Transaction> generateTransaction(
-      List<ReceiverBean> receivers, String changeAddress, Network network) async {
+  Future<String> sendCapacity(List<ReceiverBean> receivers) async {
+    Transaction transaction = await generateTransaction(receivers);
+    String txHash = await _impl.apiClient.sendTransaction(transaction);
+    return txHash;
+  }
+
+  Future<Transaction> generateTransaction(List<ReceiverBean> receivers) async {
     try {
-      var contractInfo = await _getContractInfo();
       int needCapacities = 0;
       receivers.forEach((receiver) {
         needCapacities += receiver.capacity;
@@ -33,39 +36,34 @@ class TransactionManager {
       if (needCapacities < MinCapacity) {
         throw LessThanMinCapacityException();
       }
-      List<Object> cells = _gatherInputs(needCapacities);
+      List<Object> cells = gatherInputs(needCapacities);
       int inputCapacities = cells[1];
       List<CellInput> inputs = cells[0];
       List<CellOutput> outputs = receivers.map((receiver) {
-        var ckbAddress = CKBAddress(network);
-        Bech32 bech32 = ckbAddress.parse(receiver.address);
-        String blake160 = bytesToHex(bech32.data, include0x: true, pad: true);
-        return CellOutput(
-            receiver.capacity.toString(), '0x', Script(contractInfo[0], [blake160]), null);
+        var ckbAddress = CKBAddress(_impl.network);
+        String blake160 = hexAdd0x(ckbAddress.blake160FromAddress(receiver.address));
+        return CellOutput(receiver.capacity.toString(), '0x', Script(CodeHash, [blake160]), null);
       }).toList();
+      SystemContract systemContract = await getSystemContract(_impl.apiClient, _impl.network);
       //change
       if (inputCapacities > needCapacities) {
-        CKBAddress ckbAddress = CKBAddress(network);
-        Bech32 bech32 = ckbAddress.parse(changeAddress);
-        String blake160 = bytesToHex(bech32.data, include0x: true, pad: true);
+        String blake160Str = hexAdd0x(blake160(bytesToHex(_impl.unusedReceiveWallet.publicKey)));
         outputs.add(CellOutput((inputCapacities - needCapacities).toString(), '0x',
-            Script(contractInfo[0], [blake160]), null));
+            Script(CodeHash, [blake160Str]), null));
       }
-      return Transaction("0", null, [contractInfo[1]], inputs, outputs, []);
+      Transaction transaction = Transaction(
+          "0", null, [OutPoint(null, systemContract.systemScriptOutPoint)], inputs, outputs, []);
+      String txHash = await _impl.apiClient.computeTransactionHash(transaction);
+      inputs.forEach((input) =>
+          transaction.witnesses = [Witness.sign(_impl.unusedReceiveWallet.privateKey, txHash)]);
+      return transaction;
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<List<Object>> _getContractInfo() async {
-    Transaction sysContract = (await _apiClient.getBlockByBlockNumber('0')).transactions[0];
-    CellOutput cellOutput = sysContract.outputs[0];
-    String binaryHash = blake2bHexString(cellOutput.data);
-    return [binaryHash, OutPoint('', CellOutPoint(sysContract.hash, "0"))];
-  }
-
-  List<Object> _gatherInputs(int needCapacities) {
-    List<CellBean> cells = _transactionInterface.getCurrentCellsResult().cells;
+  List<Object> gatherInputs(int needCapacities) {
+    List<CellBean> cells = _impl.cellsResultBean.cells;
     List<CellInput> inputs = [];
     int inputsCapacities = 0;
     cells.forEach((cell) {

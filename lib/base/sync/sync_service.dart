@@ -1,6 +1,6 @@
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
-import 'package:ckbcore/base/constant/constant.dart' show ApiClient, IntervalSyncTime;
+import 'package:ckbcore/base/constant/constant.dart' show IntervalSyncTime;
 import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/hd_core.dart';
 import 'package:ckbcore/base/interface/sync_interface.dart';
@@ -35,19 +35,17 @@ class SyncService {
         return;
       }
       int targetBlockNumber = int.parse(await _apiClient.getTipBlockNumber());
-      while (
-          int.parse(_syncInterface.getCurrentCellsResult().syncedBlockNumber) < targetBlockNumber &&
-              _live) {
-        int syncedBlockNumber =
-            int.parse(_syncInterface.getCurrentCellsResult().syncedBlockNumber) + 1;
+      while (int.parse(_syncInterface.cellsResultBean.syncedBlockNumber) < targetBlockNumber &&
+          _live) {
+        int syncedBlockNumber = int.parse(_syncInterface.cellsResultBean.syncedBlockNumber) + 1;
         Log.log(
             'synced is ${syncedBlockNumber - 1},fetch block ${syncedBlockNumber},target is ${targetBlockNumber}');
         var thinBlockWithCellsBean = await fetchBlockToCheckCell(
             FetchBlockToCheckParam(_hdCore, syncedBlockNumber, _apiClient));
         if (thinBlockWithCellsBean.newCells.length > 0 ||
             thinBlockWithCellsBean.spendCells.length > 0) {
-          var cells = await handleSyncedCells(
-              _syncInterface.getCurrentCellsResult().cells, thinBlockWithCellsBean);
+          var cells =
+              await handleSyncedCells(_syncInterface.cellsResultBean.cells, thinBlockWithCellsBean);
           await _syncInterface.thinBlockUpdate(
               true,
               CellsResultBean(cells, thinBlockWithCellsBean.thinBlock.thinHeader.number),
@@ -56,8 +54,7 @@ class SyncService {
           await _syncInterface.thinBlockUpdate(false, null, thinBlockWithCellsBean.thinBlock);
         }
       }
-      Log.log(
-          'synced is ${_syncInterface.getCurrentCellsResult().syncedBlockNumber},It`s tip,waiting');
+      Log.log('synced is ${_syncInterface.cellsResultBean.syncedBlockNumber},It`s tip,waiting');
       await Future.delayed(Duration(seconds: IntervalSyncTime), () async {
         await _rotation();
       });

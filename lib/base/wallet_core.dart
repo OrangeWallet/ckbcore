@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_with_status.dart';
-import 'package:ckb_sdk/ckb-types/item/transaction.dart';
 import 'package:ckb_sdk/ckb-utils/network.dart';
 import 'package:ckb_sdk/ckb_sdk.dart';
 import 'package:ckbcore/base/bean/balance_bean.dart';
@@ -35,23 +34,31 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   HDCoreConfig _hdCoreConfig;
   StoreManager _storeManager;
   BalanceBean _balanceBean;
-  TransactionManager _transactionManager;
   CKBApiClient _apiClient;
+  Network _network;
 
-  WalletCore(String storePath, String nodeUrl, bool _isDebug) {
+  WalletCore(String storePath, String nodeUrl, Network network, bool _isDebug) {
     _apiClient = CKBApiClient(nodeUrl);
     isDebug = _isDebug;
     _storeManager = StoreManager(storePath);
-    _transactionManager = TransactionManager(this, _apiClient);
+    _network = network;
   }
 
+  @override
   HDIndexWallet get unusedReceiveWallet => _hdCore.unusedReceiveWallet;
 
+  @override
   CellsResultBean get cellsResultBean => _cellsResultBean;
 
   HDCoreConfig get hdCoreConfig => _hdCoreConfig;
 
   BalanceBean get balanceBean => _balanceBean;
+
+  @override
+  CKBApiClient get apiClient => _apiClient;
+
+  @override
+  Network get network => _network;
 
   //Init HD Wallet from store
   Future init(String password) async {
@@ -60,6 +67,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
       throw Exception('Seed is Empty');
     }
     _hdCore = HDCore(_hdCoreConfig);
+    _cellsResultBean = await _storeManager.getSyncedCells();
     return;
   }
 
@@ -74,6 +82,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     createStep(2);
     await writeWallet(jsonEncode(_hdCoreConfig), password);
     createStep(3);
+    _cellsResultBean = await _storeManager.getSyncedCells();
     _syncService = SyncService(_hdCore, this, _apiClient);
     _cellsResultBean = await _storeManager.getSyncedCells();
     _cellsResultBean.syncedBlockNumber = '-1';
@@ -94,13 +103,13 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     createStep(2);
     await writeWallet(jsonEncode(_hdCoreConfig), password);
     createStep(3);
+    _cellsResultBean = await _storeManager.getSyncedCells();
     return;
   }
 
   updateCurrentIndexCells() async {
     try {
       _syncService = SyncService(_hdCore, this, _apiClient);
-      _cellsResultBean = await _storeManager.getSyncedCells();
       await calculateBalance();
       if (_cellsResultBean.syncedBlockNumber == '') {
         Log.log('sync from genesis block');
@@ -146,11 +155,11 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     await _storeManager.clearAll();
   }
 
-  Future sendToken(List<ReceiverBean> receivers, Network network) async {
-    Transaction sendTransaction = await _transactionManager.generateTransaction(
-        receivers, unusedReceiveWallet.getAddress(network), network);
-    String hash = await _apiClient.sendTransaction(sendTransaction);
-    Log.log(hash);
+  Future sendCapacity(List<ReceiverBean> receivers, Network network) async {
+    TransactionManager transactionManager = TransactionManager(this);
+    String hash = await transactionManager.sendCapacity(receivers);
+//    Transaction transaction = await transactionManager.generateTransaction(receivers);
+    Log.log(jsonEncode(hash));
   }
 
   @override
@@ -180,10 +189,5 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     });
     _balanceBean = BalanceBean(total, available);
     cellsChanged(_balanceBean);
-  }
-
-  @override
-  CellsResultBean getCurrentCellsResult() {
-    return _cellsResultBean;
   }
 }

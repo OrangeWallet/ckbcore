@@ -33,11 +33,13 @@ class HDCore {
   }
 
   HDIndexWallet getReceiveWallet(int index) {
-    return HDIndexWallet(Credential.fromPrivateKeyBytes(_coin.getReceivePrivateKey(index)), true, index);
+    return HDIndexWallet(
+        Credential.fromPrivateKeyBytes(_coin.getReceivePrivateKey(index)), true, index);
   }
 
   HDIndexWallet getChangeWallet(int index) {
-    return HDIndexWallet(Credential.fromPrivateKeyBytes(_coin.getChangePrivateKey(index)), false, index);
+    return HDIndexWallet(
+        Credential.fromPrivateKeyBytes(_coin.getChangePrivateKey(index)), false, index);
   }
 
   Future searchUnusedIndex() async {
