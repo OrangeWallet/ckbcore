@@ -13,12 +13,12 @@ class StoreManager {
   }
 
   Future syncBlockNumber(String blockNumber) async {
-    await _syncedBlockNumberStore.wirteToStore(blockNumber);
+    await _syncedBlockNumberStore.writeToStore(blockNumber);
     return;
   }
 
   Future syncCells(CellsResultBean cellsResultBeean) async {
-    await _syncedBlockNumberStore.wirteToStore(cellsResultBeean.syncedBlockNumber);
+    await _syncedBlockNumberStore.writeToStore(cellsResultBeean.syncedBlockNumber);
     await _cellsStore.writeToStore(cellsResultBeean.cells);
     return;
   }

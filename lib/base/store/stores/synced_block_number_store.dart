@@ -24,13 +24,13 @@ class SyncedBlockNumberStore {
     return await readFromFile(_blockNumberFile);
   }
 
-  Future wirteToStore(String blockNumber) async {
+  Future writeToStore(String blockNumber) async {
     await writeToFile(blockNumber, _blockNumberFile);
     return;
   }
 
   Future deleteStore() async {
-    await wirteToStore('');
+    await writeToStore('');
     return;
   }
 }

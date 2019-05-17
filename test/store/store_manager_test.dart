@@ -36,4 +36,8 @@ main() {
     var reslut = await storeManager.getSyncedCells();
     Log.log(reslut.cells.length);
   });
+
+  test('delete all', () async {
+    await storeManager.clearAll();
+  });
 }
