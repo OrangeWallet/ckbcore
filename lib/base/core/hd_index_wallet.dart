@@ -23,14 +23,14 @@ class HDIndexWallet {
   Uint8List get publicKey => _credential.publicKey;
 
   String getAddress(Network network) {
-    if (_address == null) _credential.getAddress(network);
+    if (_address == null) _blake160 = _credential.getAddress(network);
     return _address;
   }
 
   String get path => Coin.getPath(isReceive, index);
 
   String get blake160 {
-    if (_blake160 == null) Hash.blake160(bytesToHex(publicKey));
+    if (_blake160 == null) _blake160 = Hash.blake160(bytesToHex(publicKey));
     return _blake160;
   }
 
