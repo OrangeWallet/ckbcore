@@ -23,7 +23,7 @@ class HDIndexWallet {
   Uint8List get publicKey => _credential.publicKey;
 
   String getAddress(Network network) {
-    if (_address == null) _blake160 = _credential.getAddress(network);
+    if (_address == null) _address = _credential.getAddress(network);
     return _address;
   }
 
