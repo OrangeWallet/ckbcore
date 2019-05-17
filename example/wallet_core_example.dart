@@ -13,7 +13,7 @@ main() async {
   String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
   // String address = 'ckt1q9gry5zgflanvykpepaad4vt9vd5z3vk9p3seeut5en294';
   // await walletCore.create('123456');
-  await walletCore.import(mnemonic, 'password');
+  await walletCore.walletFromImport(mnemonic, 'password');
 //  Future.delayed(Duration(seconds: 5), () async {
 //    try {
 //      await walletCore.sendCapacity(

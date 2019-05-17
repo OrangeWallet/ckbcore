@@ -58,7 +58,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   Network get network => _network;
 
   //Init HD Wallet from store
-  Future init(String password) async {
+  Future walletFromStore(String password) async {
     HDCoreConfig hdCoreConfig = HDCoreConfig.fromJson(jsonDecode(await readWallet(password)));
     if (hdCoreConfig.seed == '') {
       throw Exception('Seed is Empty');
@@ -69,7 +69,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   }
 
   //Create new HD Wallet
-  Future create(String password) async {
+  Future walletFromCreate(String password) async {
     final mnemonic = bip39.generateMnemonic();
     Uint8List seed = await mnemonicToSeed(mnemonic);
     createStep(1);
@@ -87,7 +87,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   }
 
   //Import HD Wallet
-  Future import(String mnemonic, String password) async {
+  Future walletFromImport(String mnemonic, String password) async {
     if (!bip39.validateMnemonic(mnemonic)) {
       throw Exception('Wrong mnemonic');
     }
