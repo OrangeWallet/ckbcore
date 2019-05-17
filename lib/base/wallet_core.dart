@@ -155,8 +155,8 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   Future sendCapacity(List<ReceiverBean> receivers, Network network) async {
     TransactionManager transactionManager = TransactionManager(this);
     String hash = await transactionManager.sendCapacity(receivers);
-//    Transaction transaction = await transactionManager.generateTransaction(receivers);
-    Log.log(jsonEncode(hash));
+    Log.log(hash);
+    return hash;
   }
 
   @override
