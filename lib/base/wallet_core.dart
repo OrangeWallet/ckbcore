@@ -44,7 +44,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   }
 
   @override
-  HDIndexWallet get myWallet => myWallet;
+  HDIndexWallet get myWallet => _myWallet;
 
   @override
   CellsResultBean get cellsResultBean => _cellsResultBean;

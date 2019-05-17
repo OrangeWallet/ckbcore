@@ -6,9 +6,9 @@ import 'package:ckbcore/base/bean/thin_bolck_with_cells.dart';
 import 'package:ckbcore/base/utils/base_isloate.dart';
 
 Future<List<CellBean>> _handleSyncedCells(
-    List<CellBean> origanCells, ThinBlockWithCellsBean thinBlockWithCellsBean) async {
+    List<CellBean> originCells, ThinBlockWithCellsBean thinBlockWithCellsBean) async {
   List<CellBean> cells = [];
-  cells.addAll(origanCells);
+  cells.addAll(originCells);
   await Future.forEach(thinBlockWithCellsBean.spendCells, (CellBean spendCell) {
     for (int i = 0; i < cells.length; i++) {
       CellBean cell = cells[i];

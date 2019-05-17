@@ -21,7 +21,7 @@ Future<List<CellBean>> _getCellByLockHash(
   for (int i = 0; i < cellsWithOutPoints.length; i++) {
     var cellsWithOutPoint = cellsWithOutPoints[i];
     CellBean cell = await fetchThinLiveCell(cellsWithOutPoint, indexWallet.path, apiClient);
-    cells.add(cell);
+    if (cell != null) cells.add(cell);
   }
   return cells;
 }

@@ -35,12 +35,12 @@ class HDIndexWallet {
   }
 
   Script get lockScript {
-    Script script = Script(CodeHash, [blake160]);
+    Script script = Script(CodeHash, [hexAdd0x(blake160)]);
     return script;
   }
 
   String get lockHash {
-    if (lockHash == null) _lockHash = lockScript.scriptHash;
+    if (_lockHash == null) _lockHash = lockScript.scriptHash;
     return _lockHash;
   }
 }

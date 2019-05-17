@@ -8,7 +8,7 @@ import 'package:ckbcore/base/utils/log.dart';
 import 'package:ckbcore/ckbcore.dart';
 
 main() async {
-  MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://47.111.175.189:8121');
+  MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://localhost:8114');
 //  await walletCore.init('123456');
   String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
   // String address = 'ckt1q9gry5zgflanvykpepaad4vt9vd5z3vk9p3seeut5en294';

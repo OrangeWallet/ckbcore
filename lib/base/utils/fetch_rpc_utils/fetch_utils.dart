@@ -17,10 +17,24 @@ Future<CellOutput> fetchCellOutput(OutPoint outPoint, CKBApiClient apiClient) as
 Future<CellBean> fetchThinLiveCell(
     CellWithOutPoint cellWithOutPoint, String path, CKBApiClient apiClient) async {
   var cellWithStatus = await apiClient.getLiveCell(cellWithOutPoint.outPoint);
-  cellWithStatus.cell.data =
-      cellWithStatus.cell.data == '0x' || cellWithStatus.cell.data == '' ? '0' : '1';
-  return CellBean(cellWithStatus.cell, cellWithStatus.status, cellWithOutPoint.lock.scriptHash,
-      cellWithOutPoint.outPoint, path);
+  if (cellWithStatus.status == CellWithStatus.LIVE) {
+    cellWithStatus.cell.data =
+        cellWithStatus.cell.data == '0x' || cellWithStatus.cell.data == '' ? '0' : '1';
+    return CellBean(cellWithStatus.cell, cellWithStatus.status, cellWithOutPoint.lock.scriptHash,
+        cellWithOutPoint.outPoint, path);
+  } else {
+    CellBean cellBean = await fetchThinCell(cellWithOutPoint, path, apiClient);
+    cellBean.status = CellWithStatus.DEAD;
+    return null;
+  }
+}
+
+Future<CellBean> fetchThinCell(
+    CellWithOutPoint cellWithOutPoint, String path, CKBApiClient apiClient) async {
+  CellOutput cellOutput = (await apiClient.getTransaction(cellWithOutPoint.outPoint.cell.txHash))
+      .transaction
+      .outputs[int.parse(cellWithOutPoint.outPoint.cell.index)];
+  return CellBean(cellOutput, null, cellOutput.lock.scriptHash, cellWithOutPoint.outPoint, path);
 }
 
 Future<bool> checkCellIsLive(CellBean cell, CKBApiClient apiClient) async {
