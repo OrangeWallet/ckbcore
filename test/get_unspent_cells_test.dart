@@ -12,8 +12,8 @@ main() {
   HDCore hdCore = HDCore(HDCoreConfig('', privateKey, 0, 0));
 
   test('get current index cells', () async {
-    CellsResultBean cells =
-        await getCurrentIndexCells(hdCore, 0, CKBApiClient(NodeUrl), (double processing) {
+    CellsResultBean cells = await getCurrentIndexCells(
+        hdCore.unusedReceiveWallet, 0, CKBApiClient(NodeUrl), (double processing) {
       print(processing);
     });
     Log.log(cells.cells.length);

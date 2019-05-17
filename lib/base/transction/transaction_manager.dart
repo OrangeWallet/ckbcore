@@ -47,15 +47,15 @@ class TransactionManager {
       SystemContract systemContract = await getSystemContract(_impl.apiClient, _impl.network);
       //change
       if (inputCapacities > needCapacities) {
-        String blake160Str = hexAdd0x(blake160(bytesToHex(_impl.unusedReceiveWallet.publicKey)));
+        String blake160Str = hexAdd0x(blake160(bytesToHex(_impl.myWallet.publicKey)));
         outputs.add(CellOutput((inputCapacities - needCapacities).toString(), '0x',
             Script(CodeHash, [blake160Str]), null));
       }
       Transaction transaction = Transaction(
           "0", null, [OutPoint(null, systemContract.systemScriptOutPoint)], inputs, outputs, []);
       String txHash = await _impl.apiClient.computeTransactionHash(transaction);
-      inputs.forEach((input) =>
-          transaction.witnesses = [Witness.sign(_impl.unusedReceiveWallet.privateKey, txHash)]);
+      inputs.forEach(
+          (input) => transaction.witnesses = [Witness.sign(_impl.myWallet.privateKey, txHash)]);
       return transaction;
     } catch (e) {
       rethrow;

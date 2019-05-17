@@ -13,7 +13,6 @@ import 'package:ckbcore/base/bean/isolate_result/thin_block_isolate_result.dart'
 import 'package:ckbcore/base/bean/thin_block.dart';
 import 'package:ckbcore/base/bean/thin_bolck_with_cells.dart';
 import 'package:ckbcore/base/bean/thin_transaction.dart';
-import 'package:ckbcore/base/core/hd_core.dart';
 import 'package:ckbcore/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/base/utils/base_isloate.dart';
 import 'package:ckbcore/base/utils/fetch_rpc_utils/fetch_utils.dart';
@@ -32,7 +31,7 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
                 cellInput.previousOutput.cell.txHash, cellInput.previousOutput.cell.index));
         CellOutput cellOutput = await fetchCellOutput(outPoint, param.apiClient);
         if (cellOutput != null) if (cellOutput.lock.scriptHash ==
-            param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
+            param.myWallet.lockScript.scriptHash) {
           CellBean cell = CellBean(null, '', cellOutput.lock.scriptHash, outPoint, '');
           updateCells.spendCells.add(cell);
           thinTransaction.capacityOut =
@@ -42,9 +41,9 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
     });
     for (int i = 0; i < transaction.outputs.length; i++) {
       CellOutput cellOutput = transaction.outputs[i];
-      if (cellOutput.lock.scriptHash == param.hdCore.unusedReceiveWallet.lockScript.scriptHash) {
-        updateCells.newCells.add(await _fetchCellInOutput(cellOutput, transaction.hash,
-            i.toString(), param.hdCore.unusedReceiveWallet, param.apiClient));
+      if (cellOutput.lock.scriptHash == param.myWallet.lockScript.scriptHash) {
+        updateCells.newCells.add(await _fetchCellInOutput(
+            cellOutput, transaction.hash, i.toString(), param.myWallet, param.apiClient));
         thinTransaction.capacityIn = thinTransaction.capacityIn + int.parse(cellOutput.capacity);
       }
     }
@@ -62,11 +61,11 @@ Future<CellBean> _fetchCellInOutput(CellOutput cellOutput, String txHash, String
 }
 
 class FetchBlockToCheckParam {
-  final HDCore hdCore;
+  final HDIndexWallet myWallet;
   final int blockNumber;
   final CKBApiClient apiClient;
 
-  FetchBlockToCheckParam(this.hdCore, this.blockNumber, this.apiClient);
+  FetchBlockToCheckParam(this.myWallet, this.blockNumber, this.apiClient);
 }
 
 Future<ThinBlockWithCellsBean> fetchBlockToCheckCell(FetchBlockToCheckParam param) async {
