@@ -1,11 +1,14 @@
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
-import 'package:ckbcore/base/core/hd_core.dart';
+import 'package:ckbcore/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/base/utils/get_cells_utils/check_cells_status.dart';
 import 'package:ckbcore/base/utils/get_cells_utils/get_unspent_cells.dart';
 
-Future<UpdateCellsResult> updateUnspentCells(HDCore hdCore, CellsResultBean cellsResultBean,
-    CKBApiClient apiClient, Function syncProcess(double processing)) async {
+Future<UpdateCellsResult> updateUnspentCells(
+    HDIndexWallet myWallet,
+    CellsResultBean cellsResultBean,
+    CKBApiClient apiClient,
+    Function syncProcess(double processing)) async {
   int targetBlockNumber = int.parse(await apiClient.getTipBlockNumber());
   CellsResultBean newCellsResult = CellsResultBean([], "0");
   int syncedBlockNumber = int.parse(cellsResultBean.syncedBlockNumber);
@@ -13,7 +16,7 @@ Future<UpdateCellsResult> updateUnspentCells(HDCore hdCore, CellsResultBean cell
   if ((targetBlockNumber - syncedBlockNumber) * 50 > cellsResultBean.cells.length) {
     newCellsResult.cells.addAll(await checkCellsStatus(cellsResultBean.cells, apiClient));
     newCellsResult.cells.addAll(await getCurrentIndexCellsWithTargetNumber(
-        hdCore, syncedBlockNumber, targetBlockNumber, apiClient, syncProcess));
+        myWallet, syncedBlockNumber, targetBlockNumber, apiClient, syncProcess));
     newCellsResult.syncedBlockNumber = targetBlockNumber.toString();
     return UpdateCellsResult(true, newCellsResult);
   } else {

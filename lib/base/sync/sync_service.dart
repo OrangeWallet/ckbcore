@@ -2,7 +2,7 @@ import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/constant/constant.dart' show IntervalSyncTime;
 import 'package:ckbcore/base/constant/constant.dart';
-import 'package:ckbcore/base/core/hd_core.dart';
+import 'package:ckbcore/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/base/interface/sync_interface.dart';
 import 'package:ckbcore/base/sync/handle_synced_cells.dart';
 import 'package:ckbcore/base/utils/fetch_rpc_utils/fetch_thin_block.dart';
@@ -10,12 +10,12 @@ import 'package:ckbcore/base/utils/log.dart';
 
 class SyncService {
   CKBApiClient _apiClient;
-  HDCore _hdCore;
+  HDIndexWallet _myWallet;
   SyncInterface _syncInterface;
   bool _live = true;
   Function _intercept;
 
-  SyncService(this._hdCore, this._syncInterface, this._apiClient);
+  SyncService(this._myWallet, this._syncInterface, this._apiClient);
 
   start() {
     _live = true;
@@ -41,7 +41,7 @@ class SyncService {
         Log.log(
             'synced is ${syncedBlockNumber - 1},fetch block ${syncedBlockNumber},target is ${targetBlockNumber}');
         var thinBlockWithCellsBean = await fetchBlockToCheckCell(
-            FetchBlockToCheckParam(_hdCore, syncedBlockNumber, _apiClient));
+            FetchBlockToCheckParam(_myWallet, syncedBlockNumber, _apiClient));
         if (thinBlockWithCellsBean.newCells.length > 0 ||
             thinBlockWithCellsBean.spendCells.length > 0) {
           var cells =

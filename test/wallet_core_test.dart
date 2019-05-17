@@ -14,7 +14,7 @@ main() async {
     // await walletCore.init('123456');
     String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
     // await walletCore.create('123456');
-    await walletCore.import(mnemonic, 'password');
+    await walletCore.walletFromImport(mnemonic, 'password');
     // try {
     //   await walletCore.sendCapacity(
     //       [ReceiverBean('ckt1q9gry5zgxmpjnmtrp4kww5r39frh2sm89tdt2l6v234ygf', 6000000000)],

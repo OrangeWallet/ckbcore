@@ -13,8 +13,8 @@ main() {
     String privateKey = '3e58f0c69c224bbf90627cd1aabe09c3f8582b1f89a978274af625f54d588521';
     HDCore hdCore = HDCore(HDCoreConfig('', privateKey, 0, 0));
     try {
-      var result =
-          await fetchBlockToCheckCell(FetchBlockToCheckParam(hdCore, 8869, CKBApiClient(NodeUrl)));
+      var result = await fetchBlockToCheckCell(
+          FetchBlockToCheckParam(hdCore.unusedReceiveWallet, 8869, CKBApiClient(NodeUrl)));
       Log.log(jsonEncode(result));
     } catch (e) {
       Log.log(e.toString());

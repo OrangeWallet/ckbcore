@@ -3,7 +3,7 @@ import 'dart:core';
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
-import 'package:ckbcore/base/core/hd_core.dart';
+import 'package:ckbcore/base/core/hd_index_wallet.dart';
 import 'package:ckbcore/base/utils/get_cells_utils/get_unspent_cells_by_lockhash.dart';
 
 // Future<CellsResultBean> getWholeHDAllCells(
@@ -43,16 +43,20 @@ import 'package:ckbcore/base/utils/get_cells_utils/get_unspent_cells_by_lockhash
 //   return cells;
 // }
 
-Future<CellsResultBean> getCurrentIndexCells(HDCore hdCore, int startBlockNumber,
+Future<CellsResultBean> getCurrentIndexCells(HDIndexWallet myWallet, int startBlockNumber,
     CKBApiClient apiClient, Function syncProcess(double processing)) async {
   String targetBlockNumber = await apiClient.getTipBlockNumber();
   List<CellBean> cells = await getCurrentIndexCellsWithTargetNumber(
-      hdCore, startBlockNumber, int.parse(targetBlockNumber), apiClient, syncProcess);
+      myWallet, startBlockNumber, int.parse(targetBlockNumber), apiClient, syncProcess);
   return CellsResultBean(cells, targetBlockNumber);
 }
 
-Future<List<CellBean>> getCurrentIndexCellsWithTargetNumber(HDCore hdCore, int startBlockNumber,
-    int targetBlockNumber, CKBApiClient apiClient, Function syncProcess(double processing)) async {
+Future<List<CellBean>> getCurrentIndexCellsWithTargetNumber(
+    HDIndexWallet myWallet,
+    int startBlockNumber,
+    int targetBlockNumber,
+    CKBApiClient apiClient,
+    Function syncProcess(double processing)) async {
   List<CellBean> cells = List();
 
   // cells.addAll(
@@ -61,8 +65,8 @@ Future<List<CellBean>> getCurrentIndexCellsWithTargetNumber(HDCore hdCore, int s
   //   syncProcess((current - start) / ((target - start) * 2));
   // }));
   cells.addAll(await getCellByLockHash(
-      GetCellByLockHashParams(startBlockNumber, targetBlockNumber, hdCore.unusedReceiveWallet),
-      apiClient, (int start, int target, int current) {
+      GetCellByLockHashParams(startBlockNumber, targetBlockNumber, myWallet), apiClient,
+      (int start, int target, int current) {
     syncProcess((current - start) / (target - start));
   }));
   return cells;

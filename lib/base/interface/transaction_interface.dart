@@ -5,7 +5,10 @@ import 'package:ckbcore/base/core/hd_index_wallet.dart';
 
 abstract class TransactionInterface {
   CellsResultBean get cellsResultBean;
-  HDIndexWallet get unusedReceiveWallet;
+
   CKBApiClient get apiClient;
+
   Network get network;
+
+  HDIndexWallet get myWallet;
 }
