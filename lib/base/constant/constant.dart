@@ -1,4 +1,4 @@
-final IntervalSyncTime = 20;
+final IntervalSyncTime = 10;
 final IntervalBlockNumber = 100;
 final MinCapacity = 60;
 String NodeUrl = 'http://192.168.2.78:8114';
