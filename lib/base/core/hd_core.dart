@@ -16,16 +16,10 @@ class HDCore {
   }
 
   HDIndexWallet get unusedReceiveWallet {
-    if (_unusedReceiveIndex == -1) {
-      throw Exception("Please search HD wallet first");
-    }
     return getReceiveWallet(_unusedReceiveIndex);
   }
 
   HDIndexWallet get unusedChangeWallet {
-    if (_unusedChangeIndex == -1) {
-      throw Exception("Please search HD wallet first");
-    }
     return getChangeWallet(_unusedChangeIndex);
   }
 

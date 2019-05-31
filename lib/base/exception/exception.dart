@@ -11,3 +11,11 @@ class NoEnoughCapacityException implements Exception {
 class NoCodeHashException implements Exception {
   String toString() => "There is no code hash";
 }
+
+class EmptySeedException implements Exception {
+  String toString() => 'Seed is Empty';
+}
+
+class IncorrectMnemonicException implements Exception {
+  String toString() => 'Incorrect Mnemonic';
+}

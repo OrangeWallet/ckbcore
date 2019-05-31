@@ -15,6 +15,7 @@ import 'package:ckbcore/base/core/coin.dart';
 import 'package:ckbcore/base/core/credential.dart';
 import 'package:ckbcore/base/core/hd_core.dart';
 import 'package:ckbcore/base/core/hd_index_wallet.dart';
+import 'package:ckbcore/base/exception/exception.dart';
 import 'package:ckbcore/base/interface/sync_interface.dart';
 import 'package:ckbcore/base/interface/transaction_interface.dart';
 import 'package:ckbcore/base/interface/wallet_core_interface.dart';
@@ -63,7 +64,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   Future walletFromStore(String password) async {
     KeystoreConfig keystoreConfig = KeystoreConfig.fromJson(jsonDecode(await readWallet(password)));
     if (keystoreConfig.seed == '') {
-      throw Exception('Seed is Empty');
+      throw EmptySeedException();
     }
     Credential credential = Credential.fromPrivateKeyHex(keystoreConfig.seed);
     _myWallet = HDIndexWallet(credential.publicKey);
@@ -92,7 +93,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   //Import HD Wallet
   Future walletFromImport(String mnemonic, String password) async {
     if (!bip39.validateMnemonic(mnemonic)) {
-      throw Exception('Wrong mnemonic');
+      throw IncorrectMnemonicException();
     }
     Uint8List seed = await mnemonicToSeed(mnemonic);
     createStep(1);
@@ -158,7 +159,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   Future sendCapacity(List<ReceiverBean> receivers, Network network, String password) async {
     KeystoreConfig keystoreConfig = KeystoreConfig.fromJson(jsonDecode(await readWallet(password)));
     if (keystoreConfig.seed == '') {
-      throw Exception('Seed is Empty');
+      throw EmptySeedException();
     }
     TransactionManager transactionManager =
         TransactionManager(this, hex.decode(keystoreConfig.seed));
