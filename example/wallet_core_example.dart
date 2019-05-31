@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:ckb_sdk/ckb-utils/network.dart';
 import 'package:ckbcore/base/bean/balance_bean.dart';
 import 'package:ckbcore/base/bean/thin_block.dart';
-import 'package:ckbcore/base/config/hd_core_config.dart';
+import 'package:ckbcore/base/config/keystore_config.dart';
 import 'package:ckbcore/base/utils/log.dart';
 import 'package:ckbcore/ckbcore.dart';
 
@@ -38,7 +38,7 @@ class MyWalletCore extends WalletCore {
 
   @override
   Future<String> readWallet(String password) async {
-    var config = HDCoreConfig('', privateKey, 0, 0);
+    var config = KeystoreConfig('', privateKey);
     return jsonEncode(config);
   }
 

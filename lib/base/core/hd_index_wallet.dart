@@ -4,26 +4,22 @@ import 'package:ckb_sdk/ckb-types/item/script.dart';
 import 'package:ckb_sdk/ckb-utils/crypto/crypto.dart' as Hash;
 import 'package:ckb_sdk/ckb-utils/network.dart';
 import 'package:ckb_sdk/ckb-utils/number.dart';
+import 'package:ckb_sdk/ckb_address/ckb_address.dart';
 import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/coin.dart';
-import 'package:ckbcore/base/core/credential.dart';
 
 class HDIndexWallet {
-  final Credential _credential;
-  final bool isReceive;
-  final int index;
+  final Uint8List publicKey;
+  bool isReceive;
+  int index;
   String _lockHash;
   String _address;
   String _blake160;
 
-  HDIndexWallet(this._credential, this.isReceive, this.index);
-
-  Uint8List get privateKey => _credential.privateKey;
-
-  Uint8List get publicKey => _credential.publicKey;
+  HDIndexWallet(this.publicKey, {this.isReceive = true, this.index = 0}) {}
 
   String getAddress(Network network) {
-    if (_address == null) _address = _credential.getAddress(network);
+    if (_address == null) _address = CKBAddress(network).generate(bytesToHex(publicKey));
     return _address;
   }
 

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:ckb_sdk/ckb-types/item/cell_input.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_output.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_with_status.dart';
@@ -18,8 +20,9 @@ import 'package:ckbcore/base/interface/transaction_interface.dart';
 
 class TransactionManager {
   final TransactionInterface _impl;
+  final Uint8List privateKey;
 
-  TransactionManager(this._impl);
+  TransactionManager(this._impl, this.privateKey);
 
   Future<String> sendCapacity(List<ReceiverBean> receivers) async {
     Transaction transaction = await generateTransaction(receivers);
@@ -54,8 +57,7 @@ class TransactionManager {
       Transaction transaction = Transaction(
           "0", null, [OutPoint(null, systemContract.systemScriptOutPoint)], inputs, outputs, []);
       String txHash = await _impl.apiClient.computeTransactionHash(transaction);
-      inputs.forEach(
-          (input) => transaction.witnesses = [Witness.sign(_impl.myWallet.privateKey, txHash)]);
+      inputs.forEach((input) => transaction.witnesses = [Witness.sign(privateKey, txHash)]);
       return transaction;
     } catch (e) {
       rethrow;

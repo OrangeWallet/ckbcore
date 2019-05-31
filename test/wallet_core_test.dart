@@ -4,7 +4,7 @@ import 'package:ckb_sdk/ckb-utils/network.dart';
 import 'package:ckbcore/base/bean/balance_bean.dart';
 import 'package:ckbcore/base/bean/receiver_bean.dart';
 import 'package:ckbcore/base/bean/thin_block.dart';
-import 'package:ckbcore/base/config/hd_core_config.dart';
+import 'package:ckbcore/base/config/keystore_config.dart';
 import 'package:ckbcore/base/utils/log.dart';
 import 'package:ckbcore/ckbcore.dart';
 import 'package:test/test.dart';
@@ -19,7 +19,8 @@ main() async {
     try {
       await walletCore.sendCapacity(
           [ReceiverBean('ckt1q9gry5zgxmpjnmtrp4kww5r39frh2sm89tdt2l6v234ygf', 6000000000)],
-          Network.TestNet);
+          Network.TestNet,
+          "123456");
     } catch (e) {
       print(e.toString());
     }
@@ -39,7 +40,7 @@ class MyWalletCore extends WalletCore {
 
   @override
   Future<String> readWallet(String password) async {
-    var config = HDCoreConfig('', privateKey, 0, 0);
+    var config = KeystoreConfig('', privateKey);
     return jsonEncode(config);
   }
 

@@ -4,6 +4,7 @@ import 'package:ckb_sdk/ckb-utils/crypto/crypto.dart';
 import 'package:ckb_sdk/ckb-utils/network.dart';
 import 'package:ckb_sdk/ckb-utils/number.dart' as number;
 import 'package:ckb_sdk/ckb_address/ckb_address.dart';
+import 'package:convert/convert.dart';
 
 class Credential {
   final Uint8List privateKey;
@@ -16,9 +17,8 @@ class Credential {
     return new Credential._(privateKey, publicKey);
   }
 
-  static Credential fromPrivateKeyHex(String hex) {
-    BigInt privateKey = number.toBigInt(number.remove0x(hex));
-    return fromPrivateKeyBytes(number.intToBytes(privateKey));
+  static Credential fromPrivateKeyHex(String privateKey) {
+    return fromPrivateKeyBytes(hex.decode(privateKey));
   }
 
   static Uint8List _privateKeyToPublic(Uint8List privateKey) {
