@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:bip39/bip39.dart' as bip39;
@@ -10,7 +9,6 @@ import 'package:ckbcore/base/bean/balance_bean.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/bean/receiver_bean.dart';
 import 'package:ckbcore/base/bean/thin_block.dart';
-import 'package:ckbcore/base/config/keystore_config.dart';
 import 'package:ckbcore/base/core/coin.dart';
 import 'package:ckbcore/base/core/credential.dart';
 import 'package:ckbcore/base/core/hd_core.dart';
@@ -62,11 +60,8 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
 
   //Init HD Wallet from store
   Future walletFromStore(String password) async {
-    KeystoreConfig keystoreConfig = KeystoreConfig.fromJson(jsonDecode(await readWallet(password)));
-    if (keystoreConfig.seed == '') {
-      throw EmptySeedException();
-    }
-    Credential credential = Credential.fromPrivateKeyHex(keystoreConfig.seed);
+    String privateKey = await readWallet(password);
+    Credential credential = Credential.fromPrivateKeyHex(privateKey);
     _myWallet = HDIndexWallet(credential.publicKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
     return;
@@ -78,10 +73,8 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     Uint8List seed = await mnemonicToSeed(mnemonic);
     createStep(1);
     _myWallet = HDCore(seed).unusedReceiveWallet;
-    KeystoreConfig keystoreConfig =
-        KeystoreConfig(mnemonic, hex.encode(Coin(seed).getReceivePrivateKey(0)));
     createStep(2);
-    await writeWallet(jsonEncode(keystoreConfig), password);
+    await writeWallet(hex.encode(Coin(seed).getReceivePrivateKey(0)), password);
     createStep(3);
     _cellsResultBean = await _storeManager.getSyncedCells();
     _syncService = SyncService(_myWallet, this, _apiClient);
@@ -98,10 +91,8 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     Uint8List seed = await mnemonicToSeed(mnemonic);
     createStep(1);
     _myWallet = HDCore(seed).unusedReceiveWallet;
-    KeystoreConfig keystoreConfig =
-        KeystoreConfig(mnemonic, hex.encode(Coin(seed).getReceivePrivateKey(0)));
     createStep(2);
-    await writeWallet(jsonEncode(keystoreConfig), password);
+    await writeWallet(hex.encode(Coin(seed).getReceivePrivateKey(0)), password);
     createStep(3);
     _cellsResultBean = await _storeManager.getSyncedCells();
     return;
@@ -109,8 +100,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
 
   Future walletFromPrivateKey(String privateKey, String password) async {
     _myWallet = HDIndexWallet(Credential.fromPrivateKeyHex(privateKey).privateKey);
-    KeystoreConfig keystoreConfig = KeystoreConfig('', privateKey);
-    await writeWallet(jsonEncode(keystoreConfig), password);
+    await writeWallet(privateKey, password);
     _cellsResultBean = await _storeManager.getSyncedCells();
     return;
   }
@@ -165,12 +155,8 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   }
 
   Future sendCapacity(List<ReceiverBean> receivers, Network network, String password) async {
-    KeystoreConfig keystoreConfig = KeystoreConfig.fromJson(jsonDecode(await readWallet(password)));
-    if (keystoreConfig.seed == '') {
-      throw EmptySeedException();
-    }
     TransactionManager transactionManager =
-        TransactionManager(this, hex.decode(keystoreConfig.seed));
+        TransactionManager(this, hex.decode(await readWallet(password)));
     String hash = await transactionManager.sendCapacity(receivers);
     Log.log(hash);
     return hash;
