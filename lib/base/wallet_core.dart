@@ -107,6 +107,14 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     return;
   }
 
+  Future walletFromPrivateKey(String privateKey, String password) async {
+    _myWallet = HDIndexWallet(Credential.fromPrivateKeyHex(privateKey).privateKey);
+    KeystoreConfig keystoreConfig = KeystoreConfig('', privateKey);
+    await writeWallet(jsonEncode(keystoreConfig), password);
+    _cellsResultBean = await _storeManager.getSyncedCells();
+    return;
+  }
+
   updateCurrentIndexCells() async {
     try {
       _syncService = SyncService(_myWallet, this, _apiClient);

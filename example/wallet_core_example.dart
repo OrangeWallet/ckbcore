@@ -10,19 +10,9 @@ import 'package:ckbcore/ckbcore.dart';
 main() async {
   MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://localhost:8114');
 //  await walletCore.init('123456');
-  String mnemonic = 'afford wisdom bus dutch more acid rent treat alcohol pretty thought usual';
-  // String address = 'ckt1q9gry5zgflanvykpepaad4vt9vd5z3vk9p3seeut5en294';
   // await walletCore.create('123456');
-  await walletCore.walletFromImport(mnemonic, 'password');
-//  Future.delayed(Duration(seconds: 5), () async {
-//    try {
-//      await walletCore.sendCapacity(
-//          [ReceiverBean('ckt1q9gry5zgxmpjnmtrp4kww5r39frh2sm89tdt2l6v234ygf', 6000000000)],
-//          Network.TestNet);
-//    } catch (e) {
-//      print(e.toString());
-//    }
-//  });
+  await walletCore.walletFromPrivateKey(
+      "e79f3207ea4980b7fed79956d5934249ceac4751a4fae01a0f7c4a96884bc4e3", "123");
   walletCore.updateCurrentIndexCells();
 }
 
