@@ -153,7 +153,14 @@ class Keystore {
 
     final iv = dartRandom.nextBytes(128 ~/ 8);
 
-    return Keystore._(credentials, derivator, passwordBytes, iv, uuid);
+    var keystore;
+    while (keystore == null) {
+      try {
+        keystore = Keystore._(credentials, derivator, passwordBytes, iv, uuid);
+      } catch (e) {}
+    }
+
+    return keystore;
   }
 
   /// Reads and unlocks the wallet denoted in the json string given with the

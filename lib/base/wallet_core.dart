@@ -1,6 +1,5 @@
-import 'dart:typed_data';
+import 'dart:math';
 
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_with_status.dart';
 import 'package:ckb_sdk/ckb-utils/network.dart';
@@ -9,11 +8,8 @@ import 'package:ckbcore/base/bean/balance_bean.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/bean/receiver_bean.dart';
 import 'package:ckbcore/base/bean/thin_block.dart';
-import 'package:ckbcore/base/core/coin.dart';
-import 'package:ckbcore/base/core/credential.dart';
-import 'package:ckbcore/base/core/hd_core.dart';
 import 'package:ckbcore/base/core/hd_index_wallet.dart';
-import 'package:ckbcore/base/exception/exception.dart';
+import 'package:ckbcore/base/core/keystore.dart';
 import 'package:ckbcore/base/interface/sync_interface.dart';
 import 'package:ckbcore/base/interface/transaction_interface.dart';
 import 'package:ckbcore/base/interface/wallet_core_interface.dart';
@@ -23,7 +19,7 @@ import 'package:ckbcore/base/transction/transaction_manager.dart';
 import 'package:ckbcore/base/utils/get_cells_utils/get_unspent_cells.dart';
 import 'package:ckbcore/base/utils/get_cells_utils/update_unspent_cells.dart';
 import 'package:ckbcore/base/utils/log.dart';
-import 'package:ckbcore/base/utils/mnemonic_to_seed.dart';
+import 'package:ckbcore/base/utils/random_privatekey.dart';
 import 'package:convert/convert.dart';
 
 abstract class WalletCore implements SyncInterface, WalletCoreInterface, TransactionInterface {
@@ -58,24 +54,19 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   @override
   Network get network => _network;
 
-  //Init HD Wallet from store
   Future walletFromStore(String password) async {
-    String privateKey = await readWallet(password);
-    Credential credential = Credential.fromPrivateKeyHex(privateKey);
-    _myWallet = HDIndexWallet(credential.publicKey);
+    String json = await readWallet(password);
+    var keystore = Keystore.fromJson(json, password);
+    _myWallet = HDIndexWallet(keystore.privateKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
     return;
   }
 
-  //Create new HD Wallet
-  Future walletFromCreate(String password) async {
-    final mnemonic = bip39.generateMnemonic();
-    Uint8List seed = await mnemonicToSeed(mnemonic);
-    createStep(1);
-    _myWallet = HDCore(seed).unusedReceiveWallet;
-    createStep(2);
-    await writeWallet(hex.encode(Coin(seed).getReceivePrivateKey(0)), password);
-    createStep(3);
+  Future createWallet(String password) async {
+    var privateKey = createRandonPrivateKey();
+    var keystore = Keystore.createNew(privateKey, password, Random.secure());
+    await writeWallet(keystore.toJson(), password);
+    _myWallet = HDIndexWallet(keystore.privateKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
     _syncService = SyncService(_myWallet, this, _apiClient);
     _cellsResultBean.syncedBlockNumber = '-1';
@@ -83,24 +74,17 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     return;
   }
 
-  //Import HD Wallet
-  Future walletFromImport(String mnemonic, String password) async {
-    if (!bip39.validateMnemonic(mnemonic)) {
-      throw IncorrectMnemonicException();
-    }
-    Uint8List seed = await mnemonicToSeed(mnemonic);
-    createStep(1);
-    _myWallet = HDCore(seed).unusedReceiveWallet;
-    createStep(2);
-    await writeWallet(hex.encode(Coin(seed).getReceivePrivateKey(0)), password);
-    createStep(3);
+  Future importFromKeystore(String json, String password) async {
+    var keystore = Keystore.fromJson(json, password);
+    _myWallet = HDIndexWallet(keystore.privateKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
     return;
   }
 
-  Future walletFromPrivateKey(String privateKey, String password) async {
-    _myWallet = HDIndexWallet(Credential.fromPrivateKeyHex(privateKey).privateKey);
-    await writeWallet(privateKey, password);
+  Future importFromPrivateKey(String privateKey, String password) async {
+    _myWallet = HDIndexWallet(hex.decode(privateKey));
+    var keystore = Keystore.createNew(hex.decode(privateKey), password, Random());
+    await writeWallet(keystore.toJson(), password);
     _cellsResultBean = await _storeManager.getSyncedCells();
     return;
   }
