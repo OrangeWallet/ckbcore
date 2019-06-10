@@ -71,7 +71,7 @@ class TransactionManager {
     cells.forEach((cell) {
       if (cell.cellOutput.data == '0' && cell.status == CellWithStatus.LIVE) {
         if (inputsCapacities < needCapacities) {
-          inputs.add(CellInput(cell.outPoint, [], "0"));
+          inputs.add(CellInput(cell.outPoint, "0"));
           inputsCapacities += int.parse(cell.cellOutput.capacity);
         } else {
           return;
