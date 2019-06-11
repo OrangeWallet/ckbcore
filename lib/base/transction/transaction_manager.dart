@@ -36,7 +36,7 @@ class TransactionManager {
       receivers.forEach((receiver) {
         needCapacities += receiver.capacity;
       });
-      if (needCapacities < MinCapacity) {
+      if (needCapacities < Constant.MinCapacity) {
         throw LessThanMinCapacityException();
       }
       List<Object> cells = gatherInputs(needCapacities);
@@ -45,14 +45,15 @@ class TransactionManager {
       List<CellOutput> outputs = receivers.map((receiver) {
         var ckbAddress = CKBAddress(_impl.network);
         String blake160 = hexAdd0x(ckbAddress.blake160FromAddress(receiver.address));
-        return CellOutput(receiver.capacity.toString(), '0x', Script(CodeHash, [blake160]), null);
+        return CellOutput(
+            receiver.capacity.toString(), '0x', Script(Constant.CodeHash, [blake160]), null);
       }).toList();
       SystemContract systemContract = await getSystemContract(_impl.apiClient, _impl.network);
       //change
       if (inputCapacities > needCapacities) {
         String blake160Str = hexAdd0x(blake160(bytesToHex(_impl.myWallet.publicKey)));
         outputs.add(CellOutput((inputCapacities - needCapacities).toString(), '0x',
-            Script(CodeHash, [blake160Str]), null));
+            Script(Constant.CodeHash, [blake160Str]), null));
       }
       Transaction transaction = Transaction(
           "0", null, [OutPoint(null, systemContract.systemScriptOutPoint)], inputs, outputs, []);

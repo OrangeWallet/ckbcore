@@ -1,6 +1,5 @@
 import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
-import 'package:ckbcore/base/constant/constant.dart' show IntervalSyncTime;
 import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/my_wallet.dart';
 import 'package:ckbcore/base/interface/sync_interface.dart';
@@ -55,7 +54,7 @@ class SyncService {
         }
       }
       Log.log('synced is ${_syncInterface.cellsResultBean.syncedBlockNumber},It`s tip,waiting');
-      await Future.delayed(Duration(seconds: IntervalSyncTime), () async {
+      await Future.delayed(Duration(seconds: Constant.IntervalSyncTime), () async {
         await _rotation();
       });
     } catch (e) {

@@ -12,8 +12,9 @@ main() {
 
   test('get current index cells', () async {
     CellsResultBean cells = await getCurrentIndexCells(
-        MyWallet(Credential.fromPrivateKeyHex(privateKey).publicKey), 0, CKBApiClient(NodeUrl),
-        (double processing) {
+        MyWallet(Credential.fromPrivateKeyHex(privateKey).publicKey),
+        0,
+        CKBApiClient(Constant.NodeUrl), (double processing) {
       print(processing);
     });
     Log.log(cells.cells.length);

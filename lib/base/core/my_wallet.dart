@@ -26,7 +26,7 @@ class MyWallet {
   }
 
   Script get lockScript {
-    Script script = Script(CodeHash, [hexAdd0x(blake160)]);
+    Script script = Script(Constant.CodeHash, [hexAdd0x(blake160)]);
     return script;
   }
 

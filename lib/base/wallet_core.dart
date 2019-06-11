@@ -4,10 +4,13 @@ import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
 import 'package:ckb_sdk/ckb-types/item/cell_with_status.dart';
 import 'package:ckb_sdk/ckb-utils/network.dart';
 import 'package:ckb_sdk/ckb_sdk.dart';
+import 'package:ckb_sdk/ckb_system_contract/ckb_system_contract.dart';
+import 'package:ckb_sdk/ckb_system_contract/system_contract.dart';
 import 'package:ckbcore/base/bean/balance_bean.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/bean/receiver_bean.dart';
 import 'package:ckbcore/base/bean/thin_block.dart';
+import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/credential.dart';
 import 'package:ckbcore/base/core/keystore.dart';
 import 'package:ckbcore/base/core/my_wallet.dart';
@@ -35,7 +38,8 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   MyWallet _myWallet;
 
   WalletCore(String storePath, String nodeUrl, Network network, bool _isDebug) {
-    _apiClient = CKBApiClient(nodeUrl);
+    Constant.NodeUrl = nodeUrl;
+    _apiClient = CKBApiClient(Constant.NodeUrl);
     isDebug = _isDebug;
     _storeManager = StoreManager(storePath);
     _network = network;
@@ -60,6 +64,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     var keystore = Keystore.fromJson(json, password);
     _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
+    await _getSystemContract();
     return;
   }
 
@@ -72,6 +77,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     _syncService = SyncService(_myWallet, this, _apiClient);
     _cellsResultBean.syncedBlockNumber = '-1';
     await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
+    await _getSystemContract();
     return;
   }
 
@@ -79,6 +85,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     var keystore = Keystore.fromJson(json, password);
     _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
+    await _getSystemContract();
     return;
   }
 
@@ -87,7 +94,14 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     var keystore = Keystore.createNew(hex.decode(privateKey), password, Random());
     await writeWallet(keystore.toJson(), password);
     _cellsResultBean = await _storeManager.getSyncedCells();
+    await _getSystemContract();
     return;
+  }
+
+  Future _getSystemContract() async {
+    SystemContract systemContract =
+        await getSystemContract(CKBApiClient(Constant.NodeUrl), network);
+    Constant.CodeHash = systemContract.codeHash;
   }
 
   updateCurrentIndexCells() async {

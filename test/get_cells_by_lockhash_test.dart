@@ -12,12 +12,12 @@ import 'package:test/test.dart';
 main() {
   String privateKey = 'e79f3207ea4980b7fed79956d5934249ceac4751a4fae01a0f7c4a96884bc4e3';
   test('get cells by lockHash', () async {
-    var targetBlockNumber = await CKBApiClient(NodeUrl).getTipBlockNumber();
+    var targetBlockNumber = await CKBApiClient(Constant.NodeUrl).getTipBlockNumber();
     Log.log(targetBlockNumber);
     List<CellBean> cells = await getCellByLockHash(
         GetCellByLockHashParams(
             0, 100, MyWallet(Credential.fromPrivateKeyHex(privateKey).publicKey)),
-        CKBApiClient(NodeUrl), (start, target, current) {
+        CKBApiClient(Constant.NodeUrl), (start, target, current) {
       print(target);
       print(current);
     });
@@ -25,7 +25,7 @@ main() {
   });
 
   test('get tip block number', () async {
-    var targetBlockNumber = await CKBApiClient(NodeUrl).getTipBlockNumber();
+    var targetBlockNumber = await CKBApiClient(Constant.NodeUrl).getTipBlockNumber();
     Log.log(targetBlockNumber);
   });
 }

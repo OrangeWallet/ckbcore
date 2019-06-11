@@ -35,7 +35,7 @@ Future<List<CellBean>> getCellByLockHash(GetCellByLockHashParams param, CKBApiCl
   List<CellBean> cells = List();
   while (blockNumber <= param.targetBlockNumber) {
     int from = blockNumber;
-    int to = blockNumber + IntervalBlockNumber;
+    int to = blockNumber + Constant.IntervalBlockNumber;
     to = min(to, param.targetBlockNumber);
     ReceivePort receivePort = ReceivePort();
     isolate = await Isolate.spawn(_handleCellByLockHash, receivePort.sendPort);
