@@ -9,7 +9,7 @@ import 'package:ckbcore/ckbcore.dart';
 main() async {
   MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://localhost:8114');
   try {
-    await walletCore.createWallet("12345678");
+    await walletCore.walletFromStore("12345678");
     walletCore.updateCurrentIndexCells();
   } catch (e) {
     print(e.toString());

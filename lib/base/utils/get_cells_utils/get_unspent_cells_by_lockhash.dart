@@ -6,13 +6,13 @@ import 'package:ckb_sdk/ckb-types/item/cell_with_outpoint.dart';
 import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/bean/isolate_result/cells_isolate_result.dart';
 import 'package:ckbcore/base/constant/constant.dart';
-import 'package:ckbcore/base/core/hd_index_wallet.dart';
+import 'package:ckbcore/base/core/my_wallet.dart';
 import 'package:ckbcore/base/utils/base_isloate.dart';
 import 'package:ckbcore/base/utils/fetch_rpc_utils/fetch_utils.dart';
 import 'package:ckbcore/base/utils/log.dart';
 
 Future<List<CellBean>> _getCellByLockHash(
-    int from, int to, HDIndexWallet indexWallet, CKBApiClient apiClient) async {
+    int from, int to, MyWallet indexWallet, CKBApiClient apiClient) async {
   List<CellBean> cells = [];
   List<CellWithOutPoint> cellsWithOutPoints = await apiClient.getCellsByLockHash(
       indexWallet.lockScript.scriptHash, from.toString(), to.toString());
@@ -20,7 +20,7 @@ Future<List<CellBean>> _getCellByLockHash(
   Log.log('size ${cellsWithOutPoints.length}');
   for (int i = 0; i < cellsWithOutPoints.length; i++) {
     var cellsWithOutPoint = cellsWithOutPoints[i];
-    CellBean cell = await fetchThinLiveCell(cellsWithOutPoint, indexWallet.path, apiClient);
+    CellBean cell = await fetchThinLiveCell(cellsWithOutPoint, apiClient);
     if (cell != null) cells.add(cell);
   }
   return cells;
@@ -60,7 +60,7 @@ _handleCellByLockHash(SendPort sendPort) async {
   await for (var msg in port) {
     int from = msg[0];
     int to = msg[1];
-    HDIndexWallet indexWallet = msg[2];
+    MyWallet indexWallet = msg[2];
     CKBApiClient apiClient = msg[3];
     SendPort replyTo = msg[4];
     try {
@@ -79,8 +79,7 @@ _handleCellByLockHash(SendPort sendPort) async {
   }
 }
 
-Future _sendReceive(
-    int from, int to, HDIndexWallet indexWallet, CKBApiClient apiClient, SendPort port) {
+Future _sendReceive(int from, int to, MyWallet indexWallet, CKBApiClient apiClient, SendPort port) {
   ReceivePort response = ReceivePort();
   port.send([from, to, indexWallet, apiClient, response.sendPort]);
   return response.first;
@@ -89,7 +88,7 @@ Future _sendReceive(
 class GetCellByLockHashParams {
   final int startBlockNumber;
   final int targetBlockNumber;
-  final HDIndexWallet hdIndexWallet;
+  final MyWallet hdIndexWallet;
 
   GetCellByLockHashParams(this.startBlockNumber, this.targetBlockNumber, this.hdIndexWallet);
 }

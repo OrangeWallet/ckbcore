@@ -8,8 +8,9 @@ import 'package:ckbcore/base/bean/balance_bean.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/bean/receiver_bean.dart';
 import 'package:ckbcore/base/bean/thin_block.dart';
-import 'package:ckbcore/base/core/hd_index_wallet.dart';
+import 'package:ckbcore/base/core/credential.dart';
 import 'package:ckbcore/base/core/keystore.dart';
+import 'package:ckbcore/base/core/my_wallet.dart';
 import 'package:ckbcore/base/interface/sync_interface.dart';
 import 'package:ckbcore/base/interface/transaction_interface.dart';
 import 'package:ckbcore/base/interface/wallet_core_interface.dart';
@@ -31,7 +32,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   BalanceBean _balanceBean;
   CKBApiClient _apiClient;
   Network _network;
-  HDIndexWallet _myWallet;
+  MyWallet _myWallet;
 
   WalletCore(String storePath, String nodeUrl, Network network, bool _isDebug) {
     _apiClient = CKBApiClient(nodeUrl);
@@ -41,7 +42,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   }
 
   @override
-  HDIndexWallet get myWallet => _myWallet;
+  MyWallet get myWallet => _myWallet;
 
   @override
   CellsResultBean get cellsResultBean => _cellsResultBean;
@@ -57,7 +58,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   Future walletFromStore(String password) async {
     String json = await readWallet(password);
     var keystore = Keystore.fromJson(json, password);
-    _myWallet = HDIndexWallet(keystore.privateKey);
+    _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
     return;
   }
@@ -66,7 +67,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     var privateKey = createRandonPrivateKey();
     var keystore = Keystore.createNew(privateKey, password, Random.secure());
     await writeWallet(keystore.toJson(), password);
-    _myWallet = HDIndexWallet(keystore.privateKey);
+    _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
     _syncService = SyncService(_myWallet, this, _apiClient);
     _cellsResultBean.syncedBlockNumber = '-1';
@@ -76,13 +77,13 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
 
   Future importFromKeystore(String json, String password) async {
     var keystore = Keystore.fromJson(json, password);
-    _myWallet = HDIndexWallet(keystore.privateKey);
+    _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
     return;
   }
 
   Future importFromPrivateKey(String privateKey, String password) async {
-    _myWallet = HDIndexWallet(hex.decode(privateKey));
+    _myWallet = MyWallet(Credential.fromPrivateKeyBytes(hex.decode(privateKey)).publicKey);
     var keystore = Keystore.createNew(hex.decode(privateKey), password, Random());
     await writeWallet(keystore.toJson(), password);
     _cellsResultBean = await _storeManager.getSyncedCells();

@@ -21,9 +21,9 @@ main() {
 
   test('syncCells', () async {
     CellBean bean1 = CellBean(CellOutput("1", "1", Script('1', []), Script('1', [])), '1', '1',
-        OutPoint('1', CellOutPoint('1', '1')), '1');
+        OutPoint('1', CellOutPoint('1', '1')));
     CellBean bean2 = CellBean(CellOutput("2", "2", Script('2', []), Script('2', [])), '2', '2',
-        OutPoint('2', CellOutPoint('2', '2')), '2');
+        OutPoint('2', CellOutPoint('2', '2')));
     await storeManager.syncCells(CellsResultBean([bean1, bean2], '2000'));
   });
 

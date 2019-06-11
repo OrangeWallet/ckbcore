@@ -13,7 +13,7 @@ import 'package:ckbcore/base/bean/isolate_result/thin_block_isolate_result.dart'
 import 'package:ckbcore/base/bean/thin_block.dart';
 import 'package:ckbcore/base/bean/thin_bolck_with_cells.dart';
 import 'package:ckbcore/base/bean/thin_transaction.dart';
-import 'package:ckbcore/base/core/hd_index_wallet.dart';
+import 'package:ckbcore/base/core/my_wallet.dart';
 import 'package:ckbcore/base/utils/base_isloate.dart';
 import 'package:ckbcore/base/utils/fetch_rpc_utils/fetch_utils.dart';
 
@@ -36,7 +36,7 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
         CellOutput cellOutput = await fetchCellOutput(outPoint, param.apiClient);
         if (cellOutput != null) if (cellOutput.lock.scriptHash ==
             param.myWallet.lockScript.scriptHash) {
-          CellBean cell = CellBean(null, '', cellOutput.lock.scriptHash, outPoint, '');
+          CellBean cell = CellBean(null, '', cellOutput.lock.scriptHash, outPoint);
           updateCells.spendCells.add(cell);
           thinTransaction.capacityOut =
               thinTransaction.capacityOut + int.parse(cellOutput.capacity);
@@ -58,14 +58,14 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
 }
 
 Future<CellBean> _fetchCellInOutput(CellOutput cellOutput, String txHash, String index,
-    HDIndexWallet wallet, CKBApiClient apiClient) async {
+    MyWallet wallet, CKBApiClient apiClient) async {
   CellWithOutPoint cellWithOutPoint = CellWithOutPoint(
       cellOutput.capacity, wallet.lockScript, OutPoint(null, CellOutPoint(txHash, index)));
-  return await fetchThinLiveCell(cellWithOutPoint, wallet.path, apiClient);
+  return await fetchThinLiveCell(cellWithOutPoint, apiClient);
 }
 
 class FetchBlockToCheckParam {
-  final HDIndexWallet myWallet;
+  final MyWallet myWallet;
   final int blockNumber;
   final CKBApiClient apiClient;
 

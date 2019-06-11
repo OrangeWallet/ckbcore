@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:ckb_sdk/ckb-utils/network.dart';
 import 'package:ckbcore/base/bean/balance_bean.dart';
-import 'package:ckbcore/base/bean/receiver_bean.dart';
 import 'package:ckbcore/base/bean/thin_block.dart';
 import 'package:ckbcore/base/utils/log.dart';
 import 'package:ckbcore/ckbcore.dart';
@@ -12,8 +11,8 @@ main() async {
   test('test', () async {
     MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://localhost:8114');
     try {
-      await walletCore.createWallet("12345678");
-      walletCore.updateCurrentIndexCells();
+      await walletCore.walletFromStore("12345678");
+      await walletCore.updateCurrentIndexCells();
     } catch (e) {
       print(e.toString());
       print('keystore error');
