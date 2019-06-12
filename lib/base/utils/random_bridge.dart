@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:ckb_sdk/ckb-utils/number.dart';
+import 'package:ckb_sdk/ckb_crypto.dart';
 import 'package:pointycastle/api.dart';
 
 /// Utility to use dart:math's Random class to generate numbers used by

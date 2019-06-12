@@ -1,6 +1,6 @@
 import 'dart:core';
 
-import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
+import 'package:ckb_sdk/ckb_rpc.dart';
 import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/core/my_wallet.dart';
@@ -11,6 +11,7 @@ Future<CellsResultBean> getCurrentIndexCells(MyWallet myWallet, int startBlockNu
   String targetBlockNumber = await apiClient.getTipBlockNumber();
   List<CellBean> cells = await getCurrentIndexCellsWithTargetNumber(
       myWallet, startBlockNumber, int.parse(targetBlockNumber), apiClient, syncProcess);
+  print(myWallet.lockHash);
   return CellsResultBean(cells, targetBlockNumber);
 }
 

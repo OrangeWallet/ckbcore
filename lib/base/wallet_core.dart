@@ -1,11 +1,9 @@
 import 'dart:math';
 
-import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
-import 'package:ckb_sdk/ckb-types/item/cell_with_status.dart';
-import 'package:ckb_sdk/ckb-utils/network.dart';
-import 'package:ckb_sdk/ckb_sdk.dart';
-import 'package:ckb_sdk/ckb_system_contract/ckb_system_contract.dart';
-import 'package:ckb_sdk/ckb_system_contract/system_contract.dart';
+import 'package:ckb_sdk/ckb_address.dart';
+import 'package:ckb_sdk/ckb_rpc.dart';
+import 'package:ckb_sdk/ckb_system_contract.dart';
+import 'package:ckb_sdk/ckb_types.dart';
 import 'package:ckbcore/base/bean/balance_bean.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/bean/receiver_bean.dart';
@@ -65,6 +63,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
     await _getSystemContract();
+    _myWallet.codeHash = Constant.CodeHash;
     return;
   }
 
@@ -78,6 +77,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     _cellsResultBean.syncedBlockNumber = '-1';
     await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
     await _getSystemContract();
+    _myWallet.codeHash = Constant.CodeHash;
     return;
   }
 
@@ -86,6 +86,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
     await _getSystemContract();
+    _myWallet.codeHash = Constant.CodeHash;
     return;
   }
 
@@ -95,6 +96,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     await writeWallet(keystore.toJson(), password);
     _cellsResultBean = await _storeManager.getSyncedCells();
     await _getSystemContract();
+    _myWallet.codeHash = Constant.CodeHash;
     return;
   }
 

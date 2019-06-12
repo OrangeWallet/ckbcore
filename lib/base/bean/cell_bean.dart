@@ -1,5 +1,4 @@
-import 'package:ckb_sdk/ckb-types/item/cell_output.dart';
-import 'package:ckb_sdk/ckb-types/item/out_point.dart';
+import 'package:ckb_sdk/ckb_types.dart' show CellOutput, OutPoint;
 
 class CellBean {
   CellOutput cellOutput;

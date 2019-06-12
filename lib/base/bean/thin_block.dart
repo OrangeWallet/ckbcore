@@ -1,4 +1,4 @@
-import 'package:ckb_sdk/ckb-types/item/block.dart';
+import 'package:ckb_sdk/ckb_types.dart' show Block;
 import 'package:ckbcore/base/bean/thin_transaction.dart';
 
 class ThinBlock {
