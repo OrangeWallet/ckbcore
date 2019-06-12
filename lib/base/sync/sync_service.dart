@@ -1,4 +1,4 @@
-import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
+import 'package:ckb_sdk/ckb_rpc.dart';
 import 'package:ckbcore/base/bean/cells_result_bean.dart';
 import 'package:ckbcore/base/constant/constant.dart';
 import 'package:ckbcore/base/core/my_wallet.dart';

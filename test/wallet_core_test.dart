@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:ckb_sdk/ckb-utils/network.dart';
+import 'package:ckb_sdk/ckb_address.dart' show Network;
 import 'package:ckbcore/base/bean/balance_bean.dart';
 import 'package:ckbcore/base/bean/thin_block.dart';
 import 'package:ckbcore/base/utils/log.dart';

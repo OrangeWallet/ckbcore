@@ -1,9 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:ckb_sdk/ckb-utils/crypto/crypto.dart';
-import 'package:ckb_sdk/ckb-utils/network.dart';
-import 'package:ckb_sdk/ckb-utils/number.dart' as number;
-import 'package:ckb_sdk/ckb_address/ckb_address.dart';
+import 'package:ckb_sdk/ckb_address.dart';
+import 'package:ckb_sdk/ckb_crypto.dart';
 import 'package:convert/convert.dart';
 
 class Credential {
@@ -26,6 +24,6 @@ class Credential {
   }
 
   String getAddress(Network network) {
-    return CKBAddress(network).generate(number.bytesToHex(publicKey));
+    return CKBAddress(network).generate(bytesToHex(publicKey));
   }
 }

@@ -1,6 +1,6 @@
 import 'dart:isolate';
 
-import 'package:ckb_sdk/ckb_sdk.dart';
+import 'package:ckb_sdk/ckb_rpc.dart';
 import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/bean/isolate_result/cells_isolate_result.dart';
 import 'package:ckbcore/base/utils/base_isloate.dart';

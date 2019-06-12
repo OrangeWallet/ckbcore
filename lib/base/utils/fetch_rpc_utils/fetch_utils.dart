@@ -1,9 +1,5 @@
-import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
-import 'package:ckb_sdk/ckb-types/item/cell_output.dart';
-import 'package:ckb_sdk/ckb-types/item/cell_with_outpoint.dart';
-import 'package:ckb_sdk/ckb-types/item/cell_with_status.dart';
-import 'package:ckb_sdk/ckb-types/item/out_point.dart';
-import 'package:ckb_sdk/ckb-types/item/transaction_with_status.dart';
+import 'package:ckb_sdk/ckb_rpc.dart';
+import 'package:ckb_sdk/ckb_types.dart';
 import 'package:ckbcore/base/bean/cell_bean.dart';
 
 Future<CellOutput> fetchCellOutput(OutPoint outPoint, CKBApiClient apiClient) async {

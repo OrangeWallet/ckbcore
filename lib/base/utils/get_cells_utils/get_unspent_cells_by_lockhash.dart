@@ -1,8 +1,8 @@
 import 'dart:isolate';
 import 'dart:math';
 
-import 'package:ckb_sdk/ckb-rpc/ckb_api_client.dart';
-import 'package:ckb_sdk/ckb-types/item/cell_with_outpoint.dart';
+import 'package:ckb_sdk/ckb_rpc.dart';
+import 'package:ckb_sdk/ckb_types.dart' show CellWithOutPoint;
 import 'package:ckbcore/base/bean/cell_bean.dart';
 import 'package:ckbcore/base/bean/isolate_result/cells_isolate_result.dart';
 import 'package:ckbcore/base/constant/constant.dart';
@@ -14,8 +14,8 @@ import 'package:ckbcore/base/utils/log.dart';
 Future<List<CellBean>> _getCellByLockHash(
     int from, int to, MyWallet indexWallet, CKBApiClient apiClient) async {
   List<CellBean> cells = [];
-  List<CellWithOutPoint> cellsWithOutPoints = await apiClient.getCellsByLockHash(
-      indexWallet.lockScript.scriptHash, from.toString(), to.toString());
+  List<CellWithOutPoint> cellsWithOutPoints =
+      await apiClient.getCellsByLockHash(indexWallet.lockHash, from.toString(), to.toString());
   Log.log('from ${from}');
   Log.log('size ${cellsWithOutPoints.length}');
   for (int i = 0; i < cellsWithOutPoints.length; i++) {
