@@ -17,6 +17,7 @@ import 'package:ckb_sdk/ckb-utils/number.dart';
 import 'package:ckb_sdk/ckb-utils/typed_data.dart';
 import 'package:ckbcore/base/utils/random_bridge.dart';
 import 'package:ckbcore/base/utils/uuid.dart';
+import 'package:convert/convert.dart';
 import 'package:meta/meta.dart';
 import 'package:pointycastle/api.dart';
 import 'package:pointycastle/block/aes_fast.dart';
@@ -205,7 +206,7 @@ class Keystore {
         }
 
         derivator = _PBDKDF2KeyDerivator(derParams['c'] as int,
-            Uint8List.fromList(hexToBytes(derParams['salt'] as String)), derParams['dklen'] as int);
+            Uint8List.fromList(hex.decode(derParams['salt'] as String)), derParams['dklen'] as int);
 
         break;
       case 'scrypt':
@@ -215,7 +216,7 @@ class Keystore {
             derParams['n'] as int,
             derParams['r'] as int,
             derParams['p'] as int,
-            Uint8List.fromList(hexToBytes(derParams['salt'] as String)));
+            Uint8List.fromList(hex.decode(derParams['salt'] as String)));
         break;
       default:
         throw ArgumentError(
@@ -227,7 +228,7 @@ class Keystore {
     final derivedKey = derivator.deriveKey(encodedPassword);
     final aesKey = Uint8List.fromList(derivedKey.sublist(0, 16));
 
-    final encryptedPrivateKey = hexToBytes(crypto['ciphertext'] as String);
+    final encryptedPrivateKey = hex.decode(crypto['ciphertext'] as String);
 
     //Validate the derived key with the mac provided
     final derivedMac = _generateMac(derivedKey, encryptedPrivateKey);
@@ -240,7 +241,7 @@ class Keystore {
       throw ArgumentError(
           'Wallet file uses ${crypto["cipher"]} as cipher, but only aes-128-ctr is supported.');
     }
-    final iv = Uint8List.fromList(hexToBytes(crypto['cipherparams']['iv'] as String));
+    final iv = Uint8List.fromList(hex.decode(crypto['cipherparams']['iv'] as String));
 
     // Decrypt the private key
 
