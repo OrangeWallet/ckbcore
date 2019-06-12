@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:ckb_sdk/ckb_rpc.dart';
-import 'package:ckbcore/base/constant/constant.dart';
-import 'package:ckbcore/base/core/my_wallet.dart';
-import 'package:ckbcore/base/utils/fetch_rpc_utils/fetch_thin_block.dart';
-import 'package:ckbcore/base/utils/log.dart';
+import 'package:ckbcore/src/constant/constant.dart';
+import 'package:ckbcore/src/core/my_wallet.dart';
+import 'package:ckbcore/src/utils/fetch_rpc_utils/fetch_thin_block.dart';
+import 'package:ckbcore/src/utils/log.dart';
 import 'package:convert/convert.dart';
 import 'package:test/test.dart';
 

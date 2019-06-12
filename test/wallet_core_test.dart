@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:ckb_sdk/ckb_address.dart' show Network;
-import 'package:ckbcore/base/bean/balance_bean.dart';
-import 'package:ckbcore/base/bean/thin_block.dart';
-import 'package:ckbcore/base/utils/log.dart';
 import 'package:ckbcore/ckbcore.dart';
+import 'package:ckbcore/src/bean/balance_bean.dart';
+import 'package:ckbcore/src/bean/thin_block.dart';
+import 'package:ckbcore/src/utils/log.dart';
 import 'package:test/test.dart';
 
 main() async {

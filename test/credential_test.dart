@@ -1,5 +1,5 @@
 import 'package:ckb_sdk/ckb_address.dart' show Network;
-import 'package:ckbcore/base/core/credential.dart';
+import 'package:ckbcore/src/core/credential.dart';
 import 'package:test/test.dart';
 
 void main() {

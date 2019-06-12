@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:ckbcore/base/core/keystore.dart';
+import 'package:ckbcore/src/core/keystore.dart';
 import 'package:convert/convert.dart';
 import 'package:test/test.dart';
 
