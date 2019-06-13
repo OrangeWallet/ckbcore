@@ -1,11 +1,11 @@
 /**
-Copyright 2019 Simon Binder
+    Copyright 2019 Simon Binder
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 import 'dart:convert';
@@ -31,6 +31,7 @@ abstract class _KeyDerivator {
   Uint8List deriveKey(Uint8List password);
 
   String get name;
+
   Map<String, dynamic> encode();
 }
 
@@ -143,21 +144,23 @@ class Keystore {
   /// power of two.
   static Keystore createNew(Uint8List credentials, String password, Random random,
       {int scryptN = 8192}) {
-    final passwordBytes = Uint8List.fromList(utf8.encode(password));
-    final dartRandom = RandomBridge(random);
-
-    final salt = dartRandom.nextBytes(32);
-    final derivator = _ScryptKeyDerivator(32, scryptN, 8, 1, salt);
-
-    final uuid = generateUuidV4();
-
-    final iv = dartRandom.nextBytes(128 ~/ 8);
-
-    var keystore;
+    Keystore keystore;
     while (keystore == null) {
+      final passwordBytes = Uint8List.fromList(utf8.encode(password));
+      final dartRandom = RandomBridge(random);
+
+      final salt = dartRandom.nextBytes(32);
+      final derivator = _ScryptKeyDerivator(32, scryptN, 8, 1, salt);
+
+      final uuid = generateUuidV4();
+
+      final iv = dartRandom.nextBytes(128 ~/ 8);
       try {
         keystore = Keystore._(credentials, derivator, passwordBytes, iv, uuid);
-      } catch (e) {}
+        Keystore.fromJson(keystore.toJson(), password);
+      } catch (e) {
+        keystore = null;
+      }
     }
 
     return keystore;
