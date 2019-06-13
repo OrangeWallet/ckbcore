@@ -13,7 +13,6 @@ import 'constant/constant.dart';
 import 'core/credential.dart';
 import 'core/keystore.dart';
 import 'core/my_wallet.dart';
-import 'interface/sync_interface.dart';
 import 'interface/wallet_core_interface.dart';
 import 'store/store_manager.dart';
 import 'sync/get_cells_utils/get_unspent_cells.dart';
@@ -23,7 +22,7 @@ import 'transction/transaction_manager.dart' as TransactionManager;
 import 'utils/log.dart';
 import 'utils/random_privatekey.dart';
 
-abstract class WalletCore implements SyncInterface, WalletCoreInterface {
+abstract class WalletCore implements WalletCoreInterface {
   static bool isDebug = true;
 
   SyncService _syncService;
@@ -33,6 +32,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   CKBApiClient _apiClient;
   CKBNetwork _network;
   MyWallet _myWallet;
+  SyncInterface _syncInterface = SyncInterface();
 
   WalletCore(String storePath, String nodeUrl, CKBNetwork network, bool _isDebug) {
     Constant.NodeUrl = nodeUrl;
@@ -102,18 +102,23 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   }
 
   updateCurrentIndexCells() async {
+    _syncInterface.lockScript = _myWallet.lockScript;
+    _syncInterface.getCellsBeanResult = () => _cellsResultBean;
+    _syncInterface.syncException = (Exception e) => syncException(e);
+    _syncInterface.thinBlockUpdateFuc = (bool isCellsChanged, CellsResultBean cellsResult) async {
+      if (isCellsChanged) {
+        await _storeManager.syncCells(cellsResult);
+        await calculateBalance();
+      } else {
+        await _storeManager.syncBlockNumber(cellsResult.syncedBlockNumber);
+      }
+      _cellsResultBean = cellsResult;
+    };
+
     try {
       await calculateBalance();
-      _syncService = SyncService(_myWallet.lockScript, this,
-          (bool isCellsChanged, CellsResultBean cellsResult) async {
-        if (isCellsChanged) {
-          await _storeManager.syncCells(cellsResult);
-          await calculateBalance();
-        } else {
-          await _storeManager.syncBlockNumber(cellsResult.syncedBlockNumber);
-        }
-        _cellsResultBean = cellsResult;
-      });
+      _syncService = SyncService(_syncInterface);
+
       if (_cellsResultBean.syncedBlockNumber == '') {
         Log.log('sync from genesis block');
         _cellsResultBean =

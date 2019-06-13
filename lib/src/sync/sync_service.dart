@@ -4,20 +4,24 @@ import 'package:ckb_sdk/ckb_sdk.dart';
 import '../../ckbcore_bean.dart';
 import '../bean/cells_result_bean.dart';
 import '../constant/constant.dart';
-import '../interface/sync_interface.dart';
 import '../utils/log.dart';
 import 'fetch_rpc_utils/fetch_thin_block.dart';
 import 'handle_synced_cells.dart';
 
+class SyncInterface {
+  Script lockScript;
+  Function thinBlockUpdateFuc;
+  Function getCellsBeanResult;
+  Function syncException;
+}
+
 class SyncService {
   CKBApiClient _apiClient;
-  Script _lockScript;
-  SyncInterface _syncInterface;
-  Function _thinBlockUpdateFuc;
   bool _live = true;
   Function _intercept;
+  final SyncInterface _syncInterface;
 
-  SyncService(this._lockScript, this._syncInterface, this._thinBlockUpdateFuc) {
+  SyncService(this._syncInterface) {
     _apiClient = CKBApiClient(Constant.NodeUrl);
   }
 
@@ -39,17 +43,17 @@ class SyncService {
         return;
       }
       int targetBlockNumber = int.parse(await _apiClient.getTipBlockNumber());
-      while (int.parse(_syncInterface.cellsResultBean.syncedBlockNumber) < targetBlockNumber &&
+      while (int.parse(_syncInterface.getCellsBeanResult().syncedBlockNumber) < targetBlockNumber &&
           _live) {
-        int syncedBlockNumber = int.parse(_syncInterface.cellsResultBean.syncedBlockNumber) + 1;
+        var cellsResult = _syncInterface.getCellsBeanResult();
+        int syncedBlockNumber = int.parse(cellsResult.syncedBlockNumber) + 1;
         Log.log(
             'synced is ${syncedBlockNumber - 1},fetch block ${syncedBlockNumber},target is ${targetBlockNumber}');
         var thinBlockWithCellsBean = await fetchBlockToCheckCell(
-            FetchBlockToCheckParam(_lockScript, syncedBlockNumber, _apiClient));
+            FetchBlockToCheckParam(_syncInterface.lockScript, syncedBlockNumber, _apiClient));
         if (thinBlockWithCellsBean.newCells.length > 0 ||
             thinBlockWithCellsBean.spendCells.length > 0) {
-          var cells =
-              await handleSyncedCells(_syncInterface.cellsResultBean.cells, thinBlockWithCellsBean);
+          var cells = await handleSyncedCells(cellsResult.cells, thinBlockWithCellsBean);
           await _thinBlockUpdate(
               true,
               CellsResultBean(cells, thinBlockWithCellsBean.thinBlock.thinHeader.number),
@@ -58,7 +62,7 @@ class SyncService {
           await _thinBlockUpdate(false, null, thinBlockWithCellsBean.thinBlock);
         }
       }
-      Log.log('synced is ${_syncInterface.cellsResultBean.syncedBlockNumber},It`s tip,waiting');
+      Log.log('It`s tip,waiting');
       await Future.delayed(Duration(seconds: Constant.IntervalSyncTime), () async {
         await _rotation();
       });
@@ -74,10 +78,10 @@ class SyncService {
   Future _thinBlockUpdate(
       bool isCellsChange, CellsResultBean cellsResult, ThinBlock thinBlock) async {
     if (isCellsChange) {
-      await _thinBlockUpdateFuc(true, cellsResult);
+      await _syncInterface.thinBlockUpdateFuc(true, cellsResult);
     } else {
-      this._syncInterface.cellsResultBean.syncedBlockNumber = thinBlock.thinHeader.number;
-      await _thinBlockUpdateFuc(false, cellsResult);
+      _syncInterface.getCellsBeanResult().syncedBlockNumber = thinBlock.thinHeader.number;
+      await _syncInterface.thinBlockUpdateFuc(false, cellsResult);
     }
   }
 }
