@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:ckb_sdk/ckb_rpc.dart';
-import 'package:ckbcore/base/bean/cell_bean.dart';
-import 'package:ckbcore/base/constant/constant.dart';
-import 'package:ckbcore/base/core/credential.dart';
-import 'package:ckbcore/base/core/my_wallet.dart';
-import 'package:ckbcore/base/utils/get_cells_utils/get_unspent_cells_by_lockhash.dart';
-import 'package:ckbcore/base/utils/log.dart';
+import 'package:ckbcore/src/bean/cell_bean.dart';
+import 'package:ckbcore/src/constant/constant.dart';
+import 'package:ckbcore/src/core/credential.dart';
+import 'package:ckbcore/src/core/my_wallet.dart';
+import 'package:ckbcore/src/sync/get_cells_utils/get_unspent_cells_by_lockhash.dart';
+import 'package:ckbcore/src/utils/log.dart';
 import 'package:test/test.dart';
 
 main() {
@@ -16,7 +16,7 @@ main() {
     Log.log(targetBlockNumber);
     List<CellBean> cells = await getCellByLockHash(
         GetCellByLockHashParams(
-            0, 100, MyWallet(Credential.fromPrivateKeyHex(privateKey).publicKey)),
+            0, 100, MyWallet(Credential.fromPrivateKeyHex(privateKey).publicKey).lockHash),
         CKBApiClient(Constant.NodeUrl), (start, target, current) {
       print(target);
       print(current);
