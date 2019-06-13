@@ -54,9 +54,6 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   @override
   CKBApiClient get apiClient => _apiClient;
 
-  @override
-  CKBNetwork get network => _network;
-
   Future walletFromStore(String password) async {
     String json = await readWallet(password);
     var keystore = Keystore.fromJson(json, password);
@@ -102,7 +99,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
 
   Future _getSystemContract() async {
     SystemContract systemContract =
-        await getSystemContract(CKBApiClient(Constant.NodeUrl), network);
+        await getSystemContract(CKBApiClient(Constant.NodeUrl), _network);
     Constant.CodeHash = systemContract.codeHash;
   }
 
@@ -158,7 +155,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   Future sendCapacity(List<ReceiverBean> receivers, CKBNetwork network, String password) async {
     Keystore keystore = Keystore.fromJson(await readWallet(password), password);
     String hash = await TransactionManager.sendCapacity(
-        keystore.privateKey, _cellsResultBean.cells, receivers);
+        keystore.privateKey, _cellsResultBean.cells, receivers, _network);
     Log.log(hash);
     return hash;
   }

@@ -11,17 +11,17 @@ import '../bean/receiver_bean.dart';
 import '../constant/constant.dart';
 import '../exception/exception.dart';
 
-Future<String> sendCapacity(
-    Uint8List privateKey, List<CellBean> cellsBean, List<ReceiverBean> receivers) async {
+Future<String> sendCapacity(Uint8List privateKey, List<CellBean> cellsBean,
+    List<ReceiverBean> receivers, CKBNetwork network) async {
   CKBApiClient _apiClient = CKBApiClient(Constant.NodeUrl);
   Transaction transaction =
-      await _generateTransaction(_apiClient, privateKey, cellsBean, receivers);
+      await _generateTransaction(_apiClient, privateKey, cellsBean, receivers, network);
   String txHash = await _apiClient.sendTransaction(transaction);
   return txHash;
 }
 
 Future<Transaction> _generateTransaction(CKBApiClient _apiClient, Uint8List privateKey,
-    List<CellBean> cellsBean, List<ReceiverBean> receivers) async {
+    List<CellBean> cellsBean, List<ReceiverBean> receivers, CKBNetwork network) async {
   try {
     int needCapacities = 0;
     receivers.forEach((receiver) {
@@ -34,12 +34,12 @@ Future<Transaction> _generateTransaction(CKBApiClient _apiClient, Uint8List priv
     int inputCapacities = cells[1];
     List<CellInput> inputs = cells[0];
     List<CellOutput> outputs = receivers.map((receiver) {
-      var ckbAddress = CKBAddress(Constant.Network);
+      var ckbAddress = CKBAddress(network);
       String blake160 = hexAdd0x(ckbAddress.blake160FromAddress(receiver.address));
       return CellOutput(
           receiver.capacity.toString(), '0x', Script(Constant.CodeHash, [blake160]), null);
     }).toList();
-    SystemContract systemContract = await getSystemContract(_apiClient, Constant.Network);
+    SystemContract systemContract = await getSystemContract(_apiClient, network);
     //change
     if (inputCapacities > needCapacities) {
       String blake160Str = hexAdd0x(blake160(bytesToHex(publicKeyFromPrivate(privateKey))));
