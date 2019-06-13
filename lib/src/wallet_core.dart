@@ -18,10 +18,10 @@ import 'interface/sync_interface.dart';
 import 'interface/transaction_interface.dart';
 import 'interface/wallet_core_interface.dart';
 import 'store/store_manager.dart';
+import 'sync/get_cells_utils/get_unspent_cells.dart';
+import 'sync/get_cells_utils/update_unspent_cells.dart';
 import 'sync/sync_service.dart';
 import 'transction/transaction_manager.dart';
-import 'utils/get_cells_utils/get_unspent_cells.dart';
-import 'utils/get_cells_utils/update_unspent_cells.dart';
 import 'utils/log.dart';
 import 'utils/random_privatekey.dart';
 

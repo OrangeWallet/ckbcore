@@ -1,10 +1,10 @@
 import 'dart:isolate';
 
 import 'package:ckb_sdk/ckb_rpc.dart';
+import 'package:ckbcore/src/utils/base_isloate.dart';
 
 import '../../bean/cell_bean.dart';
 import '../../bean/isolate_result/cells_isolate_result.dart';
-import '../base_isloate.dart';
 import '../fetch_rpc_utils/fetch_utils.dart';
 
 Future<List<CellBean>> _checkCellsStatus(List<CellBean> cells, CKBApiClient apiClient) async {

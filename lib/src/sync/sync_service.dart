@@ -4,8 +4,8 @@ import '../bean/cells_result_bean.dart';
 import '../constant/constant.dart';
 import '../core/my_wallet.dart';
 import '../interface/sync_interface.dart';
-import '../utils/fetch_rpc_utils/fetch_thin_block.dart';
 import '../utils/log.dart';
+import 'fetch_rpc_utils/fetch_thin_block.dart';
 import 'handle_synced_cells.dart';
 
 class SyncService {

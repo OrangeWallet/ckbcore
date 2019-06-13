@@ -3,7 +3,7 @@ import 'package:ckbcore/src/bean/cells_result_bean.dart';
 import 'package:ckbcore/src/constant/constant.dart';
 import 'package:ckbcore/src/core/credential.dart';
 import 'package:ckbcore/src/core/my_wallet.dart';
-import 'package:ckbcore/src/utils/get_cells_utils/get_unspent_cells.dart';
+import 'package:ckbcore/src/sync/get_cells_utils/get_unspent_cells.dart';
 import 'package:ckbcore/src/utils/log.dart';
 import 'package:test/test.dart';
 

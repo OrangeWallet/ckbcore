@@ -2,6 +2,7 @@ import 'dart:isolate';
 
 import 'package:ckb_sdk/ckb_rpc.dart';
 import 'package:ckb_sdk/ckb_types.dart';
+import 'package:ckbcore/src/utils/base_isloate.dart';
 
 import '../../bean/cell_bean.dart';
 import '../../bean/isolate_result/thin_block_isolate_result.dart';
@@ -9,7 +10,6 @@ import '../../bean/thin_block.dart';
 import '../../bean/thin_bolck_with_cells.dart';
 import '../../bean/thin_transaction.dart';
 import '../../core/my_wallet.dart';
-import '../base_isloate.dart';
 import 'fetch_utils.dart';
 
 Future<ThinBlockWithCellsBean> testFetchBlockToCheckCell(FetchBlockToCheckParam param) async {
