@@ -1,8 +1,6 @@
 import 'dart:math';
 
 import 'package:ckb_sdk/ckb_address.dart';
-import 'package:ckb_sdk/ckb_rpc.dart';
-import 'package:ckb_sdk/ckb_system_contract.dart';
 import 'package:ckb_sdk/ckb_types.dart';
 import 'package:ckbcore/src/bean/thin_block.dart';
 import 'package:convert/convert.dart';
@@ -52,8 +50,6 @@ abstract class WalletCore implements WalletCoreInterface {
     var keystore = Keystore.fromJson(json, password);
     _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
-    await _getSystemContract();
-    _myWallet.codeHash = Constant.CodeHash;
     return;
   }
 
@@ -65,27 +61,22 @@ abstract class WalletCore implements WalletCoreInterface {
     _cellsResultBean = await _storeManager.getSyncedCells();
     _cellsResultBean.syncedBlockNumber = '-1';
     await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
-    await _getSystemContract();
-    _myWallet.codeHash = Constant.CodeHash;
     return;
   }
 
   Future importFromKeystore(String json, String password) async {
     var keystore = Keystore.fromJson(json, password);
     _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
+    await writeWallet(keystore.toJson(), password);
     _cellsResultBean = await _storeManager.getSyncedCells();
-    await _getSystemContract();
-    _myWallet.codeHash = Constant.CodeHash;
     return;
   }
 
   Future importFromPrivateKey(String privateKey, String password) async {
-    _myWallet = MyWallet(Credential.fromPrivateKeyBytes(hex.decode(privateKey)).publicKey);
     var keystore = Keystore.createNew(hex.decode(privateKey), password, Random());
+    _myWallet = MyWallet(Credential.fromPrivateKeyBytes(hex.decode(privateKey)).publicKey);
     await writeWallet(keystore.toJson(), password);
     _cellsResultBean = await _storeManager.getSyncedCells();
-    await _getSystemContract();
-    _myWallet.codeHash = Constant.CodeHash;
     return;
   }
 
@@ -138,11 +129,5 @@ abstract class WalletCore implements WalletCoreInterface {
     });
     _balanceBean = BalanceBean(total, available);
     cellsChanged(_balanceBean);
-  }
-
-  Future _getSystemContract() async {
-    SystemContract systemContract =
-        await getSystemContract(CKBApiClient(Constant.NodeUrl), _network);
-    Constant.CodeHash = systemContract.codeHash;
   }
 }

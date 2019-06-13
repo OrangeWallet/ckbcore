@@ -3,13 +3,13 @@ import 'dart:typed_data';
 import 'package:ckb_sdk/ckb_address.dart';
 import 'package:ckb_sdk/ckb_crypto.dart' as crypto;
 import 'package:ckb_sdk/ckb_types.dart';
+import 'package:ckbcore/src/constant/constant.dart';
 
 class MyWallet {
   final Uint8List publicKey;
   String _lockHash;
   String _address;
   String _blake160;
-  String codeHash;
 
   MyWallet(this.publicKey) {}
 
@@ -24,7 +24,7 @@ class MyWallet {
   }
 
   Script get lockScript {
-    Script script = Script(codeHash, [crypto.hexAdd0x(blake160)]);
+    Script script = Script(Constant.CodeHash, [crypto.hexAdd0x(blake160)]);
     return script;
   }
 
