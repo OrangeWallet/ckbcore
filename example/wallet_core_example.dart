@@ -2,8 +2,7 @@ import 'dart:convert';
 
 import 'package:ckb_sdk/ckb_address.dart' show Network;
 import 'package:ckbcore/ckbcore.dart';
-import 'package:ckbcore/src/bean/balance_bean.dart';
-import 'package:ckbcore/src/bean/thin_block.dart';
+import 'package:ckbcore/ckbcore_bean.dart';
 import 'package:ckbcore/src/utils/log.dart';
 
 main() async {
