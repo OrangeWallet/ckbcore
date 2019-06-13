@@ -29,7 +29,7 @@ class TransactionManager {
       receivers.forEach((receiver) {
         needCapacities += receiver.capacity;
       });
-      if (needCapacities < Constant.MinCapacity) {
+      if (needCapacities < MinCapacity) {
         throw LessThanMinCapacityException();
       }
       List<Object> cells = gatherInputs(needCapacities);

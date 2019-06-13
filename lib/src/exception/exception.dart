@@ -1,7 +1,7 @@
 import '../constant/constant.dart';
 
 class LessThanMinCapacityException implements Exception {
-  String toString() => "Capacity can't be less than ${Constant.MinCapacity}";
+  String toString() => "Capacity can't be less than ${MinCapacity}";
 }
 
 class NoEnoughCapacityException implements Exception {
