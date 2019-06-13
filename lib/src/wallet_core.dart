@@ -1,6 +1,7 @@
-import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:ckb_sdk/ckb_address.dart';
+import 'package:ckb_sdk/ckb_crypto.dart';
 import 'package:ckb_sdk/ckb_types.dart';
 import 'package:ckbcore/src/bean/thin_block.dart';
 import 'package:convert/convert.dart';
@@ -46,18 +47,16 @@ abstract class WalletCore implements WalletCoreInterface {
   BalanceBean get balanceBean => _balanceBean;
 
   Future walletFromStore(String password) async {
-    String json = await readWallet(password);
-    var keystore = Keystore.fromJson(json, password);
-    _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
+    String privateKey = await readWallet(password);
+    _myWallet = MyWallet(publicKeyFromPrivate(hex.decode(privateKey)));
     _cellsResultBean = await _storeManager.getSyncedCells();
     return;
   }
 
   Future createWallet(String password) async {
-    var privateKey = createRandonPrivateKey();
-    var keystore = Keystore.createNew(privateKey, password, Random.secure());
-    await writeWallet(keystore.toJson(), password);
-    _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
+    Uint8List privateKey = createRandonPrivateKey();
+    await writeWallet(hex.encode(privateKey), password);
+    _myWallet = MyWallet(publicKeyFromPrivate(privateKey));
     _cellsResultBean = await _storeManager.getSyncedCells();
     _cellsResultBean.syncedBlockNumber = '-1';
     await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
@@ -67,15 +66,14 @@ abstract class WalletCore implements WalletCoreInterface {
   Future importFromKeystore(String json, String password) async {
     var keystore = Keystore.fromJson(json, password);
     _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
-    await writeWallet(keystore.toJson(), password);
+    await writeWallet(hex.encode(keystore.privateKey), password);
     _cellsResultBean = await _storeManager.getSyncedCells();
     return;
   }
 
   Future importFromPrivateKey(String privateKey, String password) async {
-    var keystore = Keystore.createNew(hex.decode(privateKey), password, Random());
-    _myWallet = MyWallet(Credential.fromPrivateKeyBytes(hex.decode(privateKey)).publicKey);
-    await writeWallet(keystore.toJson(), password);
+    _myWallet = MyWallet(publicKeyFromPrivate(hex.decode(privateKey)));
+    await writeWallet(privateKey, password);
     _cellsResultBean = await _storeManager.getSyncedCells();
     return;
   }
@@ -109,9 +107,8 @@ abstract class WalletCore implements WalletCoreInterface {
   }
 
   Future sendCapacity(List<ReceiverBean> receivers, CKBNetwork network, String password) async {
-    Keystore keystore = Keystore.fromJson(await readWallet(password), password);
     String hash = await TransactionManager.sendCapacity(
-        keystore.privateKey, _cellsResultBean.cells, receivers, _network);
+        hex.decode(await readWallet(password)), _cellsResultBean.cells, receivers, _network);
     Log.log(hash);
     return hash;
   }
