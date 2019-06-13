@@ -68,11 +68,11 @@ class SyncService {
       }
       await _syncInterface.calculateBalance();
       _syncInterface.syncProcess(1.0);
+      _live = true;
+      _rotation();
     } catch (e) {
       _syncInterface.syncException(e);
     }
-    _live = true;
-    _rotation();
   }
 
   stop(Function intercept) {
