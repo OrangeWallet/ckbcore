@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:ckb_sdk/ckb_address.dart';
 import 'package:ckb_sdk/ckb_crypto.dart';
+import 'package:ckb_sdk/ckb_rpc.dart';
 import 'package:ckb_sdk/ckb_system_contract.dart';
 import 'package:ckb_sdk/ckb_types.dart';
 
@@ -9,72 +10,67 @@ import '../bean/cell_bean.dart';
 import '../bean/receiver_bean.dart';
 import '../constant/constant.dart';
 import '../exception/exception.dart';
-import '../interface/transaction_interface.dart';
 
-class TransactionManager {
-  final TransactionInterface _impl;
-  final Uint8List privateKey;
+Future<String> sendCapacity(
+    Uint8List privateKey, List<CellBean> cellsBean, List<ReceiverBean> receivers) async {
+  CKBApiClient _apiClient = CKBApiClient(Constant.NodeUrl);
+  Transaction transaction =
+      await _generateTransaction(_apiClient, privateKey, cellsBean, receivers);
+  String txHash = await _apiClient.sendTransaction(transaction);
+  return txHash;
+}
 
-  TransactionManager(this._impl, this.privateKey);
-
-  Future<String> sendCapacity(List<ReceiverBean> receivers) async {
-    Transaction transaction = await generateTransaction(receivers);
-    String txHash = await _impl.apiClient.sendTransaction(transaction);
-    return txHash;
-  }
-
-  Future<Transaction> generateTransaction(List<ReceiverBean> receivers) async {
-    try {
-      int needCapacities = 0;
-      receivers.forEach((receiver) {
-        needCapacities += receiver.capacity;
-      });
-      if (needCapacities < MinCapacity) {
-        throw LessThanMinCapacityException();
-      }
-      List<Object> cells = gatherInputs(needCapacities);
-      int inputCapacities = cells[1];
-      List<CellInput> inputs = cells[0];
-      List<CellOutput> outputs = receivers.map((receiver) {
-        var ckbAddress = CKBAddress(_impl.network);
-        String blake160 = hexAdd0x(ckbAddress.blake160FromAddress(receiver.address));
-        return CellOutput(
-            receiver.capacity.toString(), '0x', Script(Constant.CodeHash, [blake160]), null);
-      }).toList();
-      SystemContract systemContract = await getSystemContract(_impl.apiClient, _impl.network);
-      //change
-      if (inputCapacities > needCapacities) {
-        String blake160Str = hexAdd0x(blake160(bytesToHex(_impl.myWallet.publicKey)));
-        outputs.add(CellOutput((inputCapacities - needCapacities).toString(), '0x',
-            Script(Constant.CodeHash, [blake160Str]), null));
-      }
-      Transaction transaction = Transaction(
-          "0", null, [OutPoint(null, systemContract.systemScriptOutPoint)], inputs, outputs, []);
-      String txHash = await _impl.apiClient.computeTransactionHash(transaction);
-      inputs.forEach((input) => transaction.witnesses = [Witness.sign(privateKey, txHash)]);
-      return transaction;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  List<Object> gatherInputs(int needCapacities) {
-    List<CellBean> cells = _impl.cellsResultBean.cells;
-    List<CellInput> inputs = [];
-    int inputsCapacities = 0;
-    cells.forEach((cell) {
-      if (cell.cellOutput.data == '0' && cell.status == CellWithStatus.LIVE) {
-        if (inputsCapacities < needCapacities) {
-          inputs.add(CellInput(cell.outPoint, "0"));
-          inputsCapacities += int.parse(cell.cellOutput.capacity);
-        } else {
-          return;
-        }
-      }
+Future<Transaction> _generateTransaction(CKBApiClient _apiClient, Uint8List privateKey,
+    List<CellBean> cellsBean, List<ReceiverBean> receivers) async {
+  try {
+    int needCapacities = 0;
+    receivers.forEach((receiver) {
+      needCapacities += receiver.capacity;
     });
-    if (inputsCapacities < needCapacities) {
-      throw NoEnoughCapacityException();
+    if (needCapacities < MinCapacity) {
+      throw LessThanMinCapacityException();
     }
-    return [inputs, inputsCapacities];
+    List<Object> cells = _gatherInputs(cellsBean, needCapacities);
+    int inputCapacities = cells[1];
+    List<CellInput> inputs = cells[0];
+    List<CellOutput> outputs = receivers.map((receiver) {
+      var ckbAddress = CKBAddress(Constant.Network);
+      String blake160 = hexAdd0x(ckbAddress.blake160FromAddress(receiver.address));
+      return CellOutput(
+          receiver.capacity.toString(), '0x', Script(Constant.CodeHash, [blake160]), null);
+    }).toList();
+    SystemContract systemContract = await getSystemContract(_apiClient, Constant.Network);
+    //change
+    if (inputCapacities > needCapacities) {
+      String blake160Str = hexAdd0x(blake160(bytesToHex(publicKeyFromPrivate(privateKey))));
+      outputs.add(CellOutput((inputCapacities - needCapacities).toString(), '0x',
+          Script(Constant.CodeHash, [blake160Str]), null));
+    }
+    Transaction transaction = Transaction(
+        "0", null, [OutPoint(null, systemContract.systemScriptOutPoint)], inputs, outputs, []);
+    String txHash = await _apiClient.computeTransactionHash(transaction);
+    inputs.forEach((input) => transaction.witnesses = [Witness.sign(privateKey, txHash)]);
+    return transaction;
+  } catch (e) {
+    rethrow;
   }
+}
+
+List<Object> _gatherInputs(List<CellBean> cellsBean, int needCapacities) {
+  List<CellInput> inputs = [];
+  int inputsCapacities = 0;
+  cellsBean.forEach((cell) {
+    if (cell.cellOutput.data == '0' && cell.status == CellWithStatus.LIVE) {
+      if (inputsCapacities < needCapacities) {
+        inputs.add(CellInput(cell.outPoint, "0"));
+        inputsCapacities += int.parse(cell.cellOutput.capacity);
+      } else {
+        return;
+      }
+    }
+  });
+  if (inputsCapacities < needCapacities) {
+    throw NoEnoughCapacityException();
+  }
+  return [inputs, inputsCapacities];
 }

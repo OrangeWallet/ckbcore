@@ -23,7 +23,7 @@ class Credential {
     return publicKeyFromPrivate(privateKey);
   }
 
-  String getAddress(Network network) {
+  String getAddress(CKBNetwork network) {
     return CKBAddress(network).generate(bytesToHex(publicKey));
   }
 }

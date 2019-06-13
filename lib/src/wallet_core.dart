@@ -15,17 +15,16 @@ import 'core/credential.dart';
 import 'core/keystore.dart';
 import 'core/my_wallet.dart';
 import 'interface/sync_interface.dart';
-import 'interface/transaction_interface.dart';
 import 'interface/wallet_core_interface.dart';
 import 'store/store_manager.dart';
 import 'sync/get_cells_utils/get_unspent_cells.dart';
 import 'sync/get_cells_utils/update_unspent_cells.dart';
 import 'sync/sync_service.dart';
-import 'transction/transaction_manager.dart';
+import 'transction/transaction_manager.dart' as TransactionManager;
 import 'utils/log.dart';
 import 'utils/random_privatekey.dart';
 
-abstract class WalletCore implements SyncInterface, WalletCoreInterface, TransactionInterface {
+abstract class WalletCore implements SyncInterface, WalletCoreInterface {
   static bool isDebug = true;
 
   SyncService _syncService;
@@ -33,10 +32,10 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   StoreManager _storeManager;
   BalanceBean _balanceBean;
   CKBApiClient _apiClient;
-  Network _network;
+  CKBNetwork _network;
   MyWallet _myWallet;
 
-  WalletCore(String storePath, String nodeUrl, Network network, bool _isDebug) {
+  WalletCore(String storePath, String nodeUrl, CKBNetwork network, bool _isDebug) {
     Constant.NodeUrl = nodeUrl;
     _apiClient = CKBApiClient(Constant.NodeUrl);
     isDebug = _isDebug;
@@ -56,7 +55,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
   CKBApiClient get apiClient => _apiClient;
 
   @override
-  Network get network => _network;
+  CKBNetwork get network => _network;
 
   Future walletFromStore(String password) async {
     String json = await readWallet(password);
@@ -156,10 +155,10 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     await _storeManager.clearAll();
   }
 
-  Future sendCapacity(List<ReceiverBean> receivers, Network network, String password) async {
-    TransactionManager transactionManager =
-        TransactionManager(this, hex.decode(await readWallet(password)));
-    String hash = await transactionManager.sendCapacity(receivers);
+  Future sendCapacity(List<ReceiverBean> receivers, CKBNetwork network, String password) async {
+    Keystore keystore = Keystore.fromJson(await readWallet(password), password);
+    String hash = await TransactionManager.sendCapacity(
+        keystore.privateKey, _cellsResultBean.cells, receivers);
     Log.log(hash);
     return hash;
   }

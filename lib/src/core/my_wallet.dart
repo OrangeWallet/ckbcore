@@ -13,7 +13,7 @@ class MyWallet {
 
   MyWallet(this.publicKey) {}
 
-  String getAddress(Network network) {
+  String getAddress(CKBNetwork network) {
     if (_address == null) _address = CKBAddress(network).generate(crypto.bytesToHex(publicKey));
     return _address;
   }
