@@ -8,11 +8,14 @@ import 'package:ckbcore/src/utils/log.dart';
 main() async {
   MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://localhost:8114');
   try {
-    await walletCore.walletFromStore("12345678");
-    walletCore.updateCurrentIndexCells();
+    await walletCore.importFromPrivateKey(
+        "e79f3207ea4980b7fed79956d5934249ceac4751a4fae01a0f7c4a96884bc4e3", "12345678");
+    walletCore.startSync();
+    await Future.delayed(Duration(seconds: 10), () {
+      walletCore.stopSync();
+    });
   } catch (e) {
     print(e.toString());
-    print('keystore error');
   }
 }
 

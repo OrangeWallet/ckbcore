@@ -12,7 +12,7 @@ main() async {
     MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://localhost:8114');
     try {
       await walletCore.walletFromStore("12345678");
-      await walletCore.updateCurrentIndexCells();
+      await walletCore.startSync();
     } catch (e) {
       print(e.toString());
       print('keystore error');
