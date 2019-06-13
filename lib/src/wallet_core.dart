@@ -74,7 +74,7 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
     await writeWallet(keystore.toJson(), password);
     _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
-    _syncService = SyncService(_myWallet, this, _apiClient);
+    _syncService = SyncService(_myWallet.lockScript, this, _apiClient);
     _cellsResultBean.syncedBlockNumber = '-1';
     await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
     await _getSystemContract();
@@ -109,12 +109,12 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
 
   updateCurrentIndexCells() async {
     try {
-      _syncService = SyncService(_myWallet, this, _apiClient);
+      _syncService = SyncService(_myWallet.lockScript, this, _apiClient);
       await calculateBalance();
       if (_cellsResultBean.syncedBlockNumber == '') {
         Log.log('sync from genesis block');
         _cellsResultBean =
-            await getCurrentIndexCells(_myWallet, 0, _apiClient, (double processing) {
+            await getCurrentIndexCells(_myWallet.lockHash, 0, _apiClient, (double processing) {
           syncProcess(processing);
         });
         await _storeManager.syncCells(_cellsResultBean);
@@ -125,8 +125,8 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface, Transac
         await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
       } else {
         Log.log('sync from ${_cellsResultBean.syncedBlockNumber}');
-        var updateCellsResult =
-            await updateUnspentCells(_myWallet, _cellsResultBean, _apiClient, (double processing) {
+        var updateCellsResult = await updateUnspentCells(
+            _myWallet.lockHash, _cellsResultBean, _apiClient, (double processing) {
           syncProcess(processing);
         });
         if (updateCellsResult.isChange) {

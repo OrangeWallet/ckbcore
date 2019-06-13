@@ -16,7 +16,7 @@ main() {
     Log.log(targetBlockNumber);
     List<CellBean> cells = await getCellByLockHash(
         GetCellByLockHashParams(
-            0, 100, MyWallet(Credential.fromPrivateKeyHex(privateKey).publicKey)),
+            0, 100, MyWallet(Credential.fromPrivateKeyHex(privateKey).publicKey).lockHash),
         CKBApiClient(Constant.NodeUrl), (start, target, current) {
       print(target);
       print(current);

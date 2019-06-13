@@ -9,14 +9,13 @@ import 'package:ckbcore/src/utils/log.dart';
 import '../../bean/cell_bean.dart';
 import '../../bean/isolate_result/cells_isolate_result.dart';
 import '../../constant/constant.dart';
-import '../../core/my_wallet.dart';
 import '../fetch_rpc_utils/fetch_utils.dart';
 
 Future<List<CellBean>> _getCellByLockHash(
-    int from, int to, MyWallet indexWallet, CKBApiClient apiClient) async {
+    int from, int to, String lockHash, CKBApiClient apiClient) async {
   List<CellBean> cells = [];
   List<CellWithOutPoint> cellsWithOutPoints =
-      await apiClient.getCellsByLockHash(indexWallet.lockHash, from.toString(), to.toString());
+      await apiClient.getCellsByLockHash(lockHash, from.toString(), to.toString());
   Log.log('from ${from}');
   Log.log('size ${cellsWithOutPoints.length}');
   for (int i = 0; i < cellsWithOutPoints.length; i++) {
@@ -42,7 +41,7 @@ Future<List<CellBean>> getCellByLockHash(GetCellByLockHashParams param, CKBApiCl
     isolate = await Isolate.spawn(_handleCellByLockHash, receivePort.sendPort);
     SendPort sendPort = await receivePort.first;
     CellsIsolateResultBean result =
-        await _sendReceive(from, to, param.hdIndexWallet, apiClient, sendPort);
+        await _sendReceive(from, to, param.lockHash, apiClient, sendPort);
     destroy();
     if (result.status) {
       cells.addAll(result.result);
@@ -61,11 +60,11 @@ _handleCellByLockHash(SendPort sendPort) async {
   await for (var msg in port) {
     int from = msg[0];
     int to = msg[1];
-    MyWallet indexWallet = msg[2];
+    String lockHash = msg[2];
     CKBApiClient apiClient = msg[3];
     SendPort replyTo = msg[4];
     try {
-      List<CellBean> newCells = await _getCellByLockHash(from, to, indexWallet, apiClient);
+      List<CellBean> newCells = await _getCellByLockHash(from, to, lockHash, apiClient);
       var result = CellsIsolateResultBean.fromSuccess(newCells);
       replyTo.send(result);
     } catch (e) {
@@ -80,16 +79,16 @@ _handleCellByLockHash(SendPort sendPort) async {
   }
 }
 
-Future _sendReceive(int from, int to, MyWallet indexWallet, CKBApiClient apiClient, SendPort port) {
+Future _sendReceive(int from, int to, String lockHash, CKBApiClient apiClient, SendPort port) {
   ReceivePort response = ReceivePort();
-  port.send([from, to, indexWallet, apiClient, response.sendPort]);
+  port.send([from, to, lockHash, apiClient, response.sendPort]);
   return response.first;
 }
 
 class GetCellByLockHashParams {
   final int startBlockNumber;
   final int targetBlockNumber;
-  final MyWallet hdIndexWallet;
+  final String lockHash;
 
-  GetCellByLockHashParams(this.startBlockNumber, this.targetBlockNumber, this.hdIndexWallet);
+  GetCellByLockHashParams(this.startBlockNumber, this.targetBlockNumber, this.lockHash);
 }

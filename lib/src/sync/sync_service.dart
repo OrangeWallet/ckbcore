@@ -1,8 +1,8 @@
 import 'package:ckb_sdk/ckb_rpc.dart';
+import 'package:ckb_sdk/ckb_sdk.dart';
 
 import '../bean/cells_result_bean.dart';
 import '../constant/constant.dart';
-import '../core/my_wallet.dart';
 import '../interface/sync_interface.dart';
 import '../utils/log.dart';
 import 'fetch_rpc_utils/fetch_thin_block.dart';
@@ -10,12 +10,12 @@ import 'handle_synced_cells.dart';
 
 class SyncService {
   CKBApiClient _apiClient;
-  MyWallet _myWallet;
+  Script _lockScript;
   SyncInterface _syncInterface;
   bool _live = true;
   Function _intercept;
 
-  SyncService(this._myWallet, this._syncInterface, this._apiClient);
+  SyncService(this._lockScript, this._syncInterface, this._apiClient);
 
   start() {
     _live = true;
@@ -41,7 +41,7 @@ class SyncService {
         Log.log(
             'synced is ${syncedBlockNumber - 1},fetch block ${syncedBlockNumber},target is ${targetBlockNumber}');
         var thinBlockWithCellsBean = await fetchBlockToCheckCell(
-            FetchBlockToCheckParam(_myWallet, syncedBlockNumber, _apiClient));
+            FetchBlockToCheckParam(_lockScript, syncedBlockNumber, _apiClient));
         if (thinBlockWithCellsBean.newCells.length > 0 ||
             thinBlockWithCellsBean.spendCells.length > 0) {
           var cells =

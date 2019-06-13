@@ -9,7 +9,6 @@ import '../../bean/isolate_result/thin_block_isolate_result.dart';
 import '../../bean/thin_block.dart';
 import '../../bean/thin_bolck_with_cells.dart';
 import '../../bean/thin_transaction.dart';
-import '../../core/my_wallet.dart';
 import 'fetch_utils.dart';
 
 Future<ThinBlockWithCellsBean> testFetchBlockToCheckCell(FetchBlockToCheckParam param) async {
@@ -29,8 +28,7 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
             CellOutPoint(
                 cellInput.previousOutput.cell.txHash, cellInput.previousOutput.cell.index));
         CellOutput cellOutput = await fetchCellOutput(outPoint, param.apiClient);
-        if (cellOutput != null) if (cellOutput.lock.scriptHash ==
-            param.myWallet.lockScript.scriptHash) {
+        if (cellOutput != null) if (cellOutput.lock.scriptHash == param.lockScript.scriptHash) {
           CellBean cell = CellBean(null, '', cellOutput.lock.scriptHash, outPoint);
           updateCells.spendCells.add(cell);
           thinTransaction.capacityOut =
@@ -40,9 +38,9 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
     });
     for (int i = 0; i < transaction.outputs.length; i++) {
       CellOutput cellOutput = transaction.outputs[i];
-      if (cellOutput.lock.scriptHash == param.myWallet.lockHash) {
+      if (cellOutput.lock.scriptHash == param.lockScript.scriptHash) {
         updateCells.newCells.add(await _fetchCellInOutput(
-            cellOutput, transaction.hash, i.toString(), param.myWallet, param.apiClient));
+            cellOutput, transaction.hash, i.toString(), param.lockScript, param.apiClient));
         thinTransaction.capacityIn = thinTransaction.capacityIn + int.parse(cellOutput.capacity);
       }
     }
@@ -53,18 +51,18 @@ Future<ThinBlockWithCellsBean> _fetchBlockToCheckCell(FetchBlockToCheckParam par
 }
 
 Future<CellBean> _fetchCellInOutput(CellOutput cellOutput, String txHash, String index,
-    MyWallet wallet, CKBApiClient apiClient) async {
+    Script lockScript, CKBApiClient apiClient) async {
   CellWithOutPoint cellWithOutPoint = CellWithOutPoint(
-      cellOutput.capacity, wallet.lockScript, OutPoint(null, CellOutPoint(txHash, index)));
+      cellOutput.capacity, lockScript, OutPoint(null, CellOutPoint(txHash, index)));
   return await fetchThinLiveCell(cellWithOutPoint, apiClient);
 }
 
 class FetchBlockToCheckParam {
-  final MyWallet myWallet;
+  final Script lockScript;
   final int blockNumber;
   final CKBApiClient apiClient;
 
-  FetchBlockToCheckParam(this.myWallet, this.blockNumber, this.apiClient);
+  FetchBlockToCheckParam(this.lockScript, this.blockNumber, this.apiClient);
 }
 
 Future<ThinBlockWithCellsBean> fetchBlockToCheckCell(FetchBlockToCheckParam param) async {
