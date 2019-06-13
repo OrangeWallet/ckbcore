@@ -1,6 +1,7 @@
 import 'package:ckb_sdk/ckb_rpc.dart';
 import 'package:ckb_sdk/ckb_sdk.dart';
 
+import '../../ckbcore_bean.dart';
 import '../bean/cells_result_bean.dart';
 import '../constant/constant.dart';
 import '../interface/sync_interface.dart';
@@ -12,10 +13,13 @@ class SyncService {
   CKBApiClient _apiClient;
   Script _lockScript;
   SyncInterface _syncInterface;
+  Function _thinBlockUpdateFuc;
   bool _live = true;
   Function _intercept;
 
-  SyncService(this._lockScript, this._syncInterface, this._apiClient);
+  SyncService(this._lockScript, this._syncInterface, this._thinBlockUpdateFuc) {
+    _apiClient = CKBApiClient(Constant.NodeUrl);
+  }
 
   start() {
     _live = true;
@@ -46,12 +50,12 @@ class SyncService {
             thinBlockWithCellsBean.spendCells.length > 0) {
           var cells =
               await handleSyncedCells(_syncInterface.cellsResultBean.cells, thinBlockWithCellsBean);
-          await _syncInterface.thinBlockUpdate(
+          await _thinBlockUpdate(
               true,
               CellsResultBean(cells, thinBlockWithCellsBean.thinBlock.thinHeader.number),
               thinBlockWithCellsBean.thinBlock);
         } else {
-          await _syncInterface.thinBlockUpdate(false, null, thinBlockWithCellsBean.thinBlock);
+          await _thinBlockUpdate(false, null, thinBlockWithCellsBean.thinBlock);
         }
       }
       Log.log('synced is ${_syncInterface.cellsResultBean.syncedBlockNumber},It`s tip,waiting');
@@ -64,6 +68,16 @@ class SyncService {
       } else {
         _syncInterface.syncException(Exception(e.toString()));
       }
+    }
+  }
+
+  Future _thinBlockUpdate(
+      bool isCellsChange, CellsResultBean cellsResult, ThinBlock thinBlock) async {
+    if (isCellsChange) {
+      await _thinBlockUpdateFuc(true, cellsResult);
+    } else {
+      this._syncInterface.cellsResultBean.syncedBlockNumber = thinBlock.thinHeader.number;
+      await _thinBlockUpdateFuc(false, cellsResult);
     }
   }
 }

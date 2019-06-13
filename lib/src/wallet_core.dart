@@ -9,7 +9,6 @@ import 'package:convert/convert.dart';
 import 'bean/balance_bean.dart';
 import 'bean/cells_result_bean.dart';
 import 'bean/receiver_bean.dart';
-import 'bean/thin_block.dart';
 import 'constant/constant.dart';
 import 'core/credential.dart';
 import 'core/keystore.dart';
@@ -70,7 +69,6 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
     await writeWallet(keystore.toJson(), password);
     _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
-    _syncService = SyncService(_myWallet.lockScript, this, _apiClient);
     _cellsResultBean.syncedBlockNumber = '-1';
     await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
     await _getSystemContract();
@@ -105,8 +103,17 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
 
   updateCurrentIndexCells() async {
     try {
-      _syncService = SyncService(_myWallet.lockScript, this, _apiClient);
       await calculateBalance();
+      _syncService = SyncService(_myWallet.lockScript, this,
+          (bool isCellsChanged, CellsResultBean cellsResult) async {
+        if (isCellsChanged) {
+          await _storeManager.syncCells(cellsResult);
+          await calculateBalance();
+        } else {
+          await _storeManager.syncBlockNumber(cellsResult.syncedBlockNumber);
+        }
+        _cellsResultBean = cellsResult;
+      });
       if (_cellsResultBean.syncedBlockNumber == '') {
         Log.log('sync from genesis block');
         _cellsResultBean =
@@ -158,20 +165,6 @@ abstract class WalletCore implements SyncInterface, WalletCoreInterface {
         keystore.privateKey, _cellsResultBean.cells, receivers, _network);
     Log.log(hash);
     return hash;
-  }
-
-  @override
-  Future thinBlockUpdate(
-      bool isCellsChange, CellsResultBean cellsResult, ThinBlock thinBlock) async {
-    if (isCellsChange) {
-      _cellsResultBean = cellsResult;
-      await _storeManager.syncCells(_cellsResultBean);
-      await calculateBalance();
-    } else {
-      _cellsResultBean.syncedBlockNumber = thinBlock.thinHeader.number;
-      await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
-    }
-    await blockChanged(thinBlock);
   }
 
   Future calculateBalance() async {
