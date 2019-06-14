@@ -4,14 +4,11 @@ import 'package:ckb_sdk/ckb_address.dart';
 import 'package:ckb_sdk/ckb_crypto.dart';
 import 'package:ckb_sdk/ckb_types.dart';
 import 'package:ckbcore/src/bean/thin_block.dart';
-import 'package:convert/convert.dart';
 
 import 'bean/balance_bean.dart';
 import 'bean/cells_result_bean.dart';
 import 'bean/receiver_bean.dart';
 import 'constant/constant.dart';
-import 'core/credential.dart';
-import 'core/keystore.dart';
 import 'core/my_wallet.dart';
 import 'interface/wallet_core_interface.dart';
 import 'store/store_manager.dart';
@@ -38,44 +35,25 @@ abstract class WalletCore implements WalletCoreInterface {
     _network = network;
   }
 
-  @override
   MyWallet get myWallet => _myWallet;
 
-  @override
   CellsResultBean get cellsResultBean => _cellsResultBean;
 
   BalanceBean get balanceBean => _balanceBean;
 
-  Future walletFromStore(String password) async {
-    String privateKey = await readWallet(password);
-    _myWallet = MyWallet(publicKeyFromPrivate(hex.decode(privateKey)));
+  Future importWallet(Uint8List publicKey) async {
+    _myWallet = MyWallet(publicKey);
     _cellsResultBean = await _storeManager.getSyncedCells();
     return;
   }
 
-  Future createWallet(String password) async {
+  Future<Uint8List> createWallet() async {
     Uint8List privateKey = createRandonPrivateKey();
-    await writeWallet(hex.encode(privateKey), password);
     _myWallet = MyWallet(publicKeyFromPrivate(privateKey));
     _cellsResultBean = await _storeManager.getSyncedCells();
     _cellsResultBean.syncedBlockNumber = '-1';
     await _storeManager.syncBlockNumber(_cellsResultBean.syncedBlockNumber);
-    return;
-  }
-
-  Future importFromKeystore(String json, String password) async {
-    var keystore = Keystore.fromJson(json, password);
-    _myWallet = MyWallet(Credential.fromPrivateKeyBytes(keystore.privateKey).publicKey);
-    await writeWallet(hex.encode(keystore.privateKey), password);
-    _cellsResultBean = await _storeManager.getSyncedCells();
-    return;
-  }
-
-  Future importFromPrivateKey(String privateKey, String password) async {
-    _myWallet = MyWallet(publicKeyFromPrivate(hex.decode(privateKey)));
-    await writeWallet(privateKey, password);
-    _cellsResultBean = await _storeManager.getSyncedCells();
-    return;
+    return privateKey;
   }
 
   startSync() {
@@ -106,9 +84,10 @@ abstract class WalletCore implements WalletCoreInterface {
     await _storeManager.clearAll();
   }
 
-  Future sendCapacity(List<ReceiverBean> receivers, CKBNetwork network, String password) async {
+  Future sendCapacity(
+      List<ReceiverBean> receivers, CKBNetwork network, Uint8List privateKey) async {
     String hash = await TransactionManager.sendCapacity(
-        hex.decode(await readWallet(password)), _cellsResultBean.cells, receivers, _network);
+        privateKey, _cellsResultBean.cells, receivers, _network);
     Log.log(hash);
     return hash;
   }

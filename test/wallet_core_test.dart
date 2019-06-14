@@ -11,7 +11,7 @@ main() async {
   test('test', () async {
     MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://localhost:8114');
     try {
-      await walletCore.walletFromStore("12345678");
+      await walletCore.createWallet();
       await walletCore.startSync();
     } catch (e) {
       print(e.toString());
@@ -26,16 +26,6 @@ class MyWalletCore extends WalletCore {
 
   MyWalletCore(String storePath, String nodeUrl)
       : super(storePath, nodeUrl, CKBNetwork.Testnet, true);
-
-  @override
-  createStep(int step) {
-    Log.log(step);
-  }
-
-  @override
-  Future<String> readWallet(String password) async {
-    return json;
-  }
 
   @override
   writeWallet(String keystore, String password) {

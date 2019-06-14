@@ -8,11 +8,5 @@ abstract class WalletCoreInterface {
 
   syncProcess(double processing);
 
-  createStep(int step);
-
-  writeWallet(String wallet, String password);
-
-  Future<String> readWallet(String password);
-
   syncException(Exception e);
 }
