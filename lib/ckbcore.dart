@@ -1,3 +1,7 @@
 library ckbcore;
 
-export 'package:ckbcore/base/wallet_core.dart';
+export 'src/core/credential.dart';
+export 'src/core/keystore.dart';
+export 'src/core/my_wallet.dart';
+export 'src/utils/log.dart';
+export 'src/wallet_core.dart';

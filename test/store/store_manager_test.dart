@@ -1,13 +1,10 @@
 import 'dart:convert';
 
-import 'package:ckb_sdk/ckb-types/item/cell_out_point.dart';
-import 'package:ckb_sdk/ckb-types/item/cell_output.dart';
-import 'package:ckb_sdk/ckb-types/item/out_point.dart';
-import 'package:ckb_sdk/ckb-types/item/script.dart';
-import 'package:ckbcore/base/bean/cell_bean.dart';
-import 'package:ckbcore/base/bean/cells_result_bean.dart';
-import 'package:ckbcore/base/store/store_manager.dart';
-import 'package:ckbcore/base/utils/log.dart';
+import 'package:ckb_sdk/ckb_types.dart';
+import 'package:ckbcore/src/bean/cell_bean.dart';
+import 'package:ckbcore/src/bean/cells_result_bean.dart';
+import 'package:ckbcore/src/store/store_manager.dart';
+import 'package:ckbcore/src/utils/log.dart';
 import 'package:test/test.dart';
 
 main() {
