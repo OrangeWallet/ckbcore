@@ -49,7 +49,12 @@ Future<Transaction> _generateTransaction(CKBApiClient _apiClient, Uint8List priv
     Transaction transaction = Transaction(
         "0", null, [OutPoint(null, systemContract.systemScriptOutPoint)], inputs, outputs, []);
     String txHash = await _apiClient.computeTransactionHash(transaction);
-    inputs.forEach((input) => transaction.witnesses = [Witness.sign(privateKey, txHash)]);
+    List<Uint8List> privateKeys = [];
+    transaction.inputs.forEach((_) {
+      privateKeys.add(privateKey);
+      transaction.witnesses.add(Witness([]));
+    });
+    transaction.signTx(privateKeys, txHash);
     return transaction;
   } catch (e) {
     rethrow;
