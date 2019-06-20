@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:ckb_sdk/ckb_address.dart';
 import 'package:ckb_sdk/ckb_crypto.dart';
+import 'package:ckb_sdk/ckb_sdk.dart';
 import 'package:ckb_sdk/ckb_types.dart';
 import 'package:ckbcore/src/bean/thin_block.dart';
 
@@ -56,8 +57,11 @@ abstract class WalletCore implements WalletCoreInterface {
     return privateKey;
   }
 
-  startSync() {
+  startSync() async {
     try {
+      SystemContract systemContract =
+          await getSystemContract(CKBApiClient(Constant.NodeUrl), _network);
+      Constant.CodeHash = systemContract.codeHash;
       _syncInterface.lockScript = _myWallet.lockScript;
       _syncInterface.storeManager = _storeManager;
       _syncInterface.calculateBalance = () async => await calculateBalance();
