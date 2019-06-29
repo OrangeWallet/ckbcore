@@ -28,11 +28,6 @@ class MyWalletCore extends WalletCore {
       : super(storePath, nodeUrl, CKBNetwork.Testnet, true);
 
   @override
-  writeWallet(String keystore, String password) {
-    json = keystore;
-  }
-
-  @override
   syncProcess(double processing) async {
     Log.log(processing);
   }
