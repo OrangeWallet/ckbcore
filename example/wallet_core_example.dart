@@ -8,7 +8,7 @@ import 'package:ckbcore/src/utils/log.dart';
 import 'package:convert/convert.dart';
 
 main() async {
-  MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://192.168.2.78:8114');
+  MyWalletCore walletCore = MyWalletCore('test/store/store', 'http://localhost:8114');
   String privateKey = "e79f3207ea4980b7fed79956d5934249ceac4751a4fae01a0f7c4a96884bc4e3";
   try {
     walletCore.clearStore();
